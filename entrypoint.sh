@@ -46,9 +46,10 @@ suspected_branches_details=""
 for branch in ${unmerged_branches}; do
   last_commit_info=$(git cherry origin/HEAD "${branch}" | grep -v "^-" | cut -d" " -f2 | xargs git show --format="%H;%ct;%cr;%an" --quiet | grep -v "^$(git rev-parse HEAD)" | tail -1)
   last_commit_timestamp=$(echo "${last_commit_info}" | cut -d";" -f2)
-  if [ -z "${last_commit_timestamp}" ] || [ ${last_commit_timestamp} -lt ${stale_timestamp} ]; then # shellcheck disable=SC2086
+  # shellcheck disable=SC2086
+  if [ -z "${last_commit_timestamp}" ] || [ ${last_commit_timestamp} -lt ${stale_timestamp} ]; then
     branches_to_delete+="${branch} " # delimiter is whitespace here
-  elif [ ${last_commit_timestamp} -lt ${maybe_stale_timestamp} ]; then # shellcheck disable=SC2086
+  elif [ ${last_commit_timestamp} -lt ${maybe_stale_timestamp} ]; then
     suspected_branches_details+="${branch};${last_commit_info}\n" # delimiter is new line here
   fi
 done
