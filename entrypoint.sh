@@ -46,9 +46,9 @@ suspected_branches_details=""
 for branch in ${unmerged_branches}; do
   last_commit_info=$(git cherry origin/HEAD "${branch}" | grep -v "^-" | cut -d" " -f2 | xargs git show --format="%H;%ct;%cr;%an" --quiet | grep -v "^$(git rev-parse HEAD)" | tail -1)
   last_commit_timestamp=$(echo "${last_commit_info}" | cut -d";" -f2)
-  if [ -z "${last_commit_timestamp}" ] || [ ${last_commit_timestamp} -lt ${stale_timestamp} ]; then
+  if [ -z "${last_commit_timestamp}" ] || [ ${last_commit_timestamp} -lt ${stale_timestamp} ]; then # shellcheck disable=SC2086
     branches_to_delete+="${branch} " # delimiter is whitespace here
-  elif [ ${last_commit_timestamp} -lt ${maybe_stale_timestamp} ]; then
+  elif [ ${last_commit_timestamp} -lt ${maybe_stale_timestamp} ]; then # shellcheck disable=SC2086
     suspected_branches_details+="${branch};${last_commit_info}\n" # delimiter is new line here
   fi
 done
@@ -72,7 +72,7 @@ if [ -n "${suspected_branches_details}" ]; then
   echo -e "\n\033[1;33mBranches to review (maybe stale, older than ${SUGGESTIONS_OLDER_THAN} days):\033[0m"
   # Format the message block
   NATIVE_IFS=${IFS} && IFS=$'\n'
-  for info in $(echo -e ${suspected_branches_details}); do
+  for info in $(echo -e "${suspected_branches_details}"); do
     # In awk, each additional character/word needs to be added between double-quotes, even a space
     # '\'' help to escape the quote inside the awk, needs to be added between double-quotes too
     branches_to_review+="$(echo "${info}" | sort -t';' -k5 | awk -F';' 'NF {print "'\''" $5 "'\'' changed branch '\''" $1 "'\'' " $4 }')\n"
