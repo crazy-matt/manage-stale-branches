@@ -17,7 +17,7 @@ jobs:
         env:
           SLACK_ICON: "https://octodex.github.com/images/constructocat2.jpg"
           SLACK_WEBHOOK: ${{ secrets.SLACK_BUILD_WEBHOOK }}
-          SLACK_USERNAME: Platform-Team
+          SLACK_USERNAME: ${{ secrets.SLACK_USERNAME || "Platform Team" }}
           SLACK_COLOR: ${{ github.event.client_payload.color }}
           SLACK_TITLE: ${{ github.event.client_payload.title }}
           SLACK_MESSAGE: ${{ github.event.client_payload.message }}
@@ -28,7 +28,7 @@ jobs:
         env:
           SLACK_ICON: "https://octodex.github.com/images/Sentrytocat_octodex.jpg"
           SLACK_WEBHOOK: ${{ secrets.SLACK_ALERTS_WEBHOOK }}
-          SLACK_USERNAME: Platform-Team
+          SLACK_USERNAME: ${{ secrets.SLACK_USERNAME || "Platform Team" }}
           SLACK_COLOR: ${{ github.event.client_payload.color }}
           SLACK_TITLE: ${{ github.event.client_payload.title }}
           SLACK_MESSAGE: ${{ github.event.client_payload.message }}
