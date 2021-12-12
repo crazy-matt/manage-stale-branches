@@ -5,7 +5,8 @@
 git --version
 echo "\033[4;37mBranches:\033[0m"
 git branch -r -a
-
+ls -lna
+pwd
 # Get default branch
 head="$(git branch -a | grep 'HEAD ->')"
 default_branch="${head#*"-> "}"
