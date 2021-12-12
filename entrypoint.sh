@@ -3,6 +3,7 @@
 [[ "${DRU_RUN}" == true ]] && DRY_RUN_OPT="--dry-run"
 
 git --version
+echo "\033[4;37mBranches:\033[0m"
 git branch -r -a
 
 # Get default branch
