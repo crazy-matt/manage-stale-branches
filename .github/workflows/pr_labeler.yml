@@ -1,13 +1,20 @@
 name: "PR Labeler"
 
+
 on:
   pull_request:
+
 
 jobs:
   pr-labeler:
     name: "PR Labeler"
     runs-on: ubuntu-latest
     steps:
+      - name: "Information"
+        run: |
+          echo "\033[1;31m-----------------------------------------------------------------------------------\033[0m"
+          echo "\033[1;31mSome workflows might fail while there is no configuration on the default branch yet\033[0m"
+          echo "\033[1;31m-----------------------------------------------------------------------------------\033[0m"
       - uses: release-drafter/release-drafter@v5.15.0
         with:
           config-name: releaser_config.yml
