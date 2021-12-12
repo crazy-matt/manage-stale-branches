@@ -2,7 +2,7 @@
 
 [[ "${DRU_RUN}" == true ]] && DRY_RUN_OPT="--dry-run"
 
-
+git fetch --prune origin
 # Get default branch
 head="$(git branch -a | grep 'HEAD ->')"
 default_branch="${head#*"-> "}"
@@ -28,10 +28,14 @@ else
   echo 'No merged branches to delete!'
 fi
 
-stale_timestamp=$(date -d "now - ${STALE_OLDER_THAN} days" +"%s")
-maybe_stale_timestamp=$(date -d "now - ${SUGGESTIONS_OLDER_THAN} days" +"%s")
-stale_timestamp_clear_format=$(date -d "now - ${STALE_OLDER_THAN} days")
-maybe_stale_timestamp_clear_format=$(date -d "now - ${SUGGESTIONS_OLDER_THAN} days")
+# shellcheck disable=SC2086
+stale_timestamp=$(date -v -${STALE_OLDER_THAN}d +"%s")
+# shellcheck disable=SC2086
+maybe_stale_timestamp=$(date -v -${SUGGESTIONS_OLDER_THAN}d +"%s")
+# shellcheck disable=SC2086
+stale_timestamp_clear_format=$(date -v -${STALE_OLDER_THAN}d)
+# shellcheck disable=SC2086
+maybe_stale_timestamp_clear_format=$(date -v -${SUGGESTIONS_OLDER_THAN}d)
 
 # Delete branches with last (cherry picked) commit older than $STALE_OLDER_THAN months
 # and suggest deletion when older than $SUGGESTIONS_OLDER_THAN months
