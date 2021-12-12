@@ -2,6 +2,7 @@
 
 [[ "${DRU_RUN}" == true ]] && DRY_RUN_OPT="--dry-run"
 
+git --version
 git branch -r -a
 
 # Get default branch
