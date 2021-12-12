@@ -9,10 +9,10 @@ head="$(git branch -a | grep 'HEAD ->')"
 default_branch="${head#*"-> "}"
 
 # Get the branches already merged to the default branch
-merged_branches=$(git branch -r --merged origin/HEAD | grep -v -e "${default_branch}" | sed -e 's/^[[:space:]]*//') # removing leading whitespace on each line
+merged_branches=$(git branch -r --merged refs/remotes/origin/HEAD | grep -v -e "${default_branch}" | sed -e 's/^[[:space:]]*//') # removing leading whitespace on each line
 
 # Get the branches unmerged to default branch
-unmerged_branches=$(git branch --sort=committerdate -r --no-merged origin/HEAD | sed -e 's/^[[:space:]]*//') # removing leading whitespace on each line
+unmerged_branches=$(git branch --sort=committerdate -r --no-merged refs/remotes/origin/HEAD | sed -e 's/^[[:space:]]*//') # removing leading whitespace on each line
 
 # Exclude the branches to be excluded from both data set collected above
 for branch in $(echo "${EXCLUDED_BRANCHES}" | tr ' ' '\n'); do
