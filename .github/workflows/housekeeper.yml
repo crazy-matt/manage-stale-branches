@@ -1,0 +1,36 @@
+name: "Housekeeper"
+
+
+on:
+  schedule:
+    # Run every weekday at 12 pm
+    - cron:  '0 12 * * 1-5'
+
+
+jobs:
+
+  cleanup_branches:
+    name: "Branch Cleaner"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: "Manage Stale Branches"
+        id: cleaner
+        uses: crazy-matt/manage-stale-branches
+        with:
+          stale_older_than: 2
+          suggestions_older_than: 0
+          dry_run: true
+          excluded_branches: |
+            origin/main
+            origin/master
+      - name: "Trigger the Notifier"
+        if: success() && steps.cleaner.outputs.branches_to_review != ''
+        uses: peter-evans/repository-dispatch@v1.1.3
+        with:
+          token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
+          event-type: slack-notification
+          client-payload: '{ "type": "housekeeping", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#2EB67D", "title": "${{ github.repository }} Housekeeping", "message": "These branches might be stale: \n${{ steps.cleaner.outputs.branches_to_review }}" }'

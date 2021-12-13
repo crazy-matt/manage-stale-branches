@@ -1,11 +1,14 @@
-name: "PR Labeler"
+name: "CI"
 
 
 on:
   pull_request:
+  pull_request_review:
+    types: [submitted]
 
 
 jobs:
+
   pr-labeler:
     name: "PR Labeler"
     if: github.event_name == 'pull_request'

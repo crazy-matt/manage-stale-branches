@@ -16,9 +16,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - id: actions-docs
+      - name: "Update Action documentation"
+        id: actions-docs
         uses: npalm/action-docs-action@v1.1.0
-      - uses: stefanzweifel/git-auto-commit-action@v4.12.0
+      - name: "Autocommit"
+        uses: stefanzweifel/git-auto-commit-action@v4.12.0
         with:
           commit_message: "update README"
           commit_options: '--no-verify --signoff'
