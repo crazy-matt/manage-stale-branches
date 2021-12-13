@@ -20,12 +20,17 @@ merged_branches=$(git branch -r --merged origin/HEAD | grep -v -e "${default_bra
 # Get the branches unmerged to default branch
 unmerged_branches=$(git branch --sort=committerdate -r --no-merged origin/HEAD | sed -e 's/^[[:space:]]*//') # removing leading whitespaces on each line
 
+echo ------------------------
+echo ${unmerged_branches}
+echo ------------------------
 # Exclude the branches to be excluded from both data set collected above
 for branch in $(echo "${EXCLUDED_BRANCHES}" | tr ' ' '\n'); do
   merged_branches=$(echo "${merged_branches}" | sed -e 's/^[[:space:]]*//' | grep -x -v -e "${branch}") # sed to remove leading whitespaces on each line and -x to see the whole line and so avoid a fuzzy match
   unmerged_branches=$(echo "${unmerged_branches}" | sed -e 's/^[[:space:]]*//' | grep -x -v -e "${branch}")
 done
-
+echo ------------------------
+echo ${unmerged_branches}
+echo ------------------------
 if [[ -n "${merged_branches}" ]]; then
   echo -e "\033[0;32mDeleting merged branches...\033[0m"
   for branch in ${merged_branches}; do
