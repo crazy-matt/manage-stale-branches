@@ -7,6 +7,9 @@ echo "\033[4;37mBranches:\033[0m"
 git branch -r -a
 ls -lna
 pwd
+# only to make it work with GitHub Actions
+git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/main
+
 # Get default branch
 head="$(git branch -a | grep 'HEAD ->')"
 default_branch="${head#*"-> "}"
