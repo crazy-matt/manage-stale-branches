@@ -21,7 +21,7 @@ steps:
       suggestions_older_than: 45
       dry_run: true
       excluded_branches: |
-        main
-        master
-        develop
+        origin/main
+        origin/master
+        origin/develop
 ```
