@@ -32,7 +32,7 @@ if [[ -n "${merged_branches}" ]]; then
     echo git push ${DRY_RUN_OPT} --delete "${branch%%"/"*}" "${branch#*"/"}"
   done
 else
-  echo 'No merged branches to delete!'
+  echo 'No merged branches to delete! (squashed branches not detectable here)'
 fi
 
 stale_timestamp=$(date -d "now - ${STALE_OLDER_THAN} days" +"%s")
@@ -66,7 +66,7 @@ suspected_branches_details="${suspected_branches_details%"\n"}" # Removing trail
 suspected_branches_details="${suspected_branches_details#"\n"}" # Removing leading new line
 
 if [ -n "${branches_to_delete}" ]; then
-  echo -e "\n\033[0;32mDeleting stale branches older than ${STALE_OLDER_THAN} days...\033[0m"
+  echo -e "\n\033[0;32mDeleting stale branches older than ${STALE_OLDER_THAN} days (and squashed branches)...\033[0m"
   for branch in ${branches_to_delete}; do
     echo git push ${DRY_RUN_OPT} --delete "${branch%%"/"*}" "${branch#*"/"}"
   done
