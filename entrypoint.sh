@@ -15,15 +15,15 @@ head="$(git branch -a | grep 'HEAD ->')"
 default_branch="${head#*"-> "}"
 
 # Get the branches already merged to the default branch
-merged_branches=$(git branch -r --merged origin/HEAD | grep -v -e "${default_branch}" | sed -e 's/^[[:space:]]*//') # removing leading whitespace on each line
+merged_branches=$(git branch -r --merged origin/HEAD | grep -v -e "${default_branch}" | sed -e 's/^[[:space:]]*//') # removing leading whitespaces on each line
 
 # Get the branches unmerged to default branch
-unmerged_branches=$(git branch --sort=committerdate -r --no-merged origin/HEAD | sed -e 's/^[[:space:]]*//') # removing leading whitespace on each line
+unmerged_branches=$(git branch --sort=committerdate -r --no-merged origin/HEAD | sed -e 's/^[[:space:]]*//') # removing leading whitespaces on each line
 
 # Exclude the branches to be excluded from both data set collected above
 for branch in $(echo "${EXCLUDED_BRANCHES}" | tr ' ' '\n'); do
-  merged_branches=$(echo "${merged_branches}" | grep -v -e "${branch}")
-  unmerged_branches=$(echo "${unmerged_branches}" | grep -v -e "${branch}")
+  merged_branches=$(echo "${merged_branches}" | sed -e 's/^[[:space:]]*//' | grep -x -v -e "${branch}") # sed to remove leading whitespaces on each line and -x to see the whole line and so avoid a fuzzy match
+  unmerged_branches=$(echo "${unmerged_branches}" | sed -e 's/^[[:space:]]*//' | grep -x -v -e "${branch}")
 done
 
 if [[ -n "${merged_branches}" ]]; then
