@@ -1,0 +1,40 @@
+name: "PR Labeler"
+
+
+on:
+  pull_request:
+
+
+jobs:
+  pr-labeler:
+    name: "PR Labeler"
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Information"
+        run: |
+          # If no tag at all, warning about actions workflows
+          if [[ "$(git for-each-ref --format='%(refname)' | grep 'refs/tags' | sed s:refs/tags/:: | wc -l | xargs)" -eq 0 ]]; then
+            echo "\033[1;31m-----------------------------------------------------------------------------------\033[0m"
+            echo "\033[1;31mSome workflows might fail while there is no configuration on the default branch yet\033[0m"
+            echo "\033[1;31m-----------------------------------------------------------------------------------\033[0m"
+          fi
+      - uses: release-drafter/release-drafter@v5.15.0
+        with:
+          config-name: releaser_config.yml
+          disable-autolabeler: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  pr_reviewer:
+    name: "PR Reviewer"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request_review' && github.event.review.state == 'approved'
+    steps:
+      - name: "Label when approved by commiters"
+        uses: TobKed/label-when-approved-action@v1.4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          label: 'approved'
+          require_committers_approval: 'true'
+          remove_label_when_approval_missing: 'true'
