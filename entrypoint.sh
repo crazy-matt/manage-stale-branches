@@ -48,6 +48,7 @@ echo -e "\033[0;90mBranches created before ${maybe_stale_timestamp_clear_format}
 
 branches_to_delete=""
 suspected_branches_details=""
+branches_to_review=""
 
 # From the branches unmerged to default, judge what is stale and what is to be suggested
 for branch in ${unmerged_branches}; do
