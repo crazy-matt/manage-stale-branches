@@ -23,6 +23,8 @@ unmerged_branches=$(git branch --sort=committerdate -r --no-merged origin/HEAD |
 echo ------------------------
 echo ${unmerged_branches}
 echo ------------------------
+
+echo "${EXCLUDED_BRANCHES}" | tr ' ' '\n'
 # Exclude the branches to be excluded from both data set collected above
 for branch in $(echo "${EXCLUDED_BRANCHES}" | tr ' ' '\n'); do
   merged_branches=$(echo "${merged_branches}" | sed -e 's/^[[:space:]]*//' | grep -x -v -e "${branch}") # sed to remove leading whitespaces on each line and -x to see the whole line and so avoid a fuzzy match
