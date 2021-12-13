@@ -84,7 +84,7 @@ if [ -n "${suspected_branches_details}" ]; then
   for info in $(echo -e "${suspected_branches_details}"); do
     # In awk, each additional character/word needs to be added between double-quotes, even a space
     # '\'' help to escape the quote inside the awk, needs to be added between double-quotes too
-    branches_to_review+="$(echo " * ${info}" | sort -t';' -k5 | awk -F';' 'NF {print "'\''" $5 "'\'' changed branch '\''" $1 "'\'' " $4 }')\n"
+    branches_to_review+="$(echo "${info}" | sort -t';' -k5 | awk -F';' 'NF {print " * '\''" $5 "'\'' changed branch '\''" $1 "'\'' " $4 }')\n"
   done
   IFS=${NATIVE_IFS}
 
