@@ -4,8 +4,12 @@
 
 git --version
 
+https_url="$(echo "${SERVER_URL}/${REPO}.git" | sed 's#https://#&${GH_TOKEN}:x-oauth-basic@#')"
+git clone "${https_url}"
+cd "$(basename "${REPO}")" || { echo "Path '$(basename "${REPO}")' does not exist"; exit; }
+
 # Only to make it work with GitHub Actions
-git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/main
+#git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/main
 echo -e "\nBranches:"
 git branch -r -a
 echo

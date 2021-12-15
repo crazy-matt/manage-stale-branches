@@ -17,6 +17,7 @@ steps:
   - name: "Manage Stale Branches"
     uses: crazy-matt/manage-stale-branches@v1
     with:
+      gh_token: ${{ secrets.GITHUB_TOKEN }}
       stale_older_than: 90
       suggestions_older_than: 45
       dry_run: true

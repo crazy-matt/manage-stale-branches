@@ -10,15 +10,11 @@ jobs:
     name: "Branch Cleaner"
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.repository.default_branch }}
       - name: "Manage Stale Branches"
         id: branch_cleaner
         uses: crazy-matt/manage-stale-branches@main
         with:
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
           stale_older_than: 180
           suggestions_older_than: 90
           dry_run: true
