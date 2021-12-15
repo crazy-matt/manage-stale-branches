@@ -18,7 +18,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: "Manage Stale Branches"
-        id: cleaner
+        id: branch_cleaner
         uses: crazy-matt/manage-stale-branches
         with:
           stale_older_than: 2
