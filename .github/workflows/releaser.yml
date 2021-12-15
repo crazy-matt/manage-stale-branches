@@ -19,12 +19,15 @@ jobs:
       - name: "Update Action documentation"
         id: actions-docs
         uses: npalm/action-docs-action@v1.1.0
-      - name: "Autocommit"
-        uses: stefanzweifel/git-auto-commit-action@v4.12.0
+      - name: "Commit-back changes"
+        uses: swinton/commit@v2.0.0
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          commit_message: "update README"
-          commit_options: '--no-verify --signoff'
-          file_pattern: README.md
+          files: |
+            README.md
+          commit-message: "update README"
+          ref: ${{ github.head_ref }}
 
   release:
     name: "Releaser"
@@ -46,15 +49,3 @@ jobs:
           token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
           event-type: slack-notification
           client-payload: '{ "type": "build", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#2EB67D", "title": "${{ github.repository }} New Release", "message": "🚀  Check-out ${{ steps.releaser.outputs.html_url }}" }'
-
-  # notify_for_approval_bypass:
-  #   name: "Notify"
-  #   if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'approved') == false
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: "Trigger the Notifier"
-  #       uses: peter-evans/repository-dispatch@v1.1.3
-  #       with:
-  #         token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
-  #         event-type: slack-notification
-  #         client-payload: '{ "type": "alert", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#ECB22E", "title": "${{ github.repository }} Merge to Main", "message": "⚠️ Approval flow bypassed for <https://github.com/${{ github.repository }}/pull/${{github.event.number}}|#${{github.event.number}}>." }'
