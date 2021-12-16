@@ -4,9 +4,9 @@
 
 git --version
 
-https_url="$(echo "${SERVER_URL}/${REPO}.git" | sed 's#https://#&${GH_TOKEN}:x-oauth-basic@#')"
+https_url="$(echo "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git" | sed 's#https://#&${GH_TOKEN}:x-oauth-basic@#')"
 git clone "${https_url}"
-cd "$(basename "${REPO}")" || { echo "Path '$(basename "${REPO}")' does not exist"; exit; }
+cd "$(basename "${GITHUB_REPOSITORY}")" || { echo "Path '$(basename "${GITHUB_REPOSITORY}")' does not exist"; exit; }
 
 # Only to make it work with GitHub Actions
 #git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/main

@@ -32,5 +32,3 @@ runs:
     SUGGESTIONS_OLDER_THAN: ${{ inputs.suggestions_older_than }}
     DRY_RUN: ${{ inputs.dry_run }}
     EXCLUDED_BRANCHES: ${{ inputs.excluded_branches }}
-    REPO: ${{ github.repository }}
-    SERVER_URL: ${{ github.server_url }}
