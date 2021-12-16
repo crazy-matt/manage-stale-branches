@@ -1,5 +1,5 @@
 name: 'Stale Branches'
-description: 'Delete or archive old branches from repository'
+description: 'Delete already merged/stale branches and make suggestions on the ones which could be considered for deletion.'
 inputs:
   gh_token:
     description: 'Provide the GITHUB_TOKEN secret to be used for cloning and branch deletions. Needs read/write access on your repository, so passing the secrets.GITHUB_TOKEN is recommended as set by default with read/write by GitHub.'

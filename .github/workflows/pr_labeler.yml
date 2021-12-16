@@ -1,14 +1,10 @@
 name: "CI"
 
-
 on:
   pull_request:
   pull_request_review:
-    #types: [submitted]
-
 
 jobs:
-
   pr-labeler:
     name: "PR Labeler"
     if: github.event_name == 'pull_request'
@@ -41,9 +37,9 @@ jobs:
         uses: TobKed/label-when-approved-action@v1.4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          label: 'approved'
-          require_committers_approval: 'true'
-          remove_label_when_approval_missing: 'true'
+          label: "approved"
+          require_committers_approval: "true"
+          remove_label_when_approval_missing: "true"
 
   update_documentation:
     name: "Doc Updater"
