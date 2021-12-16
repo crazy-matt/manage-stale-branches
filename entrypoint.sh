@@ -4,7 +4,7 @@
 
 git --version
 
-https_url="$(echo "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git" | sed 's#https://#&${GH_TOKEN}:x-oauth-basic@#')"
+https_url="$(echo "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git" | sed 's#https://#&${GH_TOKEN}@#')"
 git clone "${https_url}"
 cd "$(basename "${GITHUB_REPOSITORY}")" || { echo "Path '$(basename "${GITHUB_REPOSITORY}")' does not exist"; exit; }
 
