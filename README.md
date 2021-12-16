@@ -1,6 +1,7 @@
 # Manage Stale Branches
 
 This action deletes branches that haven't had a commit in the last `stale_older_than` days, and suggest branches which could be deleted due to their inactivity on the last `suggestions_older_than` days.
+
 ⚠️ The branches already merged to **default** are automatically deleted.
 
 If you set the `dry_run` input to true, the action will just output a preview of what would be done in no dry run mode.
