@@ -1,6 +1,9 @@
 # Manage Stale Branches
 
-This action deletes branches that haven't had a commit in the last X days, and deletes the oldest tags.
+This action deletes branches that haven't had a commit in the last `stale_older_than` days, and suggest branches which could be deleted due to their inactivity on the last `suggestions_older_than` days.
+⚠️ The branches already merged to **default** are automatically deleted.
+
+If you set the `dry_run` input to true, the action will just output a preview of what would be done in no dry run mode.
 
 ## Requirements
 
@@ -10,19 +13,17 @@ Requires the repoistory to be checked out, this can be done with the actions/che
 
 ```yaml
 steps:
-  - name: Checkout
-    uses: actions/checkout@v2
-    with:
-      fetch-depth: 0
   - name: "Manage Stale Branches"
     uses: crazy-matt/manage-stale-branches@v1
     with:
       gh_token: ${{ secrets.GITHUB_TOKEN }}
       stale_older_than: 90
-      suggestions_older_than: 45
+      suggestions_older_than: 30
       dry_run: true
       excluded_branches: |
         origin/main
         origin/master
         origin/develop
 ```
+
+> you don't need to use a checkout action
