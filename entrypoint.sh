@@ -79,7 +79,7 @@ if [ -n "${branches_to_delete}" ]; then
   done
   branches_deleted="These stale branches have been deleted: \n${branches_deleted%"\n"}" # Remove trailing newline
 else
-  echo -e 'No stale branches!'
+  echo -e '\nNo stale branches!'
 fi
 
 git remote prune $DRY_RUN_OPT origin
@@ -94,7 +94,7 @@ if [ -n "${suspected_branches_details}" ]; then
     branches_to_review+="$(echo "${info}" | sort -t';' -k5 | awk -F';' 'NF {print " - '\''" $5 "'\'' changed branch '\''" $1 "'\'' " $4 }')\n"
   done
   IFS=${NATIVE_IFS}
-
+  echo -e "${branches_to_review}"
   branches_to_review="These branches might be stale: \n${branches_to_review%"\n"}" # Remove trailing newline
 fi
 
