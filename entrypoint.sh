@@ -6,12 +6,11 @@ git --version
 
 # inserting 'username:${GH_TOKEN}' right after 'https://'
 https_url="$(echo "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git" | sed "s#https://#&github:${GH_TOKEN}@#")"
+
 echo "Cloning ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git..."
 git clone "${https_url}"
 cd "$(basename "${GITHUB_REPOSITORY}")" || { echo "Path '$(basename "${GITHUB_REPOSITORY}")' does not exist"; exit; }
 
-# Only to make it work with GitHub Actions
-#git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/main
 echo -e "\nBranches:"
 git branch -r -a
 echo
@@ -32,10 +31,10 @@ for branch in $(echo "${EXCLUDED_BRANCHES}" | tr ' ' '\n'); do
   unmerged_branches=$(echo "${unmerged_branches}" | sed -e 's/^[[:space:]]*//' | grep -x -v -e "${branch}")
 done
 
-if [[ -n "${merged_branches}" ]]; then
+if [ -n "${merged_branches}" ]; then
   echo -e "\033[0;32mDeleting merged branches...\033[0m"
   for branch in ${merged_branches}; do
-    echo git push ${DRY_RUN_OPT} --delete "${branch%%"/"*}" "${branch#*"/"}"
+    git push ${DRY_RUN_OPT} --delete "${branch%%"/"*}" "${branch#*"/"}"
   done
 else
   echo 'No merged branches to delete! (squashed branches not detectable here)'
@@ -75,8 +74,11 @@ suspected_branches_details="${suspected_branches_details#"\n"}" # Removing leadi
 if [ -n "${branches_to_delete}" ]; then
   echo -e "\n\033[0;32mDeleting stale branches older than ${STALE_OLDER_THAN} days (and squashed branches)...\033[0m"
   for branch in ${branches_to_delete}; do
-    echo git push ${DRY_RUN_OPT} --delete "${branch%%"/"*}" "${branch#*"/"}"
+    git push ${DRY_RUN_OPT} --delete "${branch%%"/"*}" "${branch#*"/"}"
+    branches_deleted+=" - ${branch}\n"
   done
+  branches_deleted="These stale branches have been deleted: \n${branches_deleted%"\n"}" # Remove trailing newline
+  echo -e "${branches_deleted}"
 else
   echo -e 'No stale branches!'
 fi
@@ -94,8 +96,17 @@ if [ -n "${suspected_branches_details}" ]; then
   done
   IFS=${NATIVE_IFS}
 
-  branches_to_review="${branches_to_review%"\n"}" # Remove trailing newline
+  branches_to_review="These branches might be stale: \n${branches_to_review%"\n"}" # Remove trailing newline
   echo -e "${branches_to_review}"
 fi
 
-echo "::set-output name=branches_to_review::$branches_to_review"
+if [ -n "${branches_deleted}" ]; then
+  message="${branches_deleted}"
+fi
+if [ -n "${message}" ] && [ -n "${branches_to_review}" ]; then
+  message+="\n\n${branches_to_review}"
+elif [ -n "${branches_to_review}" ]; then
+  message="${branches_to_review}"
+fi
+
+echo "::set-output name=message::$message"

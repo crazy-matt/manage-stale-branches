@@ -2,8 +2,8 @@ name: "Housekeeper"
 
 on:
   schedule:
-    # Run every weekday at 12 pm
-    - cron: "0 12 * * 1-5"
+    # Run every monday at 12 pm
+    - cron: "0 12 * * 1"
 
 jobs:
   cleanup_branches:
@@ -15,8 +15,8 @@ jobs:
         uses: crazy-matt/manage-stale-branches@main
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
-          stale_older_than: 180
-          suggestions_older_than: 90
+          stale_older_than: 1
+          suggestions_older_than: 0
           dry_run: true
           excluded_branches: |
             origin/main
@@ -27,4 +27,4 @@ jobs:
         with:
           token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
           event-type: slack-notification
-          client-payload: '{ "type": "housekeeping", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#2EB67D", "title": "${{ github.repository }} Housekeeping", "message": "These branches might be stale: \n${{ steps.cleaner.outputs.branches_to_review }}" }'
+          client-payload: '{ "type": "housekeeping", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#2EB67D", "title": "${{ github.repository }} Housekeeping", "message": "${{ steps.branch_cleaner.outputs.message }}" }'

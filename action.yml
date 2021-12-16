@@ -21,8 +21,8 @@ inputs:
     required: false
     default: ''
 outputs:
-  branches_to_review:
-    description: 'List the branches picked up by the action and suspected to be stale according to the suggestions_older_than value'
+  message:
+    description: 'Summarize the outcome of the cleanup process in a nice message mentioning deleted branches and suggestions (merged branches deleted are not mentioned)'
 runs:
   using: 'docker'
   image: 'Dockerfile'
