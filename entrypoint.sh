@@ -2,23 +2,12 @@
 
 [[ "${DRY_RUN}" == true ]] && DRY_RUN_OPT="--dry-run"
 
-function git_prepare() {
-  rm -f ~/.gitconfig
-  # Adding temporary configuration to access private github repository
-  git config --global url."https://${GH_TOKEN}:x-oauth-basic@github.com/".insteadOf "https://github.com/" > /dev/null
-
-  git config --global user.email "github-bot@cathex.io"
-  git config --global user.name "CatHomeExpertsBot"
-}
-
 git --version
 
-git_prepare
-
 # inserting 'username:${GH_TOKEN}' right after 'https://'
-#https_url="$(echo "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git" | sed 's#https://#&username:${GH_TOKEN}@#')"
+https_url="$(echo "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git" | sed 's#https://#&crazy-matt:${GH_TOKEN}@#')"
 echo "Cloning ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git..."
-git clone "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}"
+git clone "${https_url}"
 cd "$(basename "${GITHUB_REPOSITORY}")" || { echo "Path '$(basename "${GITHUB_REPOSITORY}")' does not exist"; exit; }
 
 # Only to make it work with GitHub Actions
