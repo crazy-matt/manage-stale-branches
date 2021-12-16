@@ -1,34 +1,12 @@
 name: "Releaser"
 
-
 on:
   pull_request:
     types: [closed]
     branches:
-      - 'main'
-
+      - "main"
 
 jobs:
-
-  update_documentation:
-    name: "Doc Updater"
-    if: github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: "Update Action documentation"
-        id: actions-docs
-        uses: npalm/action-docs-action@v1.1.0
-      - name: "Commit-back changes"
-        uses: swinton/commit@v2.0.0
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          files: |
-            README.md
-          commit-message: "update README"
-          ref: ${{ github.head_ref }}
-
   release:
     name: "Releaser"
     if: github.event.pull_request.merged == true

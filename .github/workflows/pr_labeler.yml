@@ -4,7 +4,7 @@ name: "CI"
 on:
   pull_request:
   pull_request_review:
-    types: [submitted]
+    #types: [submitted]
 
 
 jobs:
@@ -32,7 +32,10 @@ jobs:
   pr_reviewer:
     name: "PR Reviewer"
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request_review' && github.event.review.state == 'approved'
+    if: |
+      github.event_name == 'pull_request_review' &&
+      github.event.action == 'submitted' &&
+      github.event.review.state == 'approved'
     steps:
       - name: "Label when approved by commiters"
         uses: TobKed/label-when-approved-action@v1.4
@@ -41,3 +44,30 @@ jobs:
           label: 'approved'
           require_committers_approval: 'true'
           remove_label_when_approval_missing: 'true'
+
+  update_documentation:
+    name: "Doc Updater"
+    if: |
+      (github.event_name == 'pull_request' && github.event.action == 'review_requested') ||
+      (github.event_name == 'pull_request' && github.event.action == 'ready_for_review') ||
+      (github.event_name == 'pull_request_review' && github.event.review.state == 'open')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+          ref: ${{ github.head_ref }}
+      - name: "Update Action documentation"
+        id: actions-docs
+        uses: npalm/action-docs-action@v1.1.0
+      - run: |
+          touch newfile
+      - name: "Commit-back changes"
+        uses: swinton/commit@v2.0.0
+        env:
+          GH_TOKEN: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
+        with:
+          files: |
+            newfile
+          commit-message: "update README"
+          ref: ${{ github.head_ref }}
