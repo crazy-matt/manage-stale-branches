@@ -108,4 +108,4 @@ elif [ -n "${branches_to_review}" ]; then
 fi
 
 echo "::set-output name=message::$message"
-[ -n "${message}" ] && echo -e "\n\033[0;32mSummary:\n\n${message}\033[0m"
+[ -n "${message}" ] && echo -e "\n\033[0;32mSummary:\n${message}\033[0m"
