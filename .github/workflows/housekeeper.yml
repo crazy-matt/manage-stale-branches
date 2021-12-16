@@ -22,7 +22,7 @@ jobs:
             origin/main
             origin/master
       - name: "Trigger the Notifier"
-        if: success() && steps.branch_cleaner.outputs.branches_to_review != ''
+        if: success() && steps.branch_cleaner.outputs.message != ''
         uses: peter-evans/repository-dispatch@v1.1.3
         with:
           token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}

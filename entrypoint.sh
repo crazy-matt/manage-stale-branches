@@ -78,7 +78,6 @@ if [ -n "${branches_to_delete}" ]; then
     branches_deleted+=" - ${branch}\n"
   done
   branches_deleted="These stale branches have been deleted: \n${branches_deleted%"\n"}" # Remove trailing newline
-  echo -e "${branches_deleted}"
 else
   echo -e 'No stale branches!'
 fi
@@ -97,7 +96,6 @@ if [ -n "${suspected_branches_details}" ]; then
   IFS=${NATIVE_IFS}
 
   branches_to_review="These branches might be stale: \n${branches_to_review%"\n"}" # Remove trailing newline
-  echo -e "${branches_to_review}"
 fi
 
 if [ -n "${branches_deleted}" ]; then
@@ -110,3 +108,4 @@ elif [ -n "${branches_to_review}" ]; then
 fi
 
 echo "::set-output name=message::$message"
+[ -n "${message}" ] && echo -e "\n\033[0;32mSummary:\n\n${message}\033[0m"
