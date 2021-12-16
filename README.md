@@ -7,6 +7,7 @@ This action deletes branches that haven't had a commit in the last `stale_older_
 If you set the `dry_run` input to true, the action will just output a preview of what would be done in no dry run mode.
 
 ## Requirements
+
 None
 
 ## Sample Workflow
