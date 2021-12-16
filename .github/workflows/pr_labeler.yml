@@ -45,7 +45,7 @@ jobs:
     name: "Doc Updater"
     if: |
       (github.event_name == 'pull_request' && github.event.action == 'review_requested') ||
-      (github.event_name == 'pull_request' && github.event.action == 'ready_for_review') ||
+      (github.event_name == 'pull_request' && github.event.review.state == 'ready_for_review') ||
       (github.event_name == 'pull_request_review' && github.event.review.state == 'open')
     runs-on: ubuntu-latest
     steps:
