@@ -12,13 +12,16 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
       - name: "Information"
         run: |
           # If no tag at all, warning about actions workflows
           if [[ "$(git for-each-ref --format='%(refname)' | grep 'refs/tags' | sed s:refs/tags/:: | wc -l | xargs)" -eq 0 ]]; then
-            echo "\033[1;31m-----------------------------------------------------------------------------------\033[0m"
-            echo "\033[1;31mSome workflows might fail while there is no configuration on the default branch yet\033[0m"
-            echo "\033[1;31m-----------------------------------------------------------------------------------\033[0m"
+            echo -e "\033[1;31m-----------------------------------------------------------------------------------\033[0m"
+            echo -e "\033[1;31mSome workflows might fail while there is no configuration on the default branch yet\033[0m"
+            echo -e "\033[1;31m-----------------------------------------------------------------------------------\033[0m"
           fi
       - uses: release-drafter/release-drafter@v5.15.0
         with:
