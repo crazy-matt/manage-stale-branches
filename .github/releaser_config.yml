@@ -2,8 +2,8 @@ prerelease: false
 name-template: '$RESOLVED_VERSION'
 tag-template: '$RESOLVED_VERSION'
 change-template: |
-$TITLE [PR \#$NUMBER] @$AUTHOR
- - $BODY
+  $TITLE [PR #$NUMBER] @$AUTHOR
+  - $BODY
 no-changes-template: 'No changes'
 change-title-escapes: '\<*_&'
 template: |
