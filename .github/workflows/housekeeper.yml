@@ -15,8 +15,8 @@ jobs:
         uses: crazy-matt/manage-stale-branches@1.0.0
         with:
           gh_token: ${{ secrets.GITHUB_TOKEN }}
-          stale_older_than: 1
-          suggestions_older_than: 0
+          stale_older_than: 60
+          suggestions_older_than: 30
           dry_run: true
           excluded_branches: |
             origin/main

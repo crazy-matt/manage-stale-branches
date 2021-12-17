@@ -1,5 +1,5 @@
 name: 'Stale Branches'
-description: 'Delete or archive old branches from repository'
+description: 'Delete already merged/stale branches and make suggestions on the ones which could be considered for deletion.'
 inputs:
   gh_token:
     description: 'Provide the GITHUB_TOKEN secret to be used for cloning and branch deletions. Needs read/write access on your repository, so passing the secrets.GITHUB_TOKEN is recommended as set by default with read/write by GitHub.'
@@ -7,11 +7,11 @@ inputs:
   stale_older_than:
     description: 'Number of days after which branches are deleted if not merged in any branch'
     required: false
-    default: 90
+    default: 60
   suggestions_older_than:
     description: 'Number of days after which branches are suggested for deletion if not merged in any branch'
     required: false
-    default: 45
+    default: 30
   dry_run:
     description: 'Run the action in dry-run mode to let you visualise the changes before going live'
     required: false

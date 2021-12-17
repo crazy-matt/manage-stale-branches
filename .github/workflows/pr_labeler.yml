@@ -1,27 +1,17 @@
 name: "CI"
 
-
 on:
   pull_request:
+    types: [opened, synchronize, reopened, review_requested, ready_for_review]
   pull_request_review:
-    #types: [submitted]
-
+    types: [submitted]
 
 jobs:
-
   pr-labeler:
     name: "PR Labeler"
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
     runs-on: ubuntu-latest
     steps:
-      - name: "Information"
-        run: |
-          # If no tag at all, warning about actions workflows
-          if [[ "$(git for-each-ref --format='%(refname)' | grep 'refs/tags' | sed s:refs/tags/:: | wc -l | xargs)" -eq 0 ]]; then
-            echo "\033[1;31m-----------------------------------------------------------------------------------\033[0m"
-            echo "\033[1;31mSome workflows might fail while there is no configuration on the default branch yet\033[0m"
-            echo "\033[1;31m-----------------------------------------------------------------------------------\033[0m"
-          fi
       - uses: release-drafter/release-drafter@v5.15.0
         with:
           config-name: releaser_config.yml
@@ -41,16 +31,16 @@ jobs:
         uses: TobKed/label-when-approved-action@v1.4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          label: 'approved'
-          require_committers_approval: 'true'
-          remove_label_when_approval_missing: 'true'
+          label: "approved"
+          require_committers_approval: "true"
+          remove_label_when_approval_missing: "true"
 
   update_documentation:
     name: "Doc Updater"
     if: |
+      (github.event_name == 'pull_request' && github.event.action == 'opened') ||
       (github.event_name == 'pull_request' && github.event.action == 'review_requested') ||
-      (github.event_name == 'pull_request' && github.event.action == 'ready_for_review') ||
-      (github.event_name == 'pull_request_review' && github.event.review.state == 'open')
+      (github.event_name == 'pull_request' && github.event.action == 'ready_for_review')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -60,14 +50,16 @@ jobs:
       - name: "Update Action documentation"
         id: actions-docs
         uses: npalm/action-docs-action@v1.1.0
-      - run: |
-          touch newfile
+      - name: "Check if there are changes"
+        id: changes
+        uses: UnicornGlobal/has-changes-action@v1.0.12
       - name: "Commit-back changes"
+        if: steps.changes.outputs.changed == 1
         uses: swinton/commit@v2.0.0
         env:
-          GH_TOKEN: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: |
-            newfile
+            README.md
           commit-message: "update README"
           ref: ${{ github.head_ref }}
