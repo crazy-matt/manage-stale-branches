@@ -9,7 +9,7 @@ on:
 jobs:
   pr-labeler:
     name: "PR Labeler"
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
     runs-on: ubuntu-latest
     steps:
       - uses: release-drafter/release-drafter@v5.15.0
@@ -50,8 +50,11 @@ jobs:
       - name: "Update Action documentation"
         id: actions-docs
         uses: npalm/action-docs-action@v1.1.0
-      - run: cat README.md
+      - name: "Check if there are changes"
+        id: changes
+        uses: UnicornGlobal/has-changes-action@v1.0.12
       - name: "Commit-back changes"
+        if: steps.changes.outputs.changed == 1
         uses: swinton/commit@v2.0.0
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
