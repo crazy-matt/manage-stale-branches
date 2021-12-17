@@ -38,6 +38,7 @@ jobs:
   update_documentation:
     name: "Doc Updater"
     if: |
+      (github.event_name == 'pull_request' && github.event.action == 'opened') ||
       (github.event_name == 'pull_request' && github.event.action == 'review_requested') ||
       (github.event_name == 'pull_request' && github.event.action == 'ready_for_review')
     runs-on: ubuntu-latest
@@ -49,6 +50,7 @@ jobs:
       - name: "Update Action documentation"
         id: actions-docs
         uses: npalm/action-docs-action@v1.1.0
+      - run: cat README.md
       - name: "Commit-back changes"
         uses: swinton/commit@v2.0.0
         env:
