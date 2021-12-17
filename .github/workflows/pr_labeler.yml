@@ -51,13 +51,13 @@ jobs:
         id: actions-docs
         uses: npalm/action-docs-action@v1.1.0
       - run: |
-          touch newfile
+          touch newfile2
       - name: "Commit-back changes"
         uses: swinton/commit@v2.0.0
         env:
-          GH_TOKEN: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: |
-            newfile
+            newfile2
           commit-message: "update README"
           ref: ${{ github.head_ref }}
