@@ -29,4 +29,6 @@ steps:
 
 > you don't need to use a checkout action
 
-<!-- action-docs-(inputs | outputs) -->
+<!-- action-docs-inputs -->
+
+<!-- action-docs-outputs -->
