@@ -39,8 +39,7 @@ jobs:
     name: "Doc Updater"
     if: |
       (github.event_name == 'pull_request' && github.event.action == 'review_requested') ||
-      (github.event_name == 'pull_request' && github.event.action == 'ready_for_review') ||
-      (github.event_name == 'pull_request_review' && github.event.review.state == 'open')
+      (github.event_name == 'pull_request' && github.event.action == 'ready_for_review')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -50,14 +49,12 @@ jobs:
       - name: "Update Action documentation"
         id: actions-docs
         uses: npalm/action-docs-action@v1.1.0
-      - run: |
-          touch newfile2
       - name: "Commit-back changes"
         uses: swinton/commit@v2.0.0
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: |
-            newfile2
+            README.md
           commit-message: "update README"
           ref: ${{ github.head_ref }}
