@@ -1,8 +1,16 @@
+prerelease: false
 name-template: '$RESOLVED_VERSION'
 tag-template: '$RESOLVED_VERSION'
-change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+category-template: '$TITLE'
+change-template: '$TITLE [PR #$NUMBER] @$AUTHOR\n - $BODY'
 no-changes-template: 'No changes'
 change-title-escapes: '\<*_&'
+template: |
+  # What's Changed
+
+  ### $CHANGES
+
+  ###### Previous Tag: $PREVIOUS_TAG
 autolabeler:
   - label: 'feature'
     branch:
@@ -16,13 +24,40 @@ autolabeler:
       - '/bugfix\/.+/'
       - '/hotfix\/.+/'
       - '/patch\/.+/'
+      - '/issue\/.+/'
     title:
       - '/fix/i'
+  - label: 'documentation'
+    branch:
+      - '/docs\/.+/'
+      - '/doc\/.+/'
   - label: 'chore'
     branch:
       - '/chore\/.+/'
-      - '/docs\/.+/'
-      - '/doc\/.+/'
+exclude-labels:
+  - 'chore'
+  - 'skip-changelog'
+  - 'no-terraform'
+version-resolver:
+  major:
+    labels:
+      - 'breaking'
+  minor:
+    labels:
+      - 'feature'
+      - 'enhancement'
+  patch:
+    labels:
+      - 'bug'
+      - 'fix'
+      - 'bugfix'
+      - 'hotfix'
+      - 'patch'
+      - 'issue'
+      - 'documentation'
+      - 'docs'
+      - 'doc'
+  default: minor
 categories:
   - title: '❗ Breaking'
     labels:
@@ -38,38 +73,9 @@ categories:
       - 'bugfix'
       - 'hotfix'
       - 'patch'
-  - title: 'Maintenance'
-    label:
-      - 'chore'
-      - 'docs'
-      - 'doc'
-      - 'dependencies'
-exclude-labels:
-  - 'skip-changelog'
-prerelease: false
-version-resolver:
-  major:
-    labels:
-      - 'breaking'
-  minor:
-    labels:
-      - 'feature'
-  patch:
-    labels:
-      - 'bug'
-      - 'fix'
-      - 'bugfix'
-      - 'hotfix'
-      - 'patch'
       - 'issue'
-      - 'chore'
+  - title: 'Documentation'
+    label:
+      - 'documentation'
       - 'docs'
       - 'doc'
-      - 'dependencies'
-  default: minor
-template: |
-  # What's Changed
-
-  $CHANGES
-
-  ###### Previous Tag: $PREVIOUS_TAG
