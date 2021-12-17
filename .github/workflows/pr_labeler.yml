@@ -2,7 +2,9 @@ name: "CI"
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, review_requested, ready_for_review]
   pull_request_review:
+    types: [submitted]
 
 jobs:
   pr-labeler:
@@ -45,7 +47,7 @@ jobs:
     name: "Doc Updater"
     if: |
       (github.event_name == 'pull_request' && github.event.action == 'review_requested') ||
-      (github.event_name == 'pull_request' && github.event.review.state == 'ready_for_review') ||
+      (github.event_name == 'pull_request' && github.event.action == 'ready_for_review') ||
       (github.event_name == 'pull_request_review' && github.event.review.state == 'open')
     runs-on: ubuntu-latest
     steps:
