@@ -7,9 +7,9 @@ change-template: |
 no-changes-template: 'No changes'
 change-title-escapes: '\<*_&'
 template: |
-  # What's Changed
+  ## What's Changed
 
-  $CHANGES
+  ### $CHANGES
 
   ###### Previous Tag: $PREVIOUS_TAG
 autolabeler:
