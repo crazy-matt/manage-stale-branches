@@ -16,13 +16,16 @@ autolabeler:
       - '/bugfix\/.+/'
       - '/hotfix\/.+/'
       - '/patch\/.+/'
+      - '/issue\/.+/'
     title:
       - '/fix/i'
+  - label: 'documentation'
+    branch:
+      - '/docs\/.+/'
+      - '/doc\/.+/'
   - label: 'chore'
     branch:
       - '/chore\/.+/'
-      - '/docs\/.+/'
-      - '/doc\/.+/'
 categories:
   - title: '❗ Breaking'
     labels:
@@ -38,14 +41,16 @@ categories:
       - 'bugfix'
       - 'hotfix'
       - 'patch'
-  - title: 'Maintenance'
+      - 'issue'
+  - title: 'Documentation'
     label:
-      - 'chore'
+      - 'documentation'
       - 'docs'
       - 'doc'
-      - 'dependencies'
 exclude-labels:
+  - 'chore'
   - 'skip-changelog'
+  - 'no terraform'
 prerelease: false
 version-resolver:
   major:
@@ -54,6 +59,7 @@ version-resolver:
   minor:
     labels:
       - 'feature'
+      - 'enhancement'
   patch:
     labels:
       - 'bug'
@@ -62,10 +68,9 @@ version-resolver:
       - 'hotfix'
       - 'patch'
       - 'issue'
-      - 'chore'
+      - 'documentation'
       - 'docs'
       - 'doc'
-      - 'dependencies'
   default: minor
 template: |
   # What's Changed
