@@ -1,8 +1,16 @@
+prerelease: false
 name-template: '$RESOLVED_VERSION'
 tag-template: '$RESOLVED_VERSION'
-change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+category-template: '$TITLE'
+change-template: '$TITLE [PR #$NUMBER] @$AUTHOR\n - $BODY'
 no-changes-template: 'No changes'
 change-title-escapes: '\<*_&'
+template: |
+  # What's Changed
+
+  ### $CHANGES
+
+  ###### Previous Tag: $PREVIOUS_TAG
 autolabeler:
   - label: 'feature'
     branch:
@@ -26,6 +34,30 @@ autolabeler:
   - label: 'chore'
     branch:
       - '/chore\/.+/'
+exclude-labels:
+  - 'chore'
+  - 'skip-changelog'
+  - 'no-terraform'
+version-resolver:
+  major:
+    labels:
+      - 'breaking'
+  minor:
+    labels:
+      - 'feature'
+      - 'enhancement'
+  patch:
+    labels:
+      - 'bug'
+      - 'fix'
+      - 'bugfix'
+      - 'hotfix'
+      - 'patch'
+      - 'issue'
+      - 'documentation'
+      - 'docs'
+      - 'doc'
+  default: minor
 categories:
   - title: '❗ Breaking'
     labels:
@@ -47,34 +79,3 @@ categories:
       - 'documentation'
       - 'docs'
       - 'doc'
-exclude-labels:
-  - 'chore'
-  - 'skip-changelog'
-  - 'no terraform'
-prerelease: false
-version-resolver:
-  major:
-    labels:
-      - 'breaking'
-  minor:
-    labels:
-      - 'feature'
-      - 'enhancement'
-  patch:
-    labels:
-      - 'bug'
-      - 'fix'
-      - 'bugfix'
-      - 'hotfix'
-      - 'patch'
-      - 'issue'
-      - 'documentation'
-      - 'docs'
-      - 'doc'
-  default: minor
-template: |
-  # What's Changed
-
-  $CHANGES
-
-  ###### Previous Tag: $PREVIOUS_TAG

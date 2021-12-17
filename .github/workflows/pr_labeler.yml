@@ -54,7 +54,7 @@ jobs:
         id: changes
         uses: UnicornGlobal/has-changes-action@v1.0.12
       - name: "Commit-back changes"
-        #if: steps.changes.outputs.changed == 1
+        if: steps.changes.outputs.changed == 1
         uses: swinton/commit@v2.0.0
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -63,10 +63,3 @@ jobs:
             README.md
           commit-message: "update README"
           ref: ${{ github.head_ref }}
-      - name: "Trigger the Notifier"
-        if: success()
-        uses: peter-evans/repository-dispatch@v1.1.3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          event-type: slack-notification
-          client-payload: '{ "type": "alert", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#2EB67D", "title": "${{ github.repository }} New Release", "message": "Testing" }'
