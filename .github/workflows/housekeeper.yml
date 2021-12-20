@@ -29,6 +29,11 @@ jobs:
         with:
           tag: "0.0.1"
           message: "initialise semantic versioning"
+      - name: "Apply Labels"
+        uses: crazy-max/ghaction-github-labeler@v3.1.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          yaml-file: .github/labels.yml
   cleanup_branches:
     name: "Branch Cleaner"
     if: github.event_name == 'schedule'
