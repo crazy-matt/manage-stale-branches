@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-[[ "${DRY_RUN}" == true ]] && DRY_RUN_OPT="--dry-run"
+[ "${DRY_RUN}" == true ] && DRY_RUN_OPT="--dry-run"
 
 git --version
 
@@ -45,10 +45,10 @@ maybe_stale_timestamp=$(date -d "now - ${SUGGESTIONS_OLDER_THAN} days" +"%s")
 stale_timestamp_clear_format=$(date -d "now - ${STALE_OLDER_THAN} days")
 maybe_stale_timestamp_clear_format=$(date -d "now - ${SUGGESTIONS_OLDER_THAN} days")
 
-# Delete branches with last (cherry picked) commit older than $STALE_OLDER_THAN months
+# Delete or archive branches with last (cherry picked) commit older than $STALE_OLDER_THAN months
 # and suggest deletion when older than $SUGGESTIONS_OLDER_THAN months
 echo -e "\n\033[0;32mSearching for stale branches...\033[0m"
-echo -e "\033[0;90mBranches created before ${stale_timestamp_clear_format} will be deleted.\033[0m"
+echo -e "\033[0;90mBranches created before ${stale_timestamp_clear_format} will be $([ "${ARCHIVE_STALE}" == true ] && echo "archived" || echo "deleted").\033[0m"
 echo -e "\033[0;90mBranches created before ${maybe_stale_timestamp_clear_format} will only be suggested for deletion.\033[0m"
 
 branches_to_delete=""
@@ -72,12 +72,19 @@ suspected_branches_details="${suspected_branches_details%"\n"}" # Removing trail
 suspected_branches_details="${suspected_branches_details#"\n"}" # Removing leading new line
 
 if [ -n "${branches_to_delete}" ]; then
-  echo -e "\n\033[0;32mDeleting stale branches older than ${STALE_OLDER_THAN} days (and squashed branches)...\033[0m"
+  echo -e "\n\033[0;32m$([ "${ARCHIVE_STALE}" == true ] && echo "Archiving" || echo "Deleting") stale branches older than ${STALE_OLDER_THAN} days (and squashed branches)...\033[0m"
   for branch in ${branches_to_delete}; do
-    git push ${DRY_RUN_OPT} --delete "${branch%%"/"*}" "${branch#*"/"}"
+    if [ "${ARCHIVE_STALE}" == true ]; then
+      git checkout "${branch#*"/"}"
+      git tag "archive/${branch#*"/"}" "${branch#*"/"}"
+      git push ${DRY_RUN_OPT} "${branch%%"/"*}" "archive/${branch#*"/"}"
+      git push ${DRY_RUN_OPT} "${branch%%"/"*}" --delete "${branch#*"/"}"
+    else
+      git push ${DRY_RUN_OPT} --delete "${branch%%"/"*}" "${branch#*"/"}"
+    fi
     branches_deleted+=" - ${branch}\n"
   done
-  branches_deleted="These stale branches have been deleted: \n${branches_deleted%"\n"}" # Remove trailing newline
+  branches_deleted="These stale branches have been $([ "${ARCHIVE_STALE}" == true ] && echo "archived" || echo "deleted"): \n${branches_deleted%"\n"}" # Remove trailing newline
 else
   echo -e '\nNo stale branches!'
 fi

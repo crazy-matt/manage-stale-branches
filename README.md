@@ -33,6 +33,7 @@ jobs:
           stale_older_than: 60
           suggestions_older_than: 30
           dry_run: true
+          archive_stale: true
           excluded_branches: |
             origin/main
             origin/master
