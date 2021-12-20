@@ -8,23 +8,34 @@ If you set the `dry_run` input to true, the action will just output a preview of
 
 ## Requirements
 
-None
+Create a workflow `.yml` file in your `.github/workflows` directory. An example is available below.
+
+For more information, refer to the [GitHub Actions Quickstart](https://docs.github.com/en/actions/quickstart).
 
 ## Sample Workflow
 
 ```yaml
-steps:
-  - name: "Manage Stale Branches"
-    uses: crazy-matt/manage-stale-branches@v1
-    with:
-      gh_token: ${{ secrets.GITHUB_TOKEN }}
-      stale_older_than: 90
-      suggestions_older_than: 30
-      dry_run: true
-      excluded_branches: |
-        origin/main
-        origin/master
-        origin/develop
+on:
+  schedule:
+    # Run every monday at 12 pm
+    - cron: "0 12 * * 1"
+
+jobs:
+  cleanup_branches:
+    name: "Branch Cleaner"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Manage Stale Branches"
+        id: branch_cleaner
+        uses: crazy-matt/manage-stale-branches@1.0.0
+        with:
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
+          stale_older_than: 60
+          suggestions_older_than: 30
+          dry_run: true
+          excluded_branches: |
+            origin/main
+            origin/master
 ```
 
 > you don't need to use a checkout action

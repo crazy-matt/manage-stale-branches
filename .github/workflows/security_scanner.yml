@@ -1,41 +1,40 @@
-name: "Security Scanner"
-
+name: "Scan"
 
 on:
   pull_request:
   push:
 
-
 defaults:
   run:
     shell: bash
 
-
-env:
-  scan_depth: 1
-
-
 jobs:
-
   gitleaks:
-    name: "Secrets Leaks Detection"
+    name: "Secrets"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
           # Using a fetch-depth of '0' clones the entire history.
           # If you want to do a faster clone, use '2', but that is not guaranteed to work with pull requests
-          fetch-depth: ${{ env.scan_depth }}
+          fetch-depth: 0
       - name: "Set Job Vars"
         id: set_vars
         run: |
           if [[ ${{ github.event_name }} == 'push' && ${{ github.ref }} == "refs/heads/${{ github.event.repository.default_branch }}" ]]; then
             echo "::set-output name=commmit_info:: [Push on Main]"
           fi
+          branch=${{ github.head_ref || github.ref }}
+          branch_name="${branch#"refs/heads/"}"
+          echo "::set-output name=branch_name::$branch_name"
+          echo "branch_name:$branch_name"
       - name: "Run GitLeaks scan"
-        uses: zricethezav/gitleaks-action@v1.6.0
+        continue-on-error: true # TODO: to be removed when detection rules ready
+        #uses: zricethezav/gitleaks-action@v1.6.0 # TODO: switch back to zricethezav when the codeowner accept the contribution https://github.com/zricethezav/gitleaks-action/pull/38. Otherwise any branch leaking a secret will block any other deployment on a different branch
+        uses: crazy-matt/gitleaks-action@feature/add-branch-parameter
         with:
-          config-path: .security/credscan-config.toml
+          config-path: ${{ github.workspace }}/.security/credscan-config.toml
+          branch: ${{ steps.set_vars.outputs.branch_name }}
       - name: "Trigger the Notifier"
         if: failure()
         continue-on-error: true
@@ -44,10 +43,8 @@ jobs:
           token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
           event-type: slack-notification
           client-payload: '{ "type": "alert", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#FF0000", "title": "${{ github.repository }} Secret Leak Analysis${{ steps.set_vars.outputs.commmit_info }}", "message": "🚨 Secret exposed.\n\nCheck https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" }'
-
-
   sast_scanner:
-    name: "SAST Vulnerability Scanner"
+    name: "SAST"
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.sarif_reports_matrix.outputs.matrix }}
@@ -55,12 +52,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: ${{ env.scan_depth }}
+          fetch-depth: 0
       - name: "Set Job Vars"
         id: set_vars
         run: |
           if [[ ${{ github.event_name }} == 'push' && ${{ github.ref }} == "refs/heads/${{ github.event.repository.default_branch }}" ]]; then
             echo "::set-output name=commmit_info:: [Push on Main]"
+            echo "commmit_info:[Push on Main]"
           fi
       - name: "SAST: ShiftLeftScan.io Scan"
         id: shiftleft_scan
@@ -71,9 +69,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SAST_SCAN_SRC_DIR: ${{ github.workspace }}/.security
           TOOLS_CONFIG_DIR: ${{ github.workspace }}/.security
-          #SCAN_DEBUG_MODE: debug
+          #BRANCH: ${{ steps.set_vars.outputs.branch_name }}
+          SCAN_ANNOTATE_PR: false # TODO: to be removed when detection rules ready
+          SCAN_DEBUG_MODE: debug # TODO: to be commented when detection rules ready
       - name: "Build the report matrix and report defect"
         id: sarif_reports_matrix
+        continue-on-error: true # TODO: to be removed when detection rules ready
         run: |
           echo " ===> Building the matrix of available SARIF reports:"
           # yamllint disable
@@ -86,6 +87,7 @@ jobs:
               echo "::set-output name=defect::false"
           else
             echo "::set-output name=defect::true"
+            exit 1 # for consistency,to make shiftleft report a red mark
           fi
       - name: "Upload ShiftLeft Scan Reports as Artifacts"
         if: steps.sarif_reports_matrix.outputs.defect == 'true'
@@ -101,9 +103,7 @@ jobs:
         with:
           token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
           event-type: slack-notification
-          client-payload: '{ "type": "alert", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#FF0000", "title": "${{ github.repository }} SAST${{ steps.baseline_prep.outputs.commit_info }}", "message": "🚨 Vulnerabilty discovered.\n\nCheck https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" }'
-
-
+          client-payload: '{ "type": "alert", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#FF0000", "title": "${{ github.repository }} SAST${{ steps.set_vars.outputs.commit_info }}", "message": "🚨 Vulnerabilty discovered.\n\nCheck https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" }'
   sarif_reports_uploader:
     name: "SAST SARIF Reports Uploader"
     runs-on: ubuntu-latest

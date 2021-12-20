@@ -1,0 +1,24 @@
+- name: approved
+  description: "Automated label increasing visibility"
+  color: 2EB67D
+- name: breaking
+  description: "A change triggering a major version bump"
+  color: FF8C00
+- name: feature
+  description: "A feature or enhancement change triggering a minor version bump"
+  color: F2FF00
+- name: fix
+  description: "A bug fix triggering a patch version bump"
+  color: B9C211
+- name: doc
+  description: "A documentation update triggering a patch version bump"
+  color: 00B8FF
+- name: chore
+  description: "A maintenance task triggering no release"
+  color: 001DFF
+- name: skip-changelog
+  description: "A change triggering no release"
+  color: 808080
+- name: "security findings"
+  description: "A security matter or scan finding outcome"
+  color: FF0000

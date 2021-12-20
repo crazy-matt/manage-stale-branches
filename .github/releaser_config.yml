@@ -2,14 +2,14 @@ prerelease: false
 name-template: '$RESOLVED_VERSION'
 tag-template: '$RESOLVED_VERSION'
 change-template: |
-  $TITLE [PR #$NUMBER] @$AUTHOR
-  - $BODY
+  ### $TITLE [PR #$NUMBER]
 no-changes-template: 'No changes'
 change-title-escapes: '\<*_&'
 template: |
   ## What's Changed
 
-  ### $CHANGES
+  $CHANGES
+  {{ SQUASHED_EXTENDED_DESCRIPTION }}
 
   ###### Previous Tag: $PREVIOUS_TAG
 autolabeler:
@@ -38,7 +38,6 @@ autolabeler:
 exclude-labels:
   - 'chore'
   - 'skip-changelog'
-  - 'no-terraform'
 version-resolver:
   major:
     labels:
@@ -59,24 +58,3 @@ version-resolver:
       - 'docs'
       - 'doc'
   default: minor
-# categories:
-#   - title: '❗ Breaking'
-#     labels:
-#       - 'breaking'
-#   - title: 'Features'
-#     labels:
-#       - 'feature'
-#       - 'enhancement'
-#   - title: 'Bug Fixes'
-#     labels:
-#       - 'bug'
-#       - 'fix'
-#       - 'bugfix'
-#       - 'hotfix'
-#       - 'patch'
-#       - 'issue'
-#   - title: 'Documentation'
-#     label:
-#       - 'documentation'
-#       - 'docs'
-#       - 'doc'

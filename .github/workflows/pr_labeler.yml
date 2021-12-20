@@ -7,9 +7,11 @@ on:
     types: [submitted]
 
 jobs:
-  pr-labeler:
+  pr_labeler:
     name: "PR Labeler"
-    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+    if: |
+      github.event_name == 'pull_request' &&
+      (github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.action == 'reopened')
     runs-on: ubuntu-latest
     steps:
       - uses: release-drafter/release-drafter@v5.15.0
@@ -18,7 +20,6 @@ jobs:
           disable-autolabeler: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   pr_reviewer:
     name: "PR Reviewer"
     runs-on: ubuntu-latest
@@ -34,7 +35,6 @@ jobs:
           label: "approved"
           require_committers_approval: "true"
           remove_label_when_approval_missing: "true"
-
   update_documentation:
     name: "Doc Updater"
     if: |

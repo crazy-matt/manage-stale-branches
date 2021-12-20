@@ -1,20 +1,16 @@
-name: "Static Analyser"
-
+name: "Linter"
 
 on:
   pull_request:
   workflow_dispatch:
 
-
 defaults:
   run:
     shell: bash
 
-
 jobs:
-
   super_linter:
-    name: "GitHub Super-Linter"
+    name: "Super-Linter"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -34,7 +30,7 @@ jobs:
           OUTPUT_DETAILS: simpler
           #OUTPUT_DETAILS: detailed
           #FILTER_REGEX_EXCLUDE: .*test/.*
-          VALIDATE_BASH: true            # see https://github.com/koalaman/shellcheck to disable checks
+          VALIDATE_BASH: true # see https://github.com/koalaman/shellcheck to disable checks
           VALIDATE_MARKDOWN: true
           MARKDOWN_CONFIG_FILE: markdown-linter.yml
           VALIDATE_YAML: true

@@ -1,10 +1,8 @@
 name: "Notifier"
 
-
 on:
   repository_dispatch:
     types: [slack-notification]
-
 
 jobs:
   slack_notification:
@@ -17,6 +15,17 @@ jobs:
         env:
           SLACK_ICON: "https://octodex.github.com/images/constructocat2.jpg"
           SLACK_WEBHOOK: ${{ secrets.SLACK_BUILD_WEBHOOK }}
+          SLACK_USERNAME: ${{ secrets.SLACK_USERNAME || 'Platform Team' }}
+          SLACK_COLOR: ${{ github.event.client_payload.color }}
+          SLACK_TITLE: ${{ github.event.client_payload.title }}
+          SLACK_MESSAGE: ${{ github.event.client_payload.message }}
+          MSG_MINIMAL: Commit
+      - name: "Send Slack Notification to Raise Awareness"
+        uses: rtCamp/action-slack-notify@v2
+        if: github.event.client_payload.type == 'awareness'
+        env:
+          SLACK_ICON: "https://octodex.github.com/images/collabocats.jpg"
+          SLACK_WEBHOOK: ${{ secrets.SLACK_AWARENESS_WEBHOOK || secrets.SLACK_BUILD_WEBHOOK }}
           SLACK_USERNAME: ${{ secrets.SLACK_USERNAME || 'Platform Team' }}
           SLACK_COLOR: ${{ github.event.client_payload.color }}
           SLACK_TITLE: ${{ github.event.client_payload.title }}
@@ -37,8 +46,8 @@ jobs:
         uses: rtCamp/action-slack-notify@v2
         if: github.event.client_payload.type == 'housekeeping'
         env:
-          SLACK_ICON: "https://octodex.github.com/images/Sentrytocat_octodex.jpg"
-          SLACK_WEBHOOK: ${{ secrets.SLACK_HOUSEKEEPING_WEBHOOK }}
+          SLACK_ICON: "https://octodex.github.com/images/mona-the-rivetertocat.png"
+          SLACK_WEBHOOK: ${{ secrets.SLACK_HOUSEKEEPING_WEBHOOK || secrets.SLACK_BUILD_WEBHOOK }}
           SLACK_USERNAME: ${{ secrets.SLACK_USERNAME || 'Platform Team' }}
           SLACK_COLOR: ${{ github.event.client_payload.color }}
           SLACK_TITLE: ${{ github.event.client_payload.title }}
