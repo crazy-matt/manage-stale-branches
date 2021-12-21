@@ -63,7 +63,7 @@ jobs:
           event-type: slack-notification
           client-payload: '{ "type": "build", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#2EB67D", "title": "${{ github.repository }} New Release", "message": "🚀  Check-out ${{ steps.publisher.outputs.html_url }}" }'
   # notify_for_approval_bypass:
-  #   name: "Notify"
+  #   name: "Notify for Approval Bypass"
   #   if: |
   #     github.event.pull_request.merged == true &&
   #     contains(github.event.pull_request.labels.*.name, 'approved') == false
