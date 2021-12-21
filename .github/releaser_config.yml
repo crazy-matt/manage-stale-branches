@@ -13,12 +13,12 @@ template: |
 
   ###### Previous Tag: $PREVIOUS_TAG
 autolabeler:
-  - label: 'feature'
+  - label: 'semver/feature'
     branch:
       - '/feature\/.+/'
       - '/feat\/.+/'
       - '/enhancement\/.+/'
-  - label: 'bug'
+  - label: 'semver/fix'
     branch:
       - '/bug\/.+/'
       - '/fix\/.+/'
@@ -28,7 +28,7 @@ autolabeler:
       - '/issue\/.+/'
     title:
       - '/fix/i'
-  - label: 'documentation'
+  - label: 'semver/doc'
     branch:
       - '/docs\/.+/'
       - '/doc\/.+/'
@@ -41,20 +41,20 @@ exclude-labels:
 version-resolver:
   major:
     labels:
-      - 'breaking'
+      - 'semver/breaking'
   minor:
     labels:
-      - 'feature'
+      - 'semver/feature'
       - 'enhancement'
   patch:
     labels:
-      - 'bug'
-      - 'fix'
+      - 'semver/bug'
+      - 'semver/fix'
       - 'bugfix'
       - 'hotfix'
       - 'patch'
       - 'issue'
-      - 'documentation'
+      - 'semver/doc'
       - 'docs'
-      - 'doc'
+      - 'documentation'
   default: minor
