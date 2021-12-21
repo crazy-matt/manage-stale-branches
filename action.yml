@@ -16,6 +16,12 @@ inputs:
     description: 'Run the action in dry-run mode to let you visualise the changes before going live'
     required: false
     default: false
+  archive_stale:
+    description: |
+      Instead of deleting the branches declared stale, the action will archive them creating a tag "archive/[branch name]".
+      You can later unarchive them running "git checkout -b [branch name] refs/tags/archive/[branch name].
+    required: false
+    default: false
   excluded_branches:
     description: 'List the branches you want to exclude from the cleanup process'
     required: false
@@ -31,4 +37,5 @@ runs:
     STALE_OLDER_THAN: ${{ inputs.stale_older_than }}
     SUGGESTIONS_OLDER_THAN: ${{ inputs.suggestions_older_than }}
     DRY_RUN: ${{ inputs.dry_run }}
+    ARCHIVE_STALE: ${{ inputs.archive_stale }}
     EXCLUDED_BRANCHES: ${{ inputs.excluded_branches }}
