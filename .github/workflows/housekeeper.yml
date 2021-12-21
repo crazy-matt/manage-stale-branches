@@ -18,12 +18,10 @@ jobs:
       - name: "Is there a tag already?"
         id: tag_checker
         run: |
-          if [[ -z "$(git describe --abbrev=0 --tags &>/dev/null || true)" ]]; then
-            echo "::set-output name=there_is_a_tag::true"
-            echo true
-          else
+          if [[ -z "$(git describe --abbrev=0 --tags 2>/dev/null || true)" ]]; then
             echo "::set-output name=there_is_a_tag::false"
-            echo false
+          else
+            echo "::set-output name=there_is_a_tag::true"
           fi
       - name: "Create init tag for the Releaser"
         if: steps.tag_checker.outputs.there_is_a_tag == 'false'
