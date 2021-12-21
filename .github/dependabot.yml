@@ -12,6 +12,8 @@ updates:
       time: "03:00"
       timezone: "Europe/London"
     open-pull-requests-limit: 2
+    labels:
+      - "chore"
   # - package-ecosystem: "terraform"
   #   directory: "/"
   #   schedule:
@@ -19,6 +21,8 @@ updates:
   #     time: "03:00"
   #     timezone: "Europe/London"
   #   open-pull-requests-limit: 2
+  #   labels:
+  #     - "chore"
   # - package-ecosystem: "gomod"
   #   directory: "/"
   #   schedule:
@@ -26,6 +30,8 @@ updates:
   #     time: "03:00"
   #     timezone: "Europe/London"
   #   open-pull-requests-limit: 2
+  #   labels:
+  #     - "chore"
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
@@ -33,3 +39,5 @@ updates:
       time: "03:00"
       timezone: "Europe/London"
     open-pull-requests-limit: 2
+    labels:
+      - "chore"
