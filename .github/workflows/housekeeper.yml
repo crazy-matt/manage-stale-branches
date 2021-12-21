@@ -23,6 +23,10 @@ jobs:
           else
             echo "::set-output name=there_is_a_tag::true"
           fi
+      - run: |
+          echo ${{ steps.tag_checker.outputs.there_is_a_tag }}
+          [ "${{ steps.tag_checker.outputs.there_is_a_tag }}" == 'false' ] && echo "no tag" || echo issue
+          [ "${{ steps.tag_checker.outputs.there_is_a_tag }}" == false ] && echo "no tag" || echo issue
       - name: "Create init tag for the Releaser"
         if: steps.tag_checker.outputs.there_is_a_tag == 'false'
         uses: rickstaa/action-create-tag@v1.2.0
