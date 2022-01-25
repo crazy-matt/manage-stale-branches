@@ -1,10 +1,24 @@
 # Manage Stale Branches
 
+[![Vulnerability](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/security_scanner.yml/badge.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/security_scanner.yml) [![Linting](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/linter.yml/badge.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/linter.yml)
+
 This action deletes branches that haven't had a commit in the last `stale_older_than` days, and suggest branches which could be deleted due to their inactivity on the last `suggestions_older_than` days.
 
 ⚠️ The branches already merged to **default** are automatically deleted.
 
 If you set the `dry_run` input to true, the action will just output a preview of what would be done in no dry run mode.
+
+<details open="open">
+<summary>Table of Contents</summary>
+
+- [Manage Stale Branches](#manage-stale-branches)
+  - [Requirements](#requirements)
+  - [Sample Workflow](#sample-workflow)
+  - [Inputs](#inputs)
+  - [Outputs](#outputs)
+  - [License](#license)
+
+</details>
 
 ## Requirements
 
@@ -69,3 +83,7 @@ You can later unarchive them running "git checkout -b <branch name> refs/tags/ar
 
 
 <!-- action-docs-outputs -->
+
+## License
+
+Licensed under the [Apache License 2.0](LICENSE)

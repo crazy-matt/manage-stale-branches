@@ -31,7 +31,7 @@ outputs:
     description: 'Summarize the outcome of the cleanup process in a nice message mentioning deleted branches and suggestions (merged branches deleted are not mentioned)'
 runs:
   using: 'docker'
-  image: 'Dockerfile'
+  image: 'docker/Dockerfile'
   env:
     GH_TOKEN: ${{ inputs.gh_token }}
     STALE_OLDER_THAN: ${{ inputs.stale_older_than }}

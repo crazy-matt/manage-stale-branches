@@ -1,0 +1,6 @@
+# Task checksum cache
+**/.task**
+
+# Security scanners reports
+**.sarif
+**/sarif-reports

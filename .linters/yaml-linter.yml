@@ -1,33 +1,31 @@
----
 # Ref: https://yamllint.readthedocs.io/en/stable/configuration.html
-
+---
 extends: default
 
+ignore: |
+  **.github/workflows/**
+  **.history/**
+  **tests/libs/**
+
 rules:
-  braces:
-    level: warning
-    max-spaces-inside: 1
-  brackets:
-    level: warning
-    max-spaces-inside: 1
-  colons:
-    level: warning
-  commas:
-    level: warning
-  comments: disable
-  comments-indentation: disable
+  empty-values: enable
   document-start: disable
-  empty-lines:
-    level: warning
-  hyphens:
-    level: warning
-  indentation:
-    level: warning
-    indent-sequences: consistent
+  # line-length: disable
   line-length:
-    # ignore: |
-    #   .github/workflows/security_scanner.yml
     level: warning
     max: 350
     allow-non-breakable-inline-mappings: true
-  truthy: disable
+  indentation:
+    spaces: 2
+    indent-sequences: false
+  truthy:
+    allowed-values:
+    - 'true'
+    - 'false'
+    - 'on'
+  quoted-strings:
+    quote-type: single
+    required: false
+  braces:
+    min-spaces-inside: 1
+    max-spaces-inside: 1

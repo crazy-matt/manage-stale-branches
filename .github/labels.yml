@@ -1,30 +1,33 @@
-- name: "semver/breaking"
-  description: "Change triggering major version bump"
-  color: "FF8C00"
-- name: "semver/feature"
-  description: "Feature/enhancement triggering minor version bump"
-  color: "F2FF00"
-- name: "semver/fix"
-  description: "Bug fix triggering patch version bump"
-  color: "00B8FF"
-- name: "semver/doc"
-  description: "Doc update triggering patch version bump"
-  color: "00B8FF"
-- name: "chore"
-  description: "Maintenance task triggering no release"
-  color: "001DFF"
-- name: "approved"
-  description: "Automated label increasing visibility"
-  color: "2EB67D"
-- name: "awareness"
-  description: "Notify the awareness notification channel"
-  color: "C84AAF"
-- name: "skip-changelog"
-  description: "Change triggering no release"
-  color: "615F5F"
-- name: "security findings"
-  description: "Security matter or scan finding outcome"
-  color: "FF0000"
-- name: "stale"
-  description: "PR reported stale by GitHub stale config"
-  color: "000000"
+- name: 'semver/breaking'
+  description: 'Change triggering major version bump'
+  color: 'FF8C00'
+- name: 'semver/feature'
+  description: 'Feature/enhancement triggering minor version bump'
+  color: 'F2FF00'
+- name: 'semver/fix'
+  description: 'Bug fix triggering patch version bump'
+  color: '00B8FF'
+- name: 'semver/doc'
+  description: 'Doc update triggering patch version bump'
+  color: '00B8FF'
+- name: 'chore'
+  description: 'Maintenance task triggering no release'
+  color: '001DFF'
+- name: 'dependencies'
+  description: 'Dependency bump triggering patch version bump'
+  color: '001DFF'
+- name: 'approved'
+  description: 'Automated label increasing visibility'
+  color: '2EB67D'
+- name: 'skip-release'
+  description: 'Change triggering no release'
+  color: '615F5F'
+- name: 'force-release'
+  description: 'Change triggering a new release using a force mechanism'
+  color: '615F5F'
+- name: 'security findings'
+  description: 'Security matter or scan finding outcome'
+  color: 'FF0000'
+- name: 'stale'
+  description: 'PR reported stale by GitHub stale config'
+  color: '000000'

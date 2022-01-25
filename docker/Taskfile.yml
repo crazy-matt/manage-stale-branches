@@ -1,0 +1,142 @@
+# https://taskfile.dev
+# A modern replacement of Makefile
+version: '3'
+
+vars:
+  GIT_REPO:
+    sh: git config --get remote.origin.url | sed -e 's#^.*:##' -e 's#.git$##' -e 's#//github.com/*##'
+  GIT_REPO_LATEST_RELEASE:
+    sh: curl -s "https://api.github.com/repos/{{.GIT_REPO}}/releases/latest" | grep "tag_name" | cut -d '"' -f4
+  GIT_REPO_HTTP_URL:
+    sh: echo "https://github.com/$(git config --get remote.origin.url | sed -e 's#^.*:##' -e 's#.git$##' | sed -e 's#//github.com/*##')"
+  GIT_SHORT_SHA:
+    sh: git rev-parse --short HEAD
+  DOCKER_IMAGE_NAME: 'ghcr.io/{{.GIT_REPO}}'
+  DOCKER_IMAGE: '{{.DOCKER_IMAGE_NAME}}:{{.GIT_SHORT_SHA}}'
+  REPO_ABS_ROOT_PATH:
+    sh: git rev-parse --show-toplevel
+  RELATIVE_PATH_TO_ROOT:
+    sh: |
+      realpath --relative-to="$(pwd)" "{{.REPO_ABS_ROOT_PATH}}"
+  TASK_VERSION:
+    sh: cat {{.RELATIVE_PATH_TO_ROOT}}/.tool-versions | grep -w task | cut -d ' ' -f2
+
+silent: true
+
+tasks:
+  default:
+    cmds:
+    - echo "📒 {{.TASK}}"
+    - task --list
+
+  debug:
+    desc: Run all debug tasks
+    cmds:
+    - echo "📒 {{.TASK}}"
+    - task: debug:resolve_vars
+
+  debug:resolve_vars:
+    desc: Output few things which can help debugging
+    cmds:
+    - echo "📒 {{.TASK}}"
+    - echo "Absolute path":"                     {{.REPO_ABS_ROOT_PATH}}"
+    - echo "Relative path":"                     {{.RELATIVE_PATH_TO_ROOT}}"
+    - echo "Git Repository":"                    {{.GIT_REPO}}"
+    - echo "Git Repository latest release":"     {{.GIT_REPO_LATEST_RELEASE}}"
+    - echo "image":"                             {{.DOCKER_IMAGE}}"
+    - echo "org.opencontainers.image.revision":" {{.GIT_SHORT_SHA}}"
+    - echo "org.opencontainers.image.source":"   {{.GIT_REPO_HTTP_URL}}"
+    - echo "Task version":"                      {{.TASK_VERSION}}"
+
+  build:
+    desc: Build Docker image
+    deps: [lint]
+    cmds:
+    - echo "📒 {{.TASK}}"
+    - |
+      docker build --pull \
+        --file "Dockerfile" \
+        --tag "{{.DOCKER_IMAGE}}" \
+        --build-arg AUTHOR="{{.AUTHOR}}" \
+        --build-arg BUILD_DATE="{{.BUILD_DATE}}" \
+        --build-arg DOCKER_IMAGE="{{.DOCKER_IMAGE}}" \
+        --build-arg DOCKER_TAG="{{.BUILD_VERSION}}" \
+        --build-arg GIT_REPO_HTTP_URL="{{.GIT_REPO_HTTP_URL}}" \
+        --build-arg GIT_SHORT_SHA="{{.GIT_SHORT_SHA}}" \
+        .
+      echo "📦 Image built"
+    env:
+      DOCKER_BUILDKIT: 1
+    sources:
+    - Dockerfile
+    method: checksum
+
+  security:
+    desc: Run all security scanners
+    run: once
+    cmds:
+    - echo "📒 {{.TASK}}"
+    - if [[ "{{.CLI_ARGS}}" == *"sarif"* ]]; then mkdir -p sarif-reports; fi
+    - task: security:image:snyk
+    - task: security:image:dockle
+    - task: security:image:trivy
+
+  security:image:snyk:
+    desc: Run Snyk tests
+    deps: [build]
+    cmds:
+    - echo "📒 {{.TASK}}"
+    - plugin_name="snyk"; asdf plugin add "${plugin_name}" || true; asdf install "${plugin_name}" $(asdf current "${plugin_name}" | tr -s ' ' | cut -d' ' -f2)
+    - snyk auth "${SNYK_TOKEN}"; snyk container test {{.DOCKER_IMAGE}} --file=Dockerfile --sarif-file-output={{.RELATIVE_PATH_TO_ROOT}}/sarif-reports/snyk-report.sarif
+    ignore_error: true  # needed as we could reach the free tier limit
+
+  security:image:dockle:
+    desc: Run Dockle (Container Image Linter for Security)
+    deps: [build]
+    cmds:
+    - echo "📒 {{.TASK}}"
+    - plugin_name="dockle"; asdf plugin add "${plugin_name}" || true; asdf install "${plugin_name}" $(asdf current "${plugin_name}" | tr -s ' ' | cut -d' ' -f2)
+    - dockle $(for id in $(egrep -o '^[a-zA-Z]{3}-[a-zA-Z]{2}-[[:digit:]]{4}' "{{.REPO_ABS_ROOT_PATH}}/.security/cis-cve-ignore"); do filter+="-i ${id} "; done; echo "${filter}") {{.DOCKER_IMAGE}}
+    # The ignore file is parsed to filter CIS ids as there's no way to specify a file in dockle as of 2021.12.
+    - |
+      if [[ "{{.CLI_ARGS}}" == *"sarif"* ]]; then
+        dockle $(for id in $(egrep -o '^[a-zA-Z]{3}-[a-zA-Z]{2}-[[:digit:]]{4}' "{{.REPO_ABS_ROOT_PATH}}/.security/cis-cve-ignore"); do filter+="-i ${id} "; done; echo "${filter}") -f sarif -o {{.RELATIVE_PATH_TO_ROOT}}/sarif-reports/dockle-report.sarif {{.DOCKER_IMAGE}}
+      fi
+    env:
+      DOCKER_CONTENT_TRUST: 1
+    ignore_error: true
+
+  security:image:trivy:
+    desc: Run Aquasecurity Trivy (vulnerability scanner for container images)
+    deps: [build]
+    cmds:
+    - echo "📒 {{.TASK}}"
+    - plugin_name="trivy"; asdf plugin add "${plugin_name}" || true; asdf install "${plugin_name}" $(asdf current "${plugin_name}" | tr -s ' ' | cut -d' ' -f2)
+    - trivy image --ignorefile {{.RELATIVE_PATH_TO_ROOT}}/.security/cis-cve-ignore --format table {{.DOCKER_IMAGE}}
+    # If task is called passing an arg sarif or --ssarif, then a sarif report is created.
+    # We use httpie-go as a common tool to download or call APIs (much more convenient than the outdated curl)
+    - |
+      if [[ "{{.CLI_ARGS}}" == *"sarif"* ]]; then
+        ht --print=B --output "/tmp/trivy-sarif.tpl" --download "https://raw.github.com/aquasecurity/trivy/v0.22.0/contrib/sarif.tpl"
+        trivy image --ignorefile {{.RELATIVE_PATH_TO_ROOT}}/.security/cis-cve-ignore --exit-code 1 --format template --template @/tmp/trivy-sarif.tpl -o {{.RELATIVE_PATH_TO_ROOT}}/sarif-reports/trivy-report.sarif {{.DOCKER_IMAGE}}
+        # trivy image --ignorefile {{.RELATIVE_PATH_TO_ROOT}}/.security/cis-cve-ignore --exit-code 1 --format sarif -o {{.RELATIVE_PATH_TO_ROOT}}/sarif-reports/trivy-report.sarif {{.DOCKER_IMAGE}}
+        # ^^ released soon
+      fi
+    ignore_error: true
+
+  lint:
+    desc: Run all linters
+    run: once
+    cmds:
+    - echo "📒 {{.TASK}}"
+    - task: lint:dockerfile:hadolint
+
+  lint:dockerfile:hadolint:
+    desc: Lint Dockerfile
+    cmds:
+    - echo "📒 {{.TASK}}"
+    - plugin_name="hadolint"; asdf plugin add "${plugin_name}" https://github.com/crazy-matt/asdf-hadolint.git || true; asdf install "${plugin_name}" $(asdf current "${plugin_name}" | tr -s ' ' | cut -d' ' -f2)
+    # - plugin_name="hadolint"; asdf plugin add "${plugin_name}" || true; asdf install "${plugin_name}" $(asdf current "${plugin_name}" | tr -s ' ' | cut -d' ' -f2)
+    # ^^ Waiting for the asdf hadolint plugin's owner to accept the PR #5
+    - hadolint --config {{.RELATIVE_PATH_TO_ROOT}}/.linters/hadolint.yml --format tty Dockerfile
+    ignore_error: true

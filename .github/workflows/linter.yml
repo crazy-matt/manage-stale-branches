@@ -2,6 +2,7 @@ name: "Linter"
 
 on:
   pull_request:
+  push:
   workflow_dispatch:
 
 defaults:
@@ -9,29 +10,24 @@ defaults:
     shell: bash
 
 jobs:
-  super_linter:
-    name: "Super-Linter"
+  all_in_one_linter:
+    name: "All-in-one"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+      - name: "Set Job Vars"
+        id: vars
+        run: |
+          echo "::set-output name=task_version::$(cat ${{ github.workspace }}/.tool-versions | grep -w task | cut -d ' ' -f2)"
+      - name: 'Install asdf dependencies'
+        uses: asdf-vm/actions/setup@v1
+      - name: 'Install Task'
+        uses: arduino/setup-task@v1
         with:
-          # Full git history is needed to get a proper list of changed files within `super-linter`
-          fetch-depth: 0
-      - name: "Lint Code Base"
-        #uses: github/super-linter@v4.7.1
-        uses: docker://ghcr.io/github/super-linter:slim-v4.7.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-          DEFAULT_WORKSPACE: ${{ github.workspace }}
-          LINTER_RULES_PATH: .linters
-          # When set to false, only new or edited files will be parsed for validation
-          VALIDATE_ALL_CODEBASE: true
-          OUTPUT_DETAILS: simpler
-          #OUTPUT_DETAILS: detailed
-          #FILTER_REGEX_EXCLUDE: .*test/.*
-          VALIDATE_BASH: true # see https://github.com/koalaman/shellcheck to disable checks
-          VALIDATE_MARKDOWN: true
-          MARKDOWN_CONFIG_FILE: markdown-linter.yml
-          VALIDATE_YAML: true
-          YAML_CONFIG_FILE: yaml-linter.yml
+          version: ${{ steps.vars.outputs.task_version }}
+      - name: 'Lint'
+        id: lint
+        run: |
+          task lint
+          task docker:lint
