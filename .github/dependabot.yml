@@ -14,7 +14,6 @@ updates:
   open-pull-requests-limit: 10
   labels:
   - 'chore'
-  - 'force-release'
 - package-ecosystem: 'docker'
   directory: '/'
   schedule:

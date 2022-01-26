@@ -1,4 +1,4 @@
-name: "Scan"
+name: 'Scan'
 
 on:
   pull_request:
@@ -18,7 +18,7 @@ jobs:
       - name: "Set Job Vars"
         id: vars
         run: |
-          echo "::set-output name=task_version::$(cat ${{ github.workspace }}/.tool-versions | grep -w task | cut -d ' ' -f2)"
+          echo "::set-output name=task_version::$(cat .tool-versions | grep -w task | cut -d ' ' -f2)"
           if [[ ${{ github.event_name }} == 'push' && ${{ github.ref }} == "refs/heads/${{ github.event.repository.default_branch }}" ]]; then
             echo "::set-output name=commmit_info:: [Push on Main]"
           fi
