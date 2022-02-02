@@ -29,7 +29,7 @@ jobs:
           echo "::set-output name=extended_description::$pr_extended_description"
       - name: "Publish"
         id: publisher
-        uses: release-drafter/release-drafter@v5.15.0
+        uses: release-drafter/release-drafter@v5.17.6
         with:
           config-name: releaser_config.yml
           disable-autolabeler: true
