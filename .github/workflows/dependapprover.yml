@@ -1,5 +1,9 @@
-name: Dependapprover
-on: pull_request
+name: 'Dependapprover'
+
+on:
+  pull_request_target:
+    branches:
+      - 'main'
 
 permissions:
   pull-requests: write
@@ -8,22 +12,29 @@ permissions:
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    if: ${{ github.actor == 'dependabot[bot]' }}
+    if: github.actor == 'dependabot[bot]' && contains(github.event.pull_request_target.labels.*.name, 'chore') == true
     steps:
-      - name: Approve a PR
+      - name: 'Approve a PR'
         run: gh pr review --approve "$PR_URL"
         env:
-          PR_URL: ${{github.event.pull_request.html_url}}
+          PR_URL: ${{github.event.pull_request_target.html_url}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      - name: Enable auto-merge for Dependabot PRs
+      - name: 'Enable auto-merge for Dependabot PRs'
         run: gh pr merge --auto --merge "$PR_URL"
         env:
-          PR_URL: ${{github.event.pull_request.html_url}}
+          PR_URL: ${{github.event.pull_request_target.html_url}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      - name: 'Notify about the build'
+      - name: 'Notify about failure'
         if: failure()
         uses: peter-evans/repository-dispatch@v1.1.3
         with:
           token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
           event-type: slack-notification
-          client-payload: '{ "type": "alert", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#FF0000", "title": "⚠️ ${{ github.repository }}", "message": "Dependapprover failure" }'
+          client-payload: '{ "type": "alert", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#FF0000", "title": "⚠️ ${{ github.repository }}", "message": "Dependapprover failed to merge the PR $PR_URL" }'
+      - name: 'Notify about success'
+        if: success()
+        uses: peter-evans/repository-dispatch@v1.1.3
+        with:
+          token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
+          event-type: slack-notification
+          client-payload: '{ "type": "build", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#2EB67D", "title": "🚧 ${{ github.repository }}", "message": "Dependapprover merged the PR $PR_URL for you" }'
