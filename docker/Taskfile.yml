@@ -100,7 +100,7 @@ tasks:
     - echo "📒 {{.TASK}}"
     - plugin_name="snyk"; asdf plugin add "${plugin_name}" || true; asdf install "${plugin_name}" $(asdf current "${plugin_name}" | tr -s ' ' | cut -d' ' -f2)
     - snyk auth "${SNYK_TOKEN}"; snyk container test {{.DOCKER_IMAGE}} --file=Dockerfile --sarif-file-output={{.RELATIVE_PATH_TO_ROOT}}/sarif-reports/snyk-report.sarif
-    #ignore_error: true  # needed as we could reach the free tier limit
+    # ignore_error: true  # needed as we could reach the free tier limit
 
   security:image:dockle:
     desc: Run Dockle (Container Image Linter for Security)
