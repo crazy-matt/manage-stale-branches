@@ -12,13 +12,17 @@ jobs:
     if: |
       github.event.pull_request.merged == true &&
       contains(github.event.pull_request.labels.*.name, 'chore') == false &&
-      contains(github.event.pull_request.labels.*.name, 'skip-changelog') == false
+      contains(github.event.pull_request.labels.*.name, 'skip-release') == false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 1
           ref: ${{ github.base_ref }}
+      - name: 'Run tests'
+        id: tests
+        run: |
+          task docker:tests
       - name: 'Gather the PR merge commit message'
         id: merge_commit
         run: |

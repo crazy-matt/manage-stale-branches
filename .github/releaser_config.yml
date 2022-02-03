@@ -37,7 +37,7 @@ autolabeler:
   - '/chore\/.+/'
 exclude-labels:
 - 'chore'
-- 'skip-changelog'
+- 'skip-release'
 version-resolver:
   major:
     labels:

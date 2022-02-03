@@ -1,6 +1,8 @@
 # Manage Stale Branches
 
-[![Vulnerability](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/security_scanner.yml/badge.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/security_scanner.yml) [![Linting](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/linter.yml/badge.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/linter.yml)
+[![Release](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/releaser.yml/badge.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/releaser.yml)
+[![Vulnerability](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/security_scanner.yml/badge.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/security_scanner.yml)
+[![Linting](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/linter.yml/badge.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/linter.yml)
 
 This action deletes branches that haven't had a commit in the last `stale_older_than` days, and suggest branches which could be deleted due to their inactivity on the last `suggestions_older_than` days.
 
