@@ -12,7 +12,7 @@ permissions:
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]' && contains(github.event.pull_request_target.labels.*.name, 'chore') == true
+    if: github.actor == 'dependabot' && contains(github.event.pull_request_target.labels.*.name, 'chore') == true
     steps:
       - name: 'Approve a PR'
         run: gh pr review --approve "$PR_URL"
