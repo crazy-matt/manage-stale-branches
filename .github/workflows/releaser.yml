@@ -1,14 +1,14 @@
-name: "Releaser"
+name: 'Releaser'
 
 on:
   pull_request:
     types: [closed]
     branches:
-      - "main"
+      - 'main'
 
 jobs:
   release:
-    name: "Releaser"
+    name: 'Releaser'
     if: |
       github.event.pull_request.merged == true &&
       contains(github.event.pull_request.labels.*.name, 'chore') == false &&
@@ -19,7 +19,7 @@ jobs:
         with:
           fetch-depth: 1
           ref: ${{ github.base_ref }}
-      - name: "Gather the PR merge commit message"
+      - name: 'Gather the PR merge commit message'
         id: merge_commit
         run: |
           pr_extended_description="$(git log -1 --no-color --pretty=%B | grep -v "^$(git show -s --format=%s)" | grep '\S')" || pr_extended_description=""
@@ -27,7 +27,7 @@ jobs:
           pr_extended_description="${pr_extended_description//$'\n'/'%0A'}"
           pr_extended_description="${pr_extended_description//$'\r'/'%0D'}"
           echo "::set-output name=extended_description::$pr_extended_description"
-      - name: "Publish"
+      - name: 'Publish'
         id: publisher
         uses: release-drafter/release-drafter@v5.15.0
         with:
@@ -36,7 +36,7 @@ jobs:
           publish: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: "Update Release Note"
+      - name: 'Update Release Note'
         run: |
           sudo apt-get install hub
           pip3 install j2cli
@@ -61,24 +61,24 @@ jobs:
         with:
           token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
           event-type: slack-notification
-          client-payload: '{ "type": "build", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#2EB67D", "title": "${{ github.repository }} New Release", "message": "🚀  Check-out ${{ steps.publisher.outputs.html_url }}" }'
-      - name: "Raise awareness about the build (for dev teams)"
+          client-payload: '{ "type": "build", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#2EB67D", "title": "🚀 ${{ github.repository }} New Release", "message": "Check-out ${{ steps.publisher.outputs.html_url }}" }'
+      - name: 'Raise awareness about this build'
         if: steps.publisher.outputs.tag_name != '' && contains(github.event.pull_request.labels.*.name, 'awareness') == true
         uses: peter-evans/repository-dispatch@v1.1.3
         with:
           token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
           event-type: slack-notification
-          client-payload: '{ "type": "awareness", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#2EB67D", "title": "${{ github.repository }} New Release", "message": "🚀  This release might be of interest for you. Check-out ${{ steps.publisher.outputs.html_url }}" }'
-  # notify_for_approval_bypass:
-  #   name: "Notify for Approval Bypass"
-  #   if: |
-  #     github.event.pull_request.merged == true &&
-  #     contains(github.event.pull_request.labels.*.name, 'approved') == false
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: "Trigger the Notifier"
-  #       uses: peter-evans/repository-dispatch@v1.1.3
-  #       with:
-  #         token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
-  #         event-type: slack-notification
-  #         client-payload: '{ "type": "alert", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#ECB22E", "title": "${{ github.repository }} Merge to Main", "message": "⚠️ Approval flow bypassed for <https://github.com/${{ github.repository }}/pull/${{github.event.number}}|#${{github.event.number}}>." }'
+          client-payload: '{ "type": "awareness", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#2EB67D", "title": "🚀 ${{ github.repository }} New Release", "message": "This release might be of interest for you. Check-out ${{ steps.publisher.outputs.html_url }}" }'
+  notify_for_approval_bypass:
+    name: 'Notify'
+    if: |
+      github.event.pull_request.merged == true &&
+      contains(github.event.pull_request.labels.*.name, 'approved') == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Trigger the Notifier'
+        uses: peter-evans/repository-dispatch@v1.1.3
+        with:
+          token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
+          event-type: slack-notification
+          client-payload: '{ "type": "alert", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#ECB22E", "title": "⚠️ ${{ github.repository }} Merge to Main", "message": "Approval flow bypassed for <https://github.com/${{ github.repository }}/pull/${{github.event.number}}|#${{github.event.number}}>." }'

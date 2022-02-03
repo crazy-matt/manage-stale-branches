@@ -6,12 +6,12 @@ vars:
   GIT_REPO:
     sh: git config --get remote.origin.url | sed -e 's#^.*:##' -e 's#.git$##' -e 's#//github.com/*##'
   GIT_REPO_LATEST_RELEASE:
-    sh: curl -s "https://api.github.com/repos/{{.GIT_REPO}}/releases/latest" | grep "tag_name" | cut -d '"' -f4
+    sh: curl -s "https://api.github.com/repos/{{.GIT_REPO}}/releases/latest" | grep tag_name | cut -d '"' -f4
   GIT_REPO_HTTP_URL:
     sh: echo "https://github.com/$(git config --get remote.origin.url | sed -e 's#^.*:##' -e 's#.git$##' | sed -e 's#//github.com/*##')"
   GIT_SHORT_SHA:
     sh: git rev-parse --short HEAD
-  DOCKER_IMAGE_NAME: 'ghcr.io/{{.GIT_REPO}}'
+  DOCKER_IMAGE_NAME: '{{.GIT_REPO}}'
   DOCKER_IMAGE: '{{.DOCKER_IMAGE_NAME}}:{{.GIT_SHORT_SHA}}'
   REPO_ABS_ROOT_PATH:
     sh: git rev-parse --show-toplevel
@@ -44,8 +44,6 @@ tasks:
     - echo "Git Repository":"                    {{.GIT_REPO}}"
     - echo "Git Repository latest release":"     {{.GIT_REPO_LATEST_RELEASE}}"
     - echo "image":"                             {{.DOCKER_IMAGE}}"
-    - echo "org.opencontainers.image.revision":" {{.GIT_SHORT_SHA}}"
-    - echo "org.opencontainers.image.source":"   {{.GIT_REPO_HTTP_URL}}"
     - echo "Task version":"                      {{.TASK_VERSION}}"
 
   build:
@@ -57,12 +55,6 @@ tasks:
       docker build --pull \
         --file "Dockerfile" \
         --tag "{{.DOCKER_IMAGE}}" \
-        --build-arg AUTHOR="{{.AUTHOR}}" \
-        --build-arg BUILD_DATE="{{.BUILD_DATE}}" \
-        --build-arg DOCKER_IMAGE="{{.DOCKER_IMAGE}}" \
-        --build-arg DOCKER_TAG="{{.BUILD_VERSION}}" \
-        --build-arg GIT_REPO_HTTP_URL="{{.GIT_REPO_HTTP_URL}}" \
-        --build-arg GIT_SHORT_SHA="{{.GIT_SHORT_SHA}}" \
         .
       echo "📦 Image built"
     env:
@@ -71,15 +63,35 @@ tasks:
     - Dockerfile
     method: checksum
 
-  security:
-    desc: Run all security scanners
+  tests:
+    desc: Run Project Test Suit (including Docker container tests)
+    deps: [build]
+    cmds:
+    - echo "📒 {{.TASK}}"
+    - |
+      export IMAGE="{{.DOCKER_IMAGE}}"
+      {{.RELATIVE_PATH_TO_ROOT}}/tests/libs/bats-core/bin/bats {{.RELATIVE_PATH_TO_ROOT}}/tests/docker.bats
+      echo -e "📦 Image validated\n"
+
+  dependencies:
+    desc: Install dependencies
     run: once
     cmds:
     - echo "📒 {{.TASK}}"
-    - if [[ "{{.CLI_ARGS}}" == *"sarif"* ]]; then mkdir -p sarif-reports; fi
-    - task: security:image:snyk
-    - task: security:image:dockle
-    - task: security:image:trivy
+    - plugin_name="httpie-go"; asdf plugin add "${plugin_name}" || true; asdf install "${plugin_name}" $(asdf current "${plugin_name}" | tr -s ' ' | cut -d' ' -f2);
+
+  security:
+    desc: Run all security scanners
+    run: once
+    deps: [dependencies]
+    cmds:
+    - echo "📒 {{.TASK}}"
+    - |
+      if [[ "{{.CLI_ARGS}}" == *"sarif"* ]]; then mkdir -p sarif-reports; fi
+      task security:image:snyk
+      task security:image:dockle
+      task security:image:trivy
+      echo -e "✅ You're safe\n"
 
   security:image:snyk:
     desc: Run Snyk tests
@@ -88,7 +100,7 @@ tasks:
     - echo "📒 {{.TASK}}"
     - plugin_name="snyk"; asdf plugin add "${plugin_name}" || true; asdf install "${plugin_name}" $(asdf current "${plugin_name}" | tr -s ' ' | cut -d' ' -f2)
     - snyk auth "${SNYK_TOKEN}"; snyk container test {{.DOCKER_IMAGE}} --file=Dockerfile --sarif-file-output={{.RELATIVE_PATH_TO_ROOT}}/sarif-reports/snyk-report.sarif
-    ignore_error: true  # needed as we could reach the free tier limit
+    #ignore_error: true  # needed as we could reach the free tier limit
 
   security:image:dockle:
     desc: Run Dockle (Container Image Linter for Security)
@@ -104,7 +116,6 @@ tasks:
       fi
     env:
       DOCKER_CONTENT_TRUST: 1
-    ignore_error: true
 
   security:image:trivy:
     desc: Run Aquasecurity Trivy (vulnerability scanner for container images)
@@ -113,7 +124,7 @@ tasks:
     - echo "📒 {{.TASK}}"
     - plugin_name="trivy"; asdf plugin add "${plugin_name}" || true; asdf install "${plugin_name}" $(asdf current "${plugin_name}" | tr -s ' ' | cut -d' ' -f2)
     - trivy image --ignorefile {{.RELATIVE_PATH_TO_ROOT}}/.security/cis-cve-ignore --format table {{.DOCKER_IMAGE}}
-    # If task is called passing an arg sarif or --ssarif, then a sarif report is created.
+    # If task is called passing the arg sarif ('task <task name> -- sarif'), then a sarif report is created.
     # We use httpie-go as a common tool to download or call APIs (much more convenient than the outdated curl)
     - |
       if [[ "{{.CLI_ARGS}}" == *"sarif"* ]]; then
@@ -122,11 +133,11 @@ tasks:
         # trivy image --ignorefile {{.RELATIVE_PATH_TO_ROOT}}/.security/cis-cve-ignore --exit-code 1 --format sarif -o {{.RELATIVE_PATH_TO_ROOT}}/sarif-reports/trivy-report.sarif {{.DOCKER_IMAGE}}
         # ^^ released soon
       fi
-    ignore_error: true
 
   lint:
     desc: Run all linters
     run: once
+    deps: [dependencies]
     cmds:
     - echo "📒 {{.TASK}}"
     - task: lint:dockerfile:hadolint
@@ -139,4 +150,3 @@ tasks:
     # - plugin_name="hadolint"; asdf plugin add "${plugin_name}" || true; asdf install "${plugin_name}" $(asdf current "${plugin_name}" | tr -s ' ' | cut -d' ' -f2)
     # ^^ Waiting for the asdf hadolint plugin's owner to accept the PR #5
     - hadolint --config {{.RELATIVE_PATH_TO_ROOT}}/.linters/hadolint.yml --format tty Dockerfile
-    ignore_error: true
