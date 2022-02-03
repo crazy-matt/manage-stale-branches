@@ -17,9 +17,7 @@ inputs:
     required: false
     default: false
   archive_stale:
-    description: |
-      Instead of deleting the branches declared stale, the action will archive them creating a tag "archive/[branch name]".
-      You can later unarchive them running "git checkout -b [branch name] refs/tags/archive/[branch name].
+    description: Instead of deleting the branches declared stale, the action will archive them creating a tag "archive/[branch name]". You can later unarchive them running "git checkout -b [branch name] refs/tags/archive/[branch name].
     required: false
     default: false
   excluded_branches:
