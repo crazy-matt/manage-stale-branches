@@ -22,6 +22,7 @@ jobs:
       - name: 'Run tests'
         id: tests
         run: |
+          set -e
           task docker:tests
       - name: 'Gather the PR merge commit message'
         id: merge_commit

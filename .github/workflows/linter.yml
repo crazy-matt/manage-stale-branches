@@ -29,5 +29,6 @@ jobs:
       - name: 'Lint'
         id: lint
         run: |
+          set -e
           task lint
           task docker:lint
