@@ -45,15 +45,15 @@ jobs:
         run: task format
       - name: 'Get changed files'
         id: changes
-        uses: tj-actions/changed-files@v14.3
+        uses: tj-actions/verify-changed-files@v8.8
         with:
           separator: '\n'
       - name: 'Commit-back changes'
-        if: steps.changes.outputs.all_changed_files != ''
+        if: steps.changes.outputs.changed_files != ''
         uses: swinton/commit@v2.0.0
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: ${{ steps.changes.outputs.all_changed_files }}
-          commit-message: 'update formatted files'
+          files: ${{ steps.changes.outputs.changed_files }}
+          commit-message: 'update auto-formatted files'
           ref: ${{ github.head_ref }}
