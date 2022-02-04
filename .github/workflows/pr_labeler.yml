@@ -5,8 +5,6 @@ on:
     types: [opened, synchronize, reopened, review_requested, ready_for_review]
   pull_request_review:
     types: [submitted]
-  issue_comment:
-    types: [created]
 
 jobs:
   pr_labeler:
@@ -23,31 +21,13 @@ jobs:
           disable-autolabeler: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  pr_reviewer:
-    name: 'PR Reviewer'
-    runs-on: ubuntu-latest
-    if: |
-      (github.event_name == 'pull_request_review' &&
-      github.event.action == 'submitted' &&
-      github.event.review.state == 'approved') ||
-      (github.event.issue.pull_request &&
-      (startsWith(github.event.comment.body, '/approve') || endsWith(github.event.comment.body, '/approve')))
-    steps:
-      - name: 'Label it when approved by reviewer'
-        uses: TobKed/label-when-approved-action@v1.4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          label: 'approved'
-          require_committers_approval: true
-          remove_label_when_approval_missing: true
   update_documentation:
     name: 'Doc Updater'
     runs-on: ubuntu-latest
     if: |
       (github.event_name == 'pull_request' && github.event.action == 'review_requested') ||
       (github.event_name == 'pull_request' && github.event.action == 'ready_for_review') ||
-      (github.event.issue.pull_request &&
-      (startsWith(github.event.comment.body, '/approve') || endsWith(github.event.comment.body, '/approve')))
+      (github.event_name == 'pull_request' && github.event.action == 'labeled' && contains(github.event.pull_request.labels.*.name, 'approved') == true)
     steps:
       - name: 'Checkout'
         uses: actions/checkout@v2

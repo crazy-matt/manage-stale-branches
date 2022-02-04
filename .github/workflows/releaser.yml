@@ -74,16 +74,3 @@ jobs:
           token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
           event-type: slack-notification
           client-payload: '{ "type": "awareness", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#2EB67D", "title": "🚀 ${{ github.repository }} New Release", "message": "This release might be of interest for you. Check-out ${{ steps.publisher.outputs.html_url }}" }'
-  notify_for_approval_bypass:
-    name: 'Notify'
-    if: |
-      github.event.pull_request.merged == true &&
-      contains(github.event.pull_request.labels.*.name, 'approved') == false
-    runs-on: ubuntu-latest
-    steps:
-      - name: 'Trigger the Notifier'
-        uses: peter-evans/repository-dispatch@v1.1.3
-        with:
-          token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
-          event-type: slack-notification
-          client-payload: '{ "type": "alert", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#ECB22E", "title": "⚠️ ${{ github.repository }} Merge to Main", "message": "Approval flow bypassed for <https://github.com/${{ github.repository }}/pull/${{github.event.number}}|#${{github.event.number}}>." }'
