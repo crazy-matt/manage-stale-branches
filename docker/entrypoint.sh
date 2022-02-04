@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 [ "${DRY_RUN}" == true ] && DRY_RUN_OPT="--dry-run"
 
@@ -116,3 +117,5 @@ fi
 
 echo "::set-output name=message::$message"
 [ -n "${message}" ] && echo -e "\n\033[0;32mSummary:\n${message}\033[0m"
+
+exit 0
