@@ -43,22 +43,18 @@ jobs:
           version: ${{ steps.vars.outputs.task_version }}
       - name: 'Run all formatters'
         run: task format
-      - name: 'Check if there are changes'
+      - name: 'Get changed files'
         id: changes
-        uses: collin-miller/git-changesets@v0.0.4
+        uses: tj-actions/changed-files@v14.3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          format: csv
-      - name: 'Transform change-set'
-        id: changes_transform
-        run: |
-          echo "::set-output name=change_set::$(echo ${{ steps.changes.outputs.added_modified }} | tr ',' '\n')"
+          separator: '\n'
+          since_last_remote_commit: true
       - name: 'Commit-back changes'
-        if: steps.changes.outputs.changed == 1
+        if: steps.changes.outputs.all_changed_files != ''
         uses: swinton/commit@v2.0.0
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: ${{ steps.changes_transform.outputs.change_set }}
+          files: ${{ steps.changes.outputs.all_changed_files }}
           commit-message: 'update formatted files'
           ref: ${{ github.head_ref }}
