@@ -48,7 +48,6 @@ jobs:
         uses: tj-actions/changed-files@v14.3
         with:
           separator: '\n'
-          since_last_remote_commit: true
       - name: 'Commit-back changes'
         if: steps.changes.outputs.all_changed_files != ''
         uses: swinton/commit@v2.0.0
