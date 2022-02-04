@@ -19,6 +19,16 @@ jobs:
         with:
           fetch-depth: 1
           ref: ${{ github.base_ref }}
+      - name: 'Set Job Vars'
+        id: vars
+        run: |
+          echo "::set-output name=task_version::$(cat ${{ github.workspace }}/.tool-versions | grep -w task | cut -d ' ' -f2)"
+      - name: 'Install asdf dependencies'
+        uses: asdf-vm/actions/setup@v1
+      - name: 'Install Task'
+        uses: arduino/setup-task@v1
+        with:
+          version: ${{ steps.vars.outputs.task_version }}
       - name: 'Run tests'
         id: tests
         run: |
