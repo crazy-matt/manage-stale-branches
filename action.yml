@@ -7,19 +7,19 @@ inputs:
   stale_older_than:
     description: 'Number of days after which branches are deleted if not merged in any branch'
     required: false
-    default: 60
+    default: '60'
   suggestions_older_than:
     description: 'Number of days after which branches are suggested for deletion if not merged in any branch'
     required: false
-    default: 30
+    default: '30'
   dry_run:
     description: 'Run the action in dry-run mode to let you visualise the changes before going live'
     required: false
-    default: false
+    default: 'true'
   archive_stale:
     description: Instead of deleting the branches declared stale, the action will archive them creating a tag "archive/[branch name]". You can later unarchive them running "git checkout -b [branch name] refs/tags/archive/[branch name].
     required: false
-    default: false
+    default: 'false'
   excluded_branches:
     description: 'List the branches you want to exclude from the cleanup process'
     required: false
