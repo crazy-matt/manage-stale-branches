@@ -23,7 +23,7 @@ title = "gitleaks config"
 
 [[rules]]
     description = "Github"
-    regex = '''(?i)github(.{0,20})?(?-i)['\"][0-9a-zA-Z]{35,40}['\"]'''
+    regex = '''(?i)github(.{0,20})?(?-i)[\"][0-9a-zA-Z]{35,40}[\"]'''
     tags = ["key", "Github"]
 
 #--------------- Google ---------------
@@ -47,7 +47,7 @@ title = "gitleaks config"
 
 [[rules]]
     description = "AWS Secret Key"
-    regex = '''(?i)aws(.{0,20})?(?-i)['\"][0-9a-zA-Z\/+]{40}['\"]'''
+    regex = '''(?i)aws(.{0,20})?(?-i)[\"][0-9a-zA-Z\/+]{40}[\"]'''
     tags = ["key", "AWS"]
 
 [[rules]]
@@ -85,11 +85,9 @@ title = "gitleaks config"
 #--------------- Emails ---------------
 [[rules]]
     description = "Email"
-    regex = '''[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}'''
+    regex = '''([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})(.*)'''
     tags = ["email"]
     [rules.allowlist]
-        # paths = ['''(?i)bashrc'''] # Example of allow on a file
-        # description = "ignore bashrc emails"
         description = "ignore gitconfig emails"
         regexes = [
             '''[a-zA-Z0-9._%+-]+@users.noreply.github.com''',
@@ -108,7 +106,7 @@ title = "gitleaks config"
 #-------------- Variables --------------
 [[rules]]
     description = "Env Var"
-    regex = '''(?i)(apikey|secret|password|certificate_osx_p12|certificate_password|codacy_project_token|coveralls_api_token|coveralls_repo_token|coveralls_token|coverity_scan_token|cypress_record_key|database_password|db_password|deploy_password|deploy_token|digitalocean_access_token|docker_hub_password|docker_password|dockerhub_password|sonatype_password|firebase_api_token|firebase_token|firefox_secret|flask_secret_key|fossa_api_key|gcloud_service_key|gcr_password|gh_api_key|gh_next_oauth_client_secret|gh_next_unstable_oauth_client_secret|gh_oauth_client_secret|gpg_private_key|gpg_passphrase|gpg_secret_keys|heroku_api_key|okta_client_token|pypi_password|sonatype_nexus_password|travis_token|refresh_token|client_id|client_secret)(.*)?[(:=](\s)?['\"][0-9a-zA-Z-_!$^%=]{10,120}['\")]'''
+    regex = '''(?i)(apikey|certificate_osx_p12|certificate_password|client_id|client_secret|codacy_project_token|coveralls_api_token|coveralls_repo_token|coveralls_token|coverity_scan_token|cypress_record_key|database_password|db_password|deploy_password|deploy_token|digitalocean_access_token|docker_hub_password|docker_password|dockerhub_password|firebase_api_token|firebase_token|firefox_secret|flask_secret_key|fossa_api_key|gcloud_service_key|gcr_password|gh_api_key|gh_next_oauth_client_secret|gh_next_unstable_oauth_client_secret|gh_oauth_client_secret|gpg_passphrase|gpg_private_key|gpg_secret_keys|heroku_api_key|okta_client_token|password|pypi_password|refresh_token|secret|sonatype_nexus_password|sonatype_password|travis_token)(.*)?[(:=](\s)?[\"][0-9a-zA-Z-_!$^%=]{7,120}[\")]'''
     tags = ["key", "env"]
     entropy = 4.2
     [rules.allowlist]

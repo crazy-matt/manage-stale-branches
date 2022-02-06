@@ -1,4 +1,4 @@
-# Manage Stale Branches
+# Manage Stale Branches  <!-- omit in toc -->
 
 [![Release](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/releaser.yml/badge.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/releaser.yml)
 [![Vulnerability](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/security_scanner.yml/badge.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/security_scanner.yml)
@@ -13,12 +13,10 @@ If you set the `dry_run` input to true, the action will just output a preview of
 <details open="open">
 <summary>Table of Contents</summary>
 
-- [Manage Stale Branches](#manage-stale-branches)
-  - [Requirements](#requirements)
-  - [Sample Workflow](#sample-workflow)
-  - [Inputs](#inputs)
-  - [Outputs](#outputs)
-  - [License](#license)
+- [Requirements](#requirements)
+- [Sample Workflow](#sample-workflow)
+- [Inputs](#inputs)
+- [Outputs](#outputs)
 
 </details>
 
@@ -84,6 +82,6 @@ jobs:
 
 <!-- action-docs-outputs -->
 
-## License
+## License  <!-- omit in toc -->
 
 Licensed under the [Apache License 2.0](LICENSE)
