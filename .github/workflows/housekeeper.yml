@@ -27,7 +27,7 @@ jobs:
           fi
       - name: 'Create init release'
         if: steps.tag_checker.outputs.there_is_a_tag == 'false'
-        uses: ncipollo/release-action@v1.9.0
+        uses: ncipollo/release-action@v1.11.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: '0.0.1'
