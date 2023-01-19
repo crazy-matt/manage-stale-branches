@@ -23,7 +23,7 @@ jobs:
       - name: 'Set Job Vars'
         id: vars
         run: |
-          echo "::set-output name=task_version::$(cat ${{ github.workspace }}/.tool-versions | grep -w task | cut -d ' ' -f2)"
+          echo "task_version=$(cat ${{ github.workspace }}/.tool-versions | grep -w task | cut -d ' ' -f2)" >> $GITHUB_OUTPUT
       - name: 'Install asdf dependencies'
         uses: asdf-vm/actions/setup@v1
       - name: 'Install Task'
@@ -42,7 +42,7 @@ jobs:
           pr_extended_description="${pr_extended_description//'%'/'%25'}" # Escape some special chars in the GHA fashion style
           pr_extended_description="${pr_extended_description//$'\n'/'%0A'}"
           pr_extended_description="${pr_extended_description//$'\r'/'%0D'}"
-          echo "::set-output name=extended_description::$pr_extended_description"
+          echo "extended_description=$pr_extended_description" >> $GITHUB_OUTPUT
       - name: 'Publish'
         id: publisher
         uses: release-drafter/release-drafter@v5.18.1

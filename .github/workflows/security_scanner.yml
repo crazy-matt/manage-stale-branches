@@ -26,9 +26,9 @@ jobs:
       - name: "Set Job Vars"
         id: vars
         run: |
-          echo "::set-output name=task_version::$(cat .tool-versions | grep -w task | cut -d ' ' -f2)"
+          echo "task_version=$(cat .tool-versions | grep -w task | cut -d ' ' -f2)" >> $GITHUB_OUTPUT
           if [[ ${{ github.event_name }} == 'push' && ${{ github.ref }} == "refs/heads/${{ github.event.repository.default_branch }}" ]]; then
-            echo "::set-output name=commmit_info:: [Push on Main]"
+            echo "commmit_info= [Push on Main]" >> $GITHUB_OUTPUT
           fi
       - name: 'Install asdf dependencies'
         uses: asdf-vm/actions/setup@v1

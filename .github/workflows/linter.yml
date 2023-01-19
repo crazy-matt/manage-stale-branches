@@ -18,7 +18,7 @@ jobs:
       - name: "Set Job Vars"
         id: vars
         run: |
-          echo "::set-output name=task_version::$(cat ${{ github.workspace }}/.tool-versions | grep -w task | cut -d ' ' -f2)"
+          echo "task_version=$(cat ${{ github.workspace }}/.tool-versions | grep -w task | cut -d ' ' -f2)" >> $GITHUB_OUTPUT
       - name: 'Install asdf dependencies'
         uses: asdf-vm/actions/setup@v1
       - name: 'Install Task'
