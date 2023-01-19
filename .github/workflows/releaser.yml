@@ -73,14 +73,14 @@ jobs:
           SQUASHED_EXTENDED_DESCRIPTION: ${{ steps.merge_commit.outputs.extended_description }}
       - name: 'Notify about the build'
         if: steps.publisher.outputs.tag_name != ''
-        uses: peter-evans/repository-dispatch@v1.1.3
+        uses: peter-evans/repository-dispatch@v2.1.1
         with:
           token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
           event-type: slack-notification
           client-payload: '{ "type": "build", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "color": "#2EB67D", "title": "🚀 ${{ github.repository }} New Release", "message": "Check-out ${{ steps.publisher.outputs.html_url }}" }'
       - name: 'Raise awareness about this build'
         if: steps.publisher.outputs.tag_name != '' && contains(github.event.pull_request.labels.*.name, 'awareness') == true
-        uses: peter-evans/repository-dispatch@v1.1.3
+        uses: peter-evans/repository-dispatch@v2.1.1
         with:
           token: ${{ secrets.CI_GH_PAT_REPO_DISPATCH_API_AUTH }}
           event-type: slack-notification
