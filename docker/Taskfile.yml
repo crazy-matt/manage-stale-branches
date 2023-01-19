@@ -124,8 +124,7 @@ tasks:
     deps: [dependencies]
     cmds:
     - echo "📒 {{.TASK}}"
-    - |
-      if [[ "${GITHUB_ACTIONS}" == 'true' ]]; then task lint:dockerfile:hadolint; fi
+    - if [[ "${GITHUB_ACTIONS}" == 'true' ]]; then task lint:dockerfile:hadolint; fi
 
   lint:dockerfile:hadolint:
     desc: Lint Dockerfile
