@@ -1,4 +1,5 @@
 actionlint 1.6.23
+gitleaks 8.15.2
 grype 0.55.0
 hadolint 2.12.0
 httpie-go 0.7.0
