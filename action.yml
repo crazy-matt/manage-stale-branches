@@ -1,4 +1,4 @@
-name: 'Stale Branches'
+name: 'Manage Stale Branches'
 description: 'Delete already merged/stale branches and make suggestions on the ones which could be considered for deletion.'
 inputs:
   gh_token:
