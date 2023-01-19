@@ -45,7 +45,7 @@ jobs:
           echo "extended_description=$pr_extended_description" >> $GITHUB_OUTPUT
       - name: 'Publish'
         id: publisher
-        uses: release-drafter/release-drafter@v5.18.1
+        uses: release-drafter/release-drafter@v5.22.0
         with:
           config-name: releaser_config.yml
           disable-autolabeler: true
