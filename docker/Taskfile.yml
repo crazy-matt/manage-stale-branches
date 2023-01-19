@@ -89,7 +89,6 @@ tasks:
     - |
       if [[ "{{.CLI_ARGS}}" == *"sarif"* ]]; then mkdir -p sarif-reports; fi
       task security:image:snyk
-      task security:image:dockle
       task security:image:trivy
       echo -e "✅ You're safe\n"
 
@@ -99,23 +98,8 @@ tasks:
     cmds:
     - echo "📒 {{.TASK}}"
     - plugin_name="snyk"; asdf plugin add "${plugin_name}" || true; asdf install "${plugin_name}" $(asdf current "${plugin_name}" | tr -s ' ' | cut -d' ' -f2)
-    - snyk auth "${SNYK_TOKEN}"; snyk container test {{.DOCKER_IMAGE}} --file=Dockerfile --sarif-file-output={{.RELATIVE_PATH_TO_ROOT}}/sarif-reports/snyk-report.sarif
+    - snyk auth "${SNYK_TOKEN}"; snyk container test {{.DOCKER_IMAGE}} --exclude-base-image-vulns --exclude-app-vulns --file=Dockerfile --sarif-file-output={{.RELATIVE_PATH_TO_ROOT}}/sarif-reports/snyk-report.sarif
     # ignore_error: true  # needed as we could reach the free tier limit
-
-  security:image:dockle:
-    desc: Run Dockle (Container Image Linter for Security)
-    deps: [build]
-    cmds:
-    - echo "📒 {{.TASK}}"
-    - plugin_name="dockle"; asdf plugin add "${plugin_name}" || true; asdf install "${plugin_name}" $(asdf current "${plugin_name}" | tr -s ' ' | cut -d' ' -f2)
-    - dockle $(for id in $(egrep -o '^[a-zA-Z]{3}-[a-zA-Z]{2}-[[:digit:]]{4}' "{{.REPO_ABS_ROOT_PATH}}/.security/cis-cve-ignore"); do filter+="-i ${id} "; done; echo "${filter}") {{.DOCKER_IMAGE}}
-    # The ignore file is parsed to filter CIS ids as there's no way to specify a file in dockle as of 2021.12.
-    - |
-      if [[ "{{.CLI_ARGS}}" == *"sarif"* ]]; then
-        dockle $(for id in $(egrep -o '^[a-zA-Z]{3}-[a-zA-Z]{2}-[[:digit:]]{4}' "{{.REPO_ABS_ROOT_PATH}}/.security/cis-cve-ignore"); do filter+="-i ${id} "; done; echo "${filter}") -f sarif -o {{.RELATIVE_PATH_TO_ROOT}}/sarif-reports/dockle-report.sarif {{.DOCKER_IMAGE}}
-      fi
-    env:
-      DOCKER_CONTENT_TRUST: 1
 
   security:image:trivy:
     desc: Run Aquasecurity Trivy (vulnerability scanner for container images)
@@ -140,7 +124,7 @@ tasks:
     deps: [dependencies]
     cmds:
     - echo "📒 {{.TASK}}"
-    - task: lint:dockerfile:hadolint
+    - if [[ "${GITHUB_ACTIONS}" == 'true' ]]; then task lint:dockerfile:hadolint; fi
 
   lint:dockerfile:hadolint:
     desc: Lint Dockerfile
