@@ -37,3 +37,6 @@ runs:
     DRY_RUN: ${{ inputs.dry_run }}
     ARCHIVE_STALE: ${{ inputs.archive_stale }}
     EXCLUDED_BRANCHES: ${{ inputs.excluded_branches }}
+branding:
+  icon: 'archive'
+  color: 'green'
