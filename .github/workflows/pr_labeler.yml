@@ -45,7 +45,7 @@ jobs:
         run: task format
       - name: 'Get changed files'
         id: changes
-        uses: tj-actions/verify-changed-files@v12.0
+        uses: tj-actions/verify-changed-files@v17
         with:
           separator: '\n'
       - name: 'Commit-back changes'
