@@ -15,7 +15,7 @@ jobs:
       (github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.action == 'reopened') &&
       github.actor != 'dependabot[bot]'
     steps:
-      - uses: release-drafter/release-drafter@v5.22.0
+      - uses: release-drafter/release-drafter@v6.0.0
         with:
           config-name: releaser_config.yml
           disable-autolabeler: false
