@@ -22,7 +22,7 @@ jobs:
       - name: 'Install asdf dependencies'
         uses: asdf-vm/actions/setup@v1
       - name: 'Install Task'
-        uses: arduino/setup-task@v1
+        uses: arduino/setup-task@v2
         with:
           version: ${{ steps.vars.outputs.task_version }}
       - name: 'Lint'
