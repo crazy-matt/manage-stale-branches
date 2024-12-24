@@ -31,7 +31,7 @@ jobs:
             echo "commmit_info= [Push on Main]" >> $GITHUB_OUTPUT
           fi
       - name: 'Install asdf dependencies'
-        uses: asdf-vm/actions/setup@v1
+        uses: asdf-vm/actions/setup@v3
       - name: 'Install Task'
         uses: arduino/setup-task@v2
         with:
