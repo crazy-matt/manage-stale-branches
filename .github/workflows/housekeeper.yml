@@ -32,7 +32,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: '0.0.1'
       - name: 'Apply Labels'
-        uses: crazy-max/ghaction-github-labeler@v5.1.0
+        uses: crazy-max/ghaction-github-labeler@v5.2.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           yaml-file: .github/labels.yml
