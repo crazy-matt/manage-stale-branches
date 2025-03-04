@@ -1,0 +1,37 @@
+name: Maintenance
+#
+# Requires 'BOT_TOKEN' as Dependabot secret to push signed commits
+#
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  dependabot_automerger:
+    name: Dependabot Automerger
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@dbb049abf0d677abbd7f7eee0375145b417fdd34 # ratchet:dependabot/fetch-metadata@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update branch and enable auto-merge
+        if: contains('automerged-security,automerged-versions', steps.dependabot-metadata.outputs.dependency-group)
+        run: |
+          if gh pr view "$PR_URL" --json mergeStateStatus | grep -q "BEHIND"; then
+            echo "Branch is behind base branch, updating..."
+            gh pr update "$PR_URL" --update-branch
+            sleep 10
+          fi
+          gh pr merge --auto --merge "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}

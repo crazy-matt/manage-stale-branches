@@ -1,0 +1,266 @@
+name: Release
+run-name: ${{ github.event_name == 'pull_request' && 'Test' || github.event_name == 'release' && 'Release' || 'Prepare Release' }}
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  release:
+    types: [published]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' && !startsWith(github.head_ref, 'release-please'))
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: jdx/mise-action@5083fe46898c414b2475087cc79da59e7da859e8
+        with:
+          install_args: task markdownlint-cli2 yamllint
+      - name: Retrieve env vars values
+        id: collect_vars
+        shell: bash
+        run: echo "node_version=$(grep 'node ' mise.toml | cut -d '"' -f2 | cut -d '.' -f1)" >> $GITHUB_OUTPUT
+      - name: Enable Corepack
+        run: corepack enable
+      - uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # ratchet:actions/setup-node@v4
+        with:
+          node-version: ${{ steps.collect_vars.outputs.node_version }}
+          cache: yarn
+          cache-dependency-path: yarn.lock
+      - name: Install dependencies
+        run: yarn install --immutable --check-cache
+      - name: Format
+        id: format
+        run: yarn format:check
+      - name: Lint
+        id: lint
+        run: |
+          task lint
+          yarn lint
+      - name: Test
+        id: test
+        run: yarn test
+      - name: Update tests badge
+        if: always()
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # ratchet:actions/github-script@v7
+        with:
+          script: |
+            try {
+              const relevantSteps = [
+                '${{ steps.format.outcome }}',
+                '${{ steps.lint.outcome }}',
+                '${{ steps.test.outcome }}'
+              ];
+              const outcome = relevantSteps.every(step => step === 'success') ? 'success' : 'failure';
+              const status = outcome === "success" ? "passing" : "failing";
+              const statusColor = outcome === "success" ? "green" : "red";
+
+              const payload = {
+                icon: "data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjIiIGJhc2VQcm9maWxlPSJ0aW55LXBzIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NiA0NiIgd2lkdGg9IjQ2IiBoZWlnaHQ9IjQ2Ij4KCTx0aXRsZT51c2FiaWxpdHlfdGVzdGluZ19pY29uXzE1MDMyNC1zdmctc3ZnPC90aXRsZT4KCTxkZWZzPgoJCTxpbWFnZSAgd2lkdGg9IjQ0IiBoZWlnaHQ9IjQ0IiBpZD0iaW1nMSIgaHJlZj0iZGF0YTppbWFnZS9wbmc7YmFzZTY0LGlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFDd0FBQUFzQ0FNQUFBQXBXcW96QUFBQUFYTlNSMElCMmNrc2Z3QUFBTkpRVEZSRjNkN2ZEUElOTmM4NDB0UFYvLy8vQVA4QXNMSzJMdFF4dUxxOTI5emU3ZTN1cGFpczdlM3VDTzBKNHVQa3ZzRERrNkthUE1wQXFhdXZ6YzdROFBEeHJLNnkxTlhYMytEaEZ1Z1hPY3c5cUt1dXk4M1B2Yi9DanFPVkJ2Z0hwS2FycjdHMXhzZktuYUNrYnE5MDl2YjN6Yy9SL1B6OC92NytvNmFxaWFXUEEvc0QwZExVMmRyY25xQ2x1NzNBcXF5dzgvVDBwYWVyNk9ucTRPSGprNktaN3UvdzB0VFZYTGRpTWRFMTd1L3dsNkNldjhERDR1UGt6cy9Tc2JPMjgvVDAyZHJibVp5aHA2cXUzZC9nNE9IajcrL3cxbjJGQ3dBQUFFWjBVazVULy8vLy93RC8vLy8vLy8vL0lQL1EvLy8vLy84QS8vLy8vLy8vLy8vLy8vLy8vLy8vQVA4QUFQLy8vLy8vLy8vL0FQOEE4UDhBLy8vL0VQLy9vZi8vLy8vLy8vL2hBQVF1MVIwQUFBR3NTVVJCVkhpY3BkUnBVOEl3RUFiZ2xPYjF3cXR5Q2hUbGxFT2dnRklFeGZ2Ly95VTNUVnZhUUNHTSt3VXk4MHk2MlUyV01VTXpVaVpuQm5UREVQakkxSWtqaVUzT2p3RitBcHllQVdtK1Bjd05mSzZETmNMSEJ4M3dJSHhRR29kaVhPek80RDg0bnN2bDFiVmgzV1N5Y3JVVDU5WmI1dmZnUXBIUWJhbGNzYXYwNTI0bnZpZFJDeFoxV3JCa1hBWWF6WFZHTFhtNjdiaXQzcVFIb0pPRXUrZ3B6V2o1cDl6RWZlQlJiZDFBSmhKckNyMnlJUi9CampESDhjdWNWVEhGbUZ1b1JLeW9CRVVWbVJobTNqT2IwQ1pUNmFTVitBa2p2dVhXUGZ0MUdwSUtMYS9BaXU4OEV6R1ordGdsTnc4c2xkNklZZmxjeHBUR1M2QkR5MHRZcU5pcmhvRXlEL2NPa2t0aHFXQ1orQUlsWDlpaHBjKzlic1hMNENaRW9xWTJKU3dKVUZkc0U4Z2w0RHp3RnNjTkZMbUtWMTd4WnU4ZFJhZUJ3Z2IydzZUbVloRFNqNTRvb2JseW92Z3ptTmhVQTlvYlgyV3E5N1JpaDIvUlNSb3krY2dNNkxZZFh5ZE9wT1hDeThzYTljWG40VEphZkkrSHllUHI1MWYrRGtVdm1aZUp4cXh6MTFwak1LNjF6aFFOOUZ4cjVBcE4yTmFiejk3OWRqbGpwck1mQysxU05UU2tDRnZNaUQ5czh6UldETWYrYlFBQUFBQkpSVTVFcmtKZ2dnPT0iLz4KCTwvZGVmcz4KCTxzdHlsZT4KCQl0c3BhbiB7IHdoaXRlLXNwYWNlOnByZSB9Cgk8L3N0eWxlPgoJPHVzZSBpZD0iQmFja2dyb3VuZCIgaHJlZj0iI2ltZzEiIHg9IjEiIHk9IjEiIC8+Cjwvc3ZnPg==",
+                icon_width: "20",
+                label: "Tests",
+                label_color: "555",
+                status,
+                status_color: statusColor,
+                path: "tests.svg"
+              };
+
+              const result = await github.rest.repos.createDispatchEvent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                event_type: "badge-update",
+                client_payload: payload
+              });
+              console.log(result);
+            } catch(error) {
+              console.error(error);
+              core.setFailed(error);
+            }
+
+  prepare_release:
+    name: Prepare Release
+    runs-on: ubuntu-latest
+    needs: [test]
+    timeout-minutes: 2
+    if: github.actor != 'dependabot[bot]' && github.event_name == 'push'
+    permissions:
+      # For anchore/sbom-action
+      contents: write
+      pull-requests: write
+      actions: read
+      security-events: write
+    steps:
+      # https://github.com/googleapis/release-please-action?tab=readme-ov-file#action-inputs
+      - uses: googleapis/release-please-action@7987652d64b4581673a76e33ad5e98e3dd56832f # ratchet:googleapis/release-please-action@v4
+        id: release
+        with:
+          config-file: .github/release-please-config.json
+          manifest-file: .github/release-please-manifest.json
+          token: ${{ secrets.BOT_TOKEN }}
+      - name: Extract release info
+        id: release_info
+        if: steps.release.outputs.prs_created == 'true'
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # ratchet:actions/github-script@v7
+        with:
+          script: |
+            const pr = JSON.parse(${{ toJSON(steps.release.outputs.pr) }});
+            const prReleaseBranch = pr.headBranchName;
+            const prTitle = pr.title;
+            const match = prTitle.match(/(\d+)\.(\d+)\.(\d+)/);
+            if (!match) {
+              throw new Error("No version found in PR title");
+            }
+            const [tag_name, major, minor, patch] = match;
+            core.setOutput("tag_name", tag_name);
+            core.setOutput("major", major);
+            core.setOutput("minor", minor);
+            core.setOutput("patch", patch);
+            core.setOutput("release_branch", prReleaseBranch);
+      - name: Checkout release branch
+        if: steps.release.outputs.prs_created == 'true'
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          ref: ${{ steps.release_info.outputs.release_branch }}
+      - name: Configure Git
+        if: steps.release.outputs.prs_created == 'true'
+        run: |
+          gpg --import <(echo "${{ secrets.BOT_GPG_PRIVATE_KEY_BASE64 }}" | base64 -d)
+          git config user.name "gha-bot"
+          git config user.email "gha-bot.noreply.wdx1x@tenet.pm"
+          git config user.signingkey "ABD02F54EDDADCB6"
+          git config commit.gpgsign true
+      - name: Retrieve env vars values
+        id: collect_vars
+        if: steps.release.outputs.prs_created == 'true'
+        run: echo "node_version=$(grep 'node ' mise.toml | cut -d '"' -f2 | cut -d '.' -f1)" >> $GITHUB_OUTPUT
+      - name: Enable Corepack
+        if: steps.release.outputs.prs_created == 'true'
+        run: corepack enable
+      - uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # ratchet:actions/setup-node@v4
+        if: steps.release.outputs.prs_created == 'true'
+        with:
+          node-version: ${{ steps.collect_vars.outputs.node_version }}
+          cache: yarn
+          cache-dependency-path: yarn.lock
+      - name: Install dependencies
+        if: steps.release.outputs.prs_created == 'true'
+        run: yarn install --immutable --check-cache
+      - name: Build
+        if: steps.release.outputs.prs_created == 'true'
+        run: yarn build
+      - name: Update documentation
+        if: steps.release.outputs.prs_created == 'true'
+        run: |
+          yarn gendoc
+          ./scripts/update-versions-in-docs.sh ${{ steps.release_info.outputs.major }} \
+            ${{ steps.release_info.outputs.minor }} \
+            ${{ steps.release_info.outputs.patch }}
+      - name: Update build artifacts
+        if: steps.release.outputs.prs_created == 'true'
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            git add README.md CONTRIBUTING.md dist
+            git commit -m "chore: update build artifacts"
+            git push
+          else
+            echo "No changes to commit."
+          fi
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    if: github.event_name == 'release'
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          ref: ${{ github.event.release.tag_name }}
+      - name: Configure Git
+        run: |
+          gpg --import <(echo "${{ secrets.BOT_GPG_PRIVATE_KEY_BASE64 }}" | base64 -d)
+          git config user.name "gha-bot"
+          git config user.email "gha-bot.noreply.wdx1x@tenet.pm"
+          git config user.signingkey "ABD02F54EDDADCB6"
+          git config commit.gpgsign true
+      - name: Extract major and minor versions
+        run: |
+          TAG_NAME="${{ github.event.release.tag_name }}"
+          MAJOR=$(echo "$TAG_NAME" | cut -d. -f1)
+          MINOR=$(echo "$TAG_NAME" | cut -d. -f2)
+          echo "MAJOR=$MAJOR" >> $GITHUB_ENV
+          echo "MINOR=$MINOR" >> $GITHUB_ENV
+      - name: Create major and minor version tags
+        run: |
+          # Create or update major version tag
+          git tag -d $MAJOR || true
+          git push origin :$MAJOR || true
+          git tag -s -a $MAJOR -m "Release $MAJOR"
+
+          # Create or update minor version tag
+          git tag -d $MAJOR.$MINOR || true
+          git push origin :$MAJOR.$MINOR || true
+          git tag -s -a $MAJOR.$MINOR -m "Release $MAJOR.$MINOR"
+
+          # Push tags
+          git push origin $MAJOR $MAJOR.$MINOR
+      - name: Generate SBOM
+        uses: anchore/sbom-action@f325610c9f50a54015d37c8d16cb3b0e2c8f4de0 # ratchet:anchore/sbom-action@v0
+        with:
+          dependency-snapshot: false
+          upload-artifact: false
+          upload-release-assets: false
+          path: ${{ github.workspace }}/
+          format: cyclonedx-json
+          output-file: sbom.json
+      - name: Upload release artifacts
+        if: hashFiles('sbom.json') != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ github.event.release.tag_name }} sbom.json
+      - name: Update release badge
+        if: always()
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # ratchet:actions/github-script@v7
+        with:
+          script: |
+            try {
+              const outcome = "${{ job.status }}";
+              const status = (outcome === "success") ? "passing" : (outcome === "cancelled" ? "standby" : "failing");
+              const statusColor = (outcome === "success") ? "green" : (outcome === "skipped" ? "grey" : "red");
+
+              const payload = {
+                icon: "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDIxLjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiCgkgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMTAyNCAxMDI0OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+CjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+Cgkuc3Qwe2ZpbGw6IzAwOTFFMjt9Cgkuc3Qxe2ZpbGw6I0ZGRkZGRjt9Cjwvc3R5bGU+CjxnIGlkPSJHdWlkZXMiPgo8L2c+CjxnIGlkPSJJY29uIj4KCTxjaXJjbGUgY2xhc3M9InN0MCIgY3g9IjUxMiIgY3k9IjUxMiIgcj0iNTEyIi8+Cgk8cGF0aCBjbGFzcz0ic3QxIiBkPSJNODI3LjMsNDYxLjVjLTEuNi0xLjMtMTYuMS0xMi4yLTQ2LjctMTIuMmMtOC4xLDAtMTYuMiwwLjYtMjQuMiwyLjFjLTUuOS00MC43LTM5LjUtNjAuNS00MS02MS40bC04LjItNC44CgkJbC01LjQsNy44Yy02LjgsMTAuNS0xMS43LDIyLTE0LjYsMzQuMmMtNS41LDIzLjItMi4yLDQ1LDkuNiw2My42Yy0xNC4yLDcuOS0zNy4xLDkuOS00MS43LDEwSDI3N2MtOS45LDAtMTcuOSw4LTE3LjksMTcuOQoJCWMtMC40LDMzLjEsNS4yLDY2LDE2LjUsOTcuMWMxMywzNC4yLDMyLjQsNTkuMyw1Ny42LDc0LjdjMjguMiwxNy4zLDc0LjEsMjcuMiwxMjYuMiwyNy4yYzIzLjUsMC4xLDQ3LTIuMSw3MC4xLTYuNAoJCWMzMi4xLTUuOSw2My0xNy4xLDkxLjQtMzMuMmMyMy40LTEzLjYsNDQuNS0zMC44LDYyLjQtNTEuMWMyOS45LTMzLjksNDcuOC03MS43LDYxLjEtMTA1LjJoNS4zYzMyLjgsMCw1My0xMy4xLDY0LjEtMjQuMQoJCWM3LjQtNywxMy4yLTE1LjUsMTYuOS0yNWwyLjMtNi45TDgyNy4zLDQ2MS41eiBNMzEyLDQ4OS45aDUwLjdjMi40LDAsNC40LTIsNC40LTQuNHYtNDUuMWMwLTIuNC0yLTQuNC00LjQtNC41SDMxMgoJCWMtMi40LDAtNC40LDItNC40LDQuNHY0NS4yQzMwNy42LDQ4OCwzMDkuNiw0ODkuOSwzMTIsNDg5LjkgTTM4MS45LDQ4OS45aDUwLjdjMi40LDAsNC40LTIsNC40LTQuNHYtNDUuMWMwLTIuNC0yLTQuNC00LjQtNC41CgkJaC01MC43Yy0yLjUsMC00LjUsMi00LjUsNC41djQ1LjFDMzc3LjQsNDg4LDM3OS40LDQ4OS45LDM4MS45LDQ4OS45IE00NTIuNyw0OTBoNTAuN2MyLjQsMCw0LjQtMiw0LjQtNC40di00NS4xCgkJYzAtMi40LTItNC40LTQuNC00LjVoLTUwLjdjLTIuNCwwLTQuNCwyLTQuNCw0LjR2NDUuMkM0NDguMyw0ODgsNDUwLjMsNDg5LjksNDUyLjcsNDkwIE01MjIuOCw0OTBoNTAuN2MyLjQsMCw0LjQtMiw0LjUtNC40di00NS4xCgkJYzAtMi41LTItNC41LTQuNS00LjVoLTUwLjdjLTIuNCwwLTQuNCwyLTQuNCw0LjR2NDUuMkM1MTguNCw0ODgsNTIwLjMsNDkwLDUyMi44LDQ5MCBNMzgxLjgsNDI1aDUwLjdjMi40LDAsNC40LTIsNC40LTQuNXYtNDUuMQoJCWMwLTIuNC0yLTQuNC00LjQtNC40aC01MC43Yy0yLjUsMC00LjQsMi00LjUsNC40djQ1LjFDMzc3LjQsNDIzLDM3OS40LDQyNSwzODEuOCw0MjUgTTQ1Mi43LDQyNWg1MC43YzIuNCwwLDQuNC0yLDQuNC00LjV2LTQ1LjEKCQljMC0yLjQtMi00LjQtNC40LTQuNGgtNTAuN2MtMi40LDAtNC40LDItNC40LDQuNHY0NS4xQzQ0OC4zLDQyMyw0NTAuMyw0MjUsNDUyLjcsNDI1IE01MjIuOCw0MjVoNTAuN2MyLjUsMCw0LjQtMiw0LjUtNC41di00NS4xCgkJYzAtMi41LTItNC40LTQuNS00LjRoLTUwLjdjLTIuNCwwLTQuNCwyLTQuNCw0LjR2NDUuMUM1MTguNCw0MjMsNTIwLjMsNDI1LDUyMi44LDQyNSBNNTIyLjgsMzYwLjFoNTAuN2MyLjUsMCw0LjUtMiw0LjUtNC41di00NS4yCgkJYzAtMi40LTItNC40LTQuNS00LjRoLTUwLjdjLTIuNCwwLTQuNCwyLTQuNCw0LjR2NDUuMkM1MTguNCwzNTguMSw1MjAuMywzNjAuMSw1MjIuOCwzNjAuMSBNNTkzLjQsNDkwaDUwLjdjMi40LDAsNC40LTIsNC40LTQuNAoJCXYtNDUuMWMwLTIuNS0yLTQuNC00LjQtNC41aC01MC43Yy0yLjQsMC00LjQsMi00LjQsNC40djQ1LjJDNTg5LDQ4OCw1OTEsNDkwLDU5My40LDQ5MCIvPgo8L2c+Cjwvc3ZnPgo=",
+                icon_width: "20",
+                label: "Release",
+                label_color: "555",
+                status,
+                status_color: statusColor,
+                path: "release.svg"
+              };
+
+              const result = await github.rest.repos.createDispatchEvent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                event_type: "badge-update",
+                client_payload: payload
+              });
+              console.log(result);
+            } catch(error) {
+              console.error(error);
+              core.setFailed(error);
+            }

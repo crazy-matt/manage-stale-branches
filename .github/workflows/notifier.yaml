@@ -1,0 +1,88 @@
+name: Notifier
+
+on:
+  workflow_run:
+    workflows:
+      - Integration
+      - Maintenance
+    types:
+      - completed
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check_workflows:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      need_reporting: ${{ steps.check_statuses.outputs.has_failure }}
+      failed_workflows: ${{ steps.check_statuses.outputs.failed_workflows }}
+      disabled_workflows: ${{ steps.check_statuses.outputs.disabled_workflows }}
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+        with:
+          fetch-depth: 0 # Ensure we fetch all history to get the dependabot branches too
+          ref: ${{ github.event.workflow_run.head_branch || github.ref_name }}
+      - name: Check workflows statuses
+        id: check_statuses
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          monitored_workflows=$(gh run list --commit "${{ github.event.workflow_run.head_sha }}" --json databaseId,name,url,status,conclusion | jq -c '[.[] | select(.name != "Notifier")]')
+          not_completed_count=$(echo "${monitored_workflows}" | jq '[.[] | select(.status != "completed")] | length')
+          failure_count=$(echo "${monitored_workflows}" | jq '[.[] | select(.conclusion != "success" and .conclusion != "skipped" and .conclusion != "cancelled")] | length')
+          if [[ ${not_completed_count} -eq 0 && ${failure_count} -ne 0 ]]; then
+            disabled_workflows=$(gh workflow list --all --json name,state | jq -c '[.[] | select(.state != "active")] | @json')
+            echo "has_failure=true" >> $GITHUB_OUTPUT
+            echo "failed_workflows=$(echo "${monitored_workflows}" | jq -c '[.[] | select(.conclusion != "success")] | @json')" >> $GITHUB_OUTPUT
+            echo "disabled_workflows=${disabled_workflows}" >> $GITHUB_OUTPUT
+          else
+            echo "has_failure=false" >> $GITHUB_OUTPUT
+            echo "failed_workflows=[]" >> $GITHUB_OUTPUT
+            echo "disabled_workflows=[]" >> $GITHUB_OUTPUT
+          fi
+
+  send_notification:
+    runs-on: ubuntu-latest
+    needs: [check_workflows]
+    timeout-minutes: 1
+    if: needs.check_workflows.outputs.need_reporting == 'true'
+    steps:
+      - name: Send Pushover notification
+        run: |
+          message="The following workflows have failed:"
+          failed_flows_decoded_json=$(echo '${{ needs.check_workflows.outputs.failed_workflows }}' | jq -r '.')
+          disabled_flows_decoded_json=$(echo '${{ needs.check_workflows.outputs.disabled_workflows }}' | jq -r '.')
+          while read -r workflow; do
+            name=$(echo "${workflow}" | jq -r '.name')
+            url=$(echo "${workflow}" | jq -r '.url')
+            message+="
+              - ${name} (${url})"
+          done <<< "$(echo "${failed_flows_decoded_json}" | jq -c '.[]')"
+          if [[ $(echo "${disabled_flows_decoded_json}" | jq 'length') -gt 0 ]]; then
+            message+="
+
+            The following workflows are disabled:"
+            while read -r workflow; do
+              name=$(echo "${workflow}" | jq -r '.name')
+              message+="
+                - ${name}"
+            done <<< "$(echo "${disabled_flows_decoded_json}" | jq -c '.[]')"
+          fi
+          message+="
+
+          "
+          echo "Pushover call:"
+          curl -s \
+            --form-string "token=${{ secrets.PUSHOVER_API_TOKEN }}" \
+            --form-string "user=${{ secrets.PUSHOVER_USER_KEY }}" \
+            --form-string "message=${message}" \
+            --form-string "title=${{ github.repository }} GHA Failures ($(echo "${{ github.event.workflow_run.head_sha }}" | cut -c1-7))" \
+            --form-string "url=https://github.com/${{ github.repository }}/actions" \
+            https://api.pushover.net/1/messages.json

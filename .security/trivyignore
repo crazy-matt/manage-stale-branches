@@ -1,0 +1,6 @@
+# Vulnerability whitelisting
+CVE-2024-21538
+
+# CIS Benchmark whitelisting
+CIS-DI-0006 # Add HEALTHCHECK instruction to the container image
+CIS-DI-0001 # Last user should not be root

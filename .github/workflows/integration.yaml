@@ -1,0 +1,172 @@
+name: Integration
+
+on:
+  workflow_dispatch:
+    inputs:
+      job:
+        description: Job to run
+        type: choice
+        options:
+          - Lint commit messages
+          - Pin Actions and Docker images
+          - Secrets Scan
+          - Vulnerability Scan
+        required: false
+        default: Pin Actions and Docker images
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint_commits:
+    # Lint commit messages failing if they're not conventional
+    name: Lint commit messages
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    if: |
+      github.event.forced == false && github.actor != 'dependabot[bot]' &&
+      (github.event.inputs.job == 'Lint commit messages' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' && !startsWith(github.head_ref, 'release-please')))
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: wagoid/commitlint-github-action@0184f5a228ee06430bb9e67d65f73a1a6767496a # ratchet:wagoid/commitlint-github-action@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          configFile: .github/.linters/commitlintrc.yaml
+
+  pin_actions_and_docker_images:
+    name: Pin Actions and Docker images
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    if: |
+      github.actor != 'dependabot[bot]' &&
+      (github.event.inputs.job == 'Pin Actions and Docker images' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' && !startsWith(github.head_ref, 'release-please')))
+    permissions:
+      contents: write
+      pull-requests: read
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          ref: ${{ github.head_ref || github.ref_name }}
+      - name: Check for workflow file changes
+        id: filter
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # ratchet:dorny/paths-filter@v3
+        with:
+          filters: |
+            workflows:
+              - '.github/workflows/**'
+      - name: Set up Go
+        if: steps.filter.outputs.workflows == 'true'
+        uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # ratchet:actions/setup-go@v5
+        with:
+          go-version: 1.23
+      - name: Install Ratchet
+        if: steps.filter.outputs.workflows == 'true'
+        run: go install github.com/sethvargo/ratchet@latest
+      - name: Pin
+        if: steps.filter.outputs.workflows == 'true'
+        run: ratchet pin $(ls .github/workflows/*.{yaml,yml} 2>/dev/null)
+      - name: Push changes
+        if: steps.filter.outputs.workflows == 'true'
+        env:
+          COMMIT_MESSAGE: "ci: pin actions and Docker images in workflows [skip ci]"
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            gpg --import <(echo "${{ secrets.BOT_GPG_PRIVATE_KEY_BASE64 }}" | base64 -d)
+            git config user.name "gha-bot"
+            git config user.email "gha-bot.noreply.wdx1x@tenet.pm"
+            git config user.signingkey "ABD02F54EDDADCB6"
+            git config commit.gpgsign true
+            git status --porcelain
+            git commit -am "$COMMIT_MESSAGE"
+            git push
+          else
+            echo "No changes to commit."
+          fi
+
+  secrets_scan:
+    name: Secrets Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    if: |
+      github.event.inputs.job == 'Secrets Scan' ||
+      (github.actor != 'dependabot[bot]' && !startsWith(github.head_ref, 'release-please'))
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Scan
+        uses: gitleaks/gitleaks-action@83373cf2f8c4db6e24b41c1a9b086bb9619e9cd3 # ratchet:gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: ${{ github.workspace }}/.security/gitleaks.toml
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: false # sarif upload, would need 'security-events: write'
+          GITLEAKS_ENABLE_SUMMARY: true
+          GITLEAKS_VERSION: 8.22.0
+
+  pr_review:
+    name: PR Review
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    if: |
+      github.event_name == 'pull_request' &&
+      github.actor != 'dependabot[bot]'
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: googleapis/code-suggester@f9fef85aa02459e30e62526abe950341cbbd768b # ratchet:googleapis/code-suggester@v5
+        with:
+          command: review
+          pull_number: ${{ github.event.pull_request.number }}
+          git_dir: '.'
+
+  vulnerability_scan:
+    name: Vulnerability Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    if: |
+      github.event.inputs.job == 'Vulnerability Scan' ||
+      (github.actor != 'dependabot[bot]' && startsWith(github.head_ref, 'release-please'))
+    permissions:
+      contents: write
+      actions: write
+      security-events: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - name: Scan pkg manifests/github actions
+        id: trivy_scan
+        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0 # ratchet:aquasecurity/trivy-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          scan-type: fs
+          github-pat: ${{ secrets.GITHUB_TOKEN }}
+          format: github
+          output: sbom.json
+          trivy-config: .security/trivy.yaml
+      - name: Upload trivy report
+        uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # ratchet:actions/upload-artifact@v4
+        if: always() && hashFiles('sbom.json') != ''
+        with:
+          name: sbom-report
+          path: sbom.json

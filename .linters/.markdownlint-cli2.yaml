@@ -1,0 +1,21 @@
+# Read https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+# Example: https://github.com/DavidAnson/markdownlint/blob/main/schema/.markdownlint.yaml
+# Inline comments: https://github.com/DavidAnson/markdownlint/blob/v0.32.1/README.md#configuration
+---
+gitignore: true
+showFound: true
+
+config:
+  gitignore: true
+  no-multiple-blanks: false
+  line-length: false
+  no-duplicate-heading: false
+  no-inline-html: false
+  no-bare-urls: false
+  fenced-code-language: false
+  first-line-heading: false
+  no-alt-text: false
+  no-emphasis-as-heading: false
+
+ignores:
+  - '**.aider*.md'

@@ -1,0 +1,49 @@
+---
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: friday
+      time: '12:00'
+      timezone: 'Europe/London'
+    commit-message:
+      prefix: chore(ci)
+    labels: [actions]
+    open-pull-requests-limit: 3
+    groups:
+      automerged-security:
+        applies-to: security-updates
+        update-types: [minor, patch]
+      automerged-versions:
+        applies-to: version-updates
+        update-types: [minor, patch]
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: friday
+      time: '12:00'
+      timezone: 'Europe/London'
+    commit-message:
+      prefix: chore
+      prefix-development: chore(dev)
+    labels: [dependencies]
+    open-pull-requests-limit: 3
+    groups:
+      typescript-eslint:
+        patterns:
+          - "@typescript-eslint/*"
+          - "typescript-eslint"
+      vitest:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+      dev-dependencies:
+        dependency-type: development
+        update-types: [minor, patch]
+      production-dependencies:
+        dependency-type: production
+        update-types: [minor, patch]

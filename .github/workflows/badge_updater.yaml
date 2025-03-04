@@ -1,0 +1,57 @@
+name: Update Badge
+#
+# Requires 'contents: write' and 'actions: write' permissions for the workflow caller.
+#
+
+on:
+  repository_dispatch:
+    types: [badge-update]
+
+jobs:
+  badge_file_updater:
+    name: Update Badge ${{ github.event.client_payload.label }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          fetch-depth: 0
+
+      - name: Prepare badges branch
+        run: |
+          if git ls-remote --exit-code origin badges; then
+            git switch badges
+          else
+            git switch --orphan badges
+            [[ -z "$(git ls-files)" ]] || git rm -rf .
+          fi
+
+      - name: Create badge
+        uses: emibcn/badge-action@808173dd03e2f30c980d03ee49e181626088eee8 # ratchet:emibcn/badge-action@v2
+        # Use https://www.svgviewer.dev/svg-to-data-uri to get a data URI
+        with:
+          icon: ${{ github.event.client_payload.icon }}
+          icon-width: ${{ github.event.client_payload.icon_width }}
+          label: ${{ github.event.client_payload.label }}
+          label-color: ${{ github.event.client_payload.label_color }}
+          status: ${{ github.event.client_payload.status }}
+          color: ${{ github.event.client_payload.status_color }}
+          path: ${{ github.event.client_payload.path }}
+
+      - name: Push changes
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            gpg --import <(echo "${{ secrets.BOT_GPG_PRIVATE_KEY_BASE64 }}" | base64 -d)
+            git config user.name "gha-bot"
+            git config user.email "gha-bot.noreply.wdx1x@tenet.pm"
+            git config user.signingkey "ABD02F54EDDADCB6"
+            git config commit.gpgsign true
+            git status --porcelain
+            git add --all
+            git commit -m "ci: update ${{ github.event.client_payload.label }} badge [skip ci]"
+            git push origin badges --force
+          else
+            echo "No changes to commit."
+          fi
