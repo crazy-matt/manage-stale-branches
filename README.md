@@ -56,8 +56,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Manage Stale Branches
-        uses: crazy-matt/manage-stale-branches@v2
+      - uses: crazy-matt/manage-stale-branches@v2
 ```
 
 ### Sample Workflow
