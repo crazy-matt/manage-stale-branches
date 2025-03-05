@@ -59,6 +59,8 @@ jobs:
       - uses: crazy-matt/manage-stale-branches@v2
 ```
 
+> you don't need to checkout your repository as this action uses the Github API.
+
 ### Sample Workflow
 
 ```yaml
@@ -83,7 +85,7 @@ jobs:
             origin/release
 ```
 
-> you don't need to checkout your repository as this action uses the Github API.
+> Restore your branches with `git checkout -b <branch name> archive/<branch name>`.
 
 <!-- action-docs-inputs source="action.yaml" -->
 ## Inputs
