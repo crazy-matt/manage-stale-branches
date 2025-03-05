@@ -21,7 +21,8 @@ If you set the `dry-run` input to true, the action will simply output a preview 
 <summary>Table of Contents</summary>
 
 - [Using the Action](#using-the-action)
-- [Sample Workflow](#sample-workflow)
+  - [Minimalistic Workflow](#minimalistic-workflow)
+  - [Sample Workflow](#sample-workflow)
 - [Inputs](#inputs)
 - [Outputs](#outputs)
 
@@ -36,14 +37,30 @@ If you set the `dry-run` input to true, the action will simply output a preview 
 In your GitHub workflows, you can reference the action by:
 
 ```yaml
-  - uses: crazy-matt/manage-stale-branches@v2      # Always use the latest 2.x.x
-  - uses: crazy-matt/manage-stale-branches@v2.0    # Always use the latest 2.0.x
-  - uses: crazy-matt/manage-stale-branches@v2.0.0  # Use this specific version
+- uses: crazy-matt/manage-stale-branches@v2      # Always use the latest 2.x.x
+- uses: crazy-matt/manage-stale-branches@v2.0    # Always use the latest 2.0.x
+- uses: crazy-matt/manage-stale-branches@v2.0.0  # Use this specific version
 ```
 
 For more information, refer to the [GitHub Actions Quickstart](https://docs.github.com/en/actions/quickstart).
 
-## Sample Workflow
+### Minimalistic Workflow
+
+```yaml
+on:
+  push
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Manage Stale Branches
+        uses: crazy-matt/manage-stale-branches@v2
+```
+
+### Sample Workflow
 
 ```yaml
 on:
@@ -53,6 +70,8 @@ on:
 jobs:
   job1:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Manage Stale Branches
         uses: crazy-matt/manage-stale-branches@v2
