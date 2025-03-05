@@ -1,8 +1,7 @@
 ---
 name: Manage Stale Branches
 description: |
-  This action deletes branches that haven't had a commit in the last `stale-older-than` days,
-  and suggest branches which could be deleted due to their inactivity on the last `suggested-older-than` days.
+  This action deletes branches that haven't had a commit in the last `stale-older-than` days.
 inputs:
   github-token:
     description: |
