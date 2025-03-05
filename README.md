@@ -36,9 +36,9 @@ If you set the `dry-run` input to true, the action will simply output a preview 
 In your GitHub workflows, you can reference the action by:
 
 ```yaml
-      - uses: crazy-matt/manage-stale-branches@v2      # Always use the latest 2.x.x
-      - uses: crazy-matt/manage-stale-branches@v2.0    # Always use the latest 2.0.x
-      - uses: crazy-matt/manage-stale-branches@v2.0.0  # Use this specific version
+  - uses: crazy-matt/manage-stale-branches@v2      # Always use the latest 2.x.x
+  - uses: crazy-matt/manage-stale-branches@v2.0    # Always use the latest 2.0.x
+  - uses: crazy-matt/manage-stale-branches@v2.0.0  # Use this specific version
 ```
 
 For more information, refer to the [GitHub Actions Quickstart](https://docs.github.com/en/actions/quickstart).
