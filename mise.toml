@@ -1,0 +1,9 @@
+[tools]
+actionlint = "latest"
+gitleaks = "latest"
+jq = "1"
+markdownlint-cli2 = "latest"
+node = "20"
+task = "3"
+trivy = "latest"
+yamllint = "latest"

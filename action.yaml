@@ -1,0 +1,52 @@
+---
+name: Manage Stale Branches
+description: |
+  This action deletes branches that haven't had a commit in the last `stale-older-than` days,
+  and suggest branches which could be deleted due to their inactivity on the last `suggested-older-than` days.
+inputs:
+  github-token:
+    description: |
+      GitHub Token with repository write access.
+    required: false
+    default: ${{ github.token }}
+  stale-duration:
+    description: Time threshold for stale branches (e.g., "60d", "2w", "1440h"). Accept only a single unit.
+    required: false
+    default: '60d'
+  suggested-duration:
+    description: Time threshold for suggested branches (e.g., "30d", "1w", "720h"). Accept only a single unit.
+    required: false
+    default: '30d'
+  concurrency:
+    description: Number of branches to process concurrently.
+    required: false
+    default: 4
+  dry-run:
+    description: Run in dry-run mode (no actual deletion).
+    required: false
+    default: true
+  archive-stale:
+    description: Archive instead of deleting stale branches.
+    required: false
+    default: false
+  excluded-branches:
+    description: Branches to exclude from cleanup.
+    required: false
+    default: ''
+outputs:
+  message:
+    description: Summary of deleted/suggested branches.
+  stale-branches:
+    description: |
+      JSON array string listing the stale branches.
+      Used in dry-run mode, you can pass it easily to a matrix job to handle yourself these branches.
+  suggested-branches:
+    description: |
+      JSON array string listing the branches suggested for deletion.
+      Used in dry-run mode, you can pass it easily to a matrix job to handle yourself these branches.
+runs:
+  using: node20
+  main: dist/index.js
+branding:
+  icon: archive
+  color: green

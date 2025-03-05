@@ -1,0 +1,39 @@
+---
+version: 3
+silent: true
+
+tasks:
+  default:
+    desc: Run all linters
+    cmds:
+      - defer: \rm -f .task_errors
+      #- cmd: task lint:actions || touch .task_errors
+      - cmd: task lint:markdown || touch .task_errors
+      - cmd: task lint:yaml || touch .task_errors
+      - cmd: if [ -f .task_errors ]; then exit 1; fi
+
+  actions:
+    desc: Lint GitHub Action workflows (https://github.com/rhysd/actionlint/blob/main/docs/usage.md)
+    cmds:
+      - echo "📒  {{.TASK}}"
+      - |
+        [[ -z $(ls .github/workflows/*) ]] || actionlint -shellcheck= \
+          -ignore '"github.head_ref" is potentially untrusted' \
+          -ignore 'property "job_workflow_sha" is not defined in object type' \
+          -ignore 'unknown Webhook event "merge_group"' \
+          -ignore 'label "macos-14" is unknown' \
+          -ignore 'property "dependabot-metadata" is not defined in object type' \
+          -ignore 'property "release" is not defined in object type' \
+          .github/workflows/*
+
+  markdown:
+    desc: Lint Markdown files with markdownlint-cli2 (compatible with VScode plugin)
+    cmds:
+      - echo "📒  {{.TASK}}"
+      - markdownlint-cli2 --config .linters/.markdownlint-cli2.yaml .
+
+  yaml:
+    desc: Lint yaml files (https://github.com/adrienverge/yamllint)
+    cmds:
+      - echo "📒  {{.TASK}}"
+      - find . \( -path "./.history" -o -path "./.github/workflows" -o -path "./node_modules" \) -prune -o \( -name "*.yaml" -o -name "*.yml" -o -name "*.yaml.tmpl" -o -name "*.yml.tmpl" \) -print -exec yamllint -c .linters/yamllint.yaml {} +

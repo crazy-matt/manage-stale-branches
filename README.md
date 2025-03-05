@@ -1,28 +1,44 @@
-# Manage Stale Branches  <!-- omit in toc -->
+# manage-stale-branches
 
-[![Release](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/releaser.yml/badge.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/releaser.yml)
-[![Vulnerability](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/security_scanner.yml/badge.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/security_scanner.yml)
-[![Linting](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/linter.yml/badge.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/linter.yml)
+[![Integration](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/integration.yaml/badge.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/integration.yaml)
+[![Tests](https://github.com/crazy-matt/manage-stale-branches/blob/badges/tests.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/release.yaml)
+[![Release](https://github.com/crazy-matt/manage-stale-branches/blob/badges/release.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/release.yaml)
 
-This action deletes branches that haven't had a commit in the last `stale_older_than` days, and suggest branches which could be deleted due to their inactivity on the last `suggestions_older_than` days.
+<div style="display: flex; gap: 2rem;">
+<div style="flex: 1;">
 
-⚠️ The branches already merged to **default** are automatically deleted.
+This action deletes branches that haven't had a commit in the last `stale-older-than` days, and suggest branches which could be deleted due to their inactivity on the last `suggested-older-than` days.
 
-If you set the `dry_run` input to true, the action will just output a preview of what would be done in no dry run mode.
+⚠️ The branches already merged to **default** are automatically deleted if not in `dry-run` mode.
+
+If you set the `dry-run` input to true, the action will simply output a preview of what would be done in no dry run mode.
+
+</div>
+<div style="width: min-content;">
 
 <details open="open">
 <summary>Table of Contents</summary>
 
-- [Requirements](#requirements)
-- [Sample Workflow](#sample-workflow)
-- [Inputs](#inputs)
-- [Outputs](#outputs)
+- [manage-stale-branches](#manage-stale-branches)
+  - [Using the Action](#using-the-action)
+  - [Sample Workflow](#sample-workflow)
+  - [Inputs](#inputs)
+  - [Outputs](#outputs)
 
 </details>
 
-## Requirements
+</div>
+</div>
 
-Create a workflow `.yml` file in your `.github/workflows` directory. An example is available below.
+## Using the Action
+
+In your GitHub workflows, you can reference the action by:
+
+```yaml
+      - uses: crazy-matt/manage-stale-branches@v1      # Always use the latest 1.x.x
+      - uses: crazy-matt/manage-stale-branches@v1.1    # Always use the latest 1.1.x
+      - uses: crazy-matt/manage-stale-branches@v1.1.1  # Use this specific version
+```
 
 For more information, refer to the [GitHub Actions Quickstart](https://docs.github.com/en/actions/quickstart).
 
@@ -31,57 +47,45 @@ For more information, refer to the [GitHub Actions Quickstart](https://docs.gith
 ```yaml
 on:
   schedule:
-    # Run every monday at 12 pm
-    - cron: "0 12 * * 1"
+    - cron: "0 12 * * 1"  # Run every monday at 12 pm
 
 jobs:
-  cleanup_branches:
-    name: "Branch Cleaner"
+  job1:
     runs-on: ubuntu-latest
     steps:
-      - name: "Manage Stale Branches"
-        id: branch_cleaner
-        uses: crazy-matt/manage-stale-branches@1.0.1
+      - name: Manage Stale Branches
+        uses: crazy-matt/manage-stale-branches@v1
         with:
-          gh_token: ${{ secrets.GITHUB_TOKEN }}
-          stale_older_than: 60
-          suggestions_older_than: 30
-          dry_run: true
-          archive_stale: true
-          excluded_branches: |
-            origin/main
-            origin/master
+          stale-duration: 60d
+          suggested-duration: 30d
+          dry-run: true
+          archive-stale: true
+          excluded-branches: |
+            origin/release
 ```
 
-> you don't need to use a checkout action
+> you don't need to checkout your repository as this action uses the Github API.
 
-<!-- action-docs-inputs -->
+<!-- action-docs-inputs source="action.yaml" -->
 ## Inputs
 
-| parameter | description | required | default |
-| - | - | - | - |
-| gh_token | Provide the GITHUB_TOKEN secret to be used for cloning and branch deletions. Needs read/write access on your repository, so passing the secrets.GITHUB_TOKEN is recommended as set by default with read/write by GitHub. | `true` |  |
-| stale_older_than | Number of days after which branches are deleted if not merged in any branch | `false` | 60 |
-| suggestions_older_than | Number of days after which branches are suggested for deletion if not merged in any branch | `false` | 30 |
-| dry_run | Run the action in dry-run mode to let you visualise the changes before going live | `false` | true |
-| archive_stale | Instead of deleting the branches declared stale, the action will archive them creating a tag "archive/[branch name]". You can later unarchive them running "git checkout -b [branch name] refs/tags/archive/[branch name]. | `false` | false |
-| excluded_branches | List the branches you want to exclude from the cleanup process | `false` |  |
+| name | description | required | default |
+| --- | --- | --- | --- |
+| `github-token` | <p>GitHub Token with repository write access.</p> | `false` | `${{ github.token }}` |
+| `stale-duration` | <p>Time threshold for stale branches (e.g., "60d", "2w", "1440h"). Accept only a single unit.</p> | `false` | `60d` |
+| `suggested-duration` | <p>Time threshold for suggested branches (e.g., "30d", "1w", "720h"). Accept only a single unit.</p> | `false` | `30d` |
+| `concurrency` | <p>Number of branches to process concurrently.</p> | `false` | `4` |
+| `dry-run` | <p>Run in dry-run mode (no actual deletion).</p> | `false` | `true` |
+| `archive-stale` | <p>Archive instead of deleting stale branches.</p> | `false` | `false` |
+| `excluded-branches` | <p>Branches to exclude from cleanup.</p> | `false` | `""` |
+<!-- action-docs-inputs source="action.yaml" -->
 
-
-
-<!-- action-docs-inputs -->
-
-<!-- action-docs-outputs -->
+<!-- action-docs-outputs source="action.yaml" -->
 ## Outputs
 
-| parameter | description |
-| - | - |
-| message | Summarize the outcome of the cleanup process in a nice message mentioning deleted branches and suggestions (merged branches deleted are not mentioned) |
-
-
-
-<!-- action-docs-outputs -->
-
-## License  <!-- omit in toc -->
-
-Licensed under the [Apache License 2.0](LICENSE)
+| name | description |
+| --- | --- |
+| `message` | <p>Summary of deleted/suggested branches.</p> |
+| `stale-branches` | <p>JSON array string listing the stale branches. Used in dry-run mode, you can pass it easily to a matrix job to handle yourself these branches.</p> |
+| `suggested-branches` | <p>JSON array string listing the branches suggested for deletion. Used in dry-run mode, you can pass it easily to a matrix job to handle yourself these branches.</p> |
+<!-- action-docs-outputs source="action.yaml" -->

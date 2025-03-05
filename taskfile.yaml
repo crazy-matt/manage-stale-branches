@@ -1,0 +1,48 @@
+# https://taskfile.dev
+# A modern replacement of Makefile
+---
+version: 3
+silent: true
+
+includes:
+  lint:
+    taskfile: ./taskfile.lint.yaml
+  sec:
+    taskfile: ./taskfile.security.yaml
+
+tasks:
+  default:
+    cmds:
+      - task --list
+
+  setup:
+    desc: Initialize the development environment
+    silent: false
+    cmds:
+      - echo "🚀 Installing base tools using mise..."
+      - mise install
+      - echo "✅ Enabling corepack for Yarn..."
+      - corepack enable
+      - echo "🔄 Ensuring Yarn is installed and activated..."
+      - corepack prepare yarn@stable --activate
+      - yarn set version stable
+      - yarn config set nodeLinker node-modules
+      - echo "📦 Installing project dependencies..."
+      - if [ -f yarn.lock ]; then yarn install --immutable; else yarn install; fi
+      - echo "🔍 Running initial security & linting checks..."
+      - task lint
+      - task sec
+      - echo "🎉 Dev environment setup complete!"
+
+  getready:
+    desc: Run linting/formatting/testing
+    silent: false
+    cmds:
+      - task: sec
+      - task: lint
+      - yarn install
+      - yarn format
+      - yarn lint:fix
+      - yarn test
+      - yarn build
+      - yarn gendoc

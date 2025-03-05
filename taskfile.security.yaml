@@ -1,0 +1,27 @@
+---
+version: 3
+silent: true
+
+tasks:
+  default:
+    desc: Run all scans
+    cmds:
+      - defer: \rm -f .task_errors
+      - cmd: task sec:secrets || touch .task_errors
+      - cmd: task sec:vulnerabilities || touch .task_errors
+      - cmd: if [ -f .task_errors ]; then exit 1; fi
+
+  secrets:
+    desc: Scan for secrets with gitleaks (https://github.com/zricethezav/gitleaks)
+    cmds:
+      - echo "📒  {{.TASK}}"
+      - gitleaks detect --redact --no-git --exit-code 1 -v --source . --config .security/gitleaks.toml
+
+  vulnerabilities:
+    desc: Scan for pkg and gha vulnerabilities (https://github.com/aquasecurity/trivy-action?tab=readme-ov-file#trivy-config-file)
+    cmds:
+      - echo "📒  {{.TASK}}"
+      - |
+        trivy fs --config .security/trivy.yaml \
+        --format table \
+        .
