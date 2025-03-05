@@ -1,34 +1,35 @@
-# manage-stale-branches
+# manage-stale-branches  <!-- omit in toc -->
 
 [![Integration](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/integration.yaml/badge.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/integration.yaml)
 [![Tests](https://github.com/crazy-matt/manage-stale-branches/blob/badges/tests.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/release.yaml)
 [![Release](https://github.com/crazy-matt/manage-stale-branches/blob/badges/release.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/release.yaml)
 
-<div style="display: flex; gap: 2rem;">
-<div style="flex: 1;">
+<table border="0" cellspacing="0" cellpadding="0" style="border-collapse: collapse;">
+<tr>
+<td width="70%" style="border: 0; vertical-align: top; padding: 0;">
 
-This action deletes branches that haven't had a commit in the last `stale-older-than` days, and suggest branches which could be deleted due to their inactivity on the last `suggested-older-than` days.
+This action deletes branches that haven't had a commit in the last `stale-duration`, and suggest branches which could be deleted due to their inactivity on the last `suggested-duration`.
 
-⚠️ The branches already merged to **default** are automatically deleted if not in `dry-run` mode.
+⚠️ The branches already merged to the **default branch** are automatically deleted if the action isn't set for `dry-run` mode.
 
-If you set the `dry-run` input to true, the action will simply output a preview of what would be done in no dry run mode.
+If you set the `dry-run` input to true, the action will simply output a preview of what would be done in no dry-run mode.
 
-</div>
-<div style="width: min-content;">
+</td>
+<td valign="top" style="border: 0; padding: 0 0 0 20px;">
 
 <details open="open">
 <summary>Table of Contents</summary>
 
-- [manage-stale-branches](#manage-stale-branches)
-  - [Using the Action](#using-the-action)
-  - [Sample Workflow](#sample-workflow)
-  - [Inputs](#inputs)
-  - [Outputs](#outputs)
+- [Using the Action](#using-the-action)
+- [Sample Workflow](#sample-workflow)
+- [Inputs](#inputs)
+- [Outputs](#outputs)
 
 </details>
 
-</div>
-</div>
+</td>
+</tr>
+</table>
 
 ## Using the Action
 
