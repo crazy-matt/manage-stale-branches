@@ -87,7 +87,7 @@ jobs:
 
 > Restore your branches with `git checkout -b <branch name> archive/<branch name>`.
 
-<!-- action-docs-inputs source="action.yaml" -->
+<!-- action-docs-inputs source="action.yml" -->
 ## Inputs
 
 | name | description | required | default |
@@ -99,9 +99,9 @@ jobs:
 | `dry-run` | <p>Run in dry-run mode (no actual deletion).</p> | `false` | `true` |
 | `archive-stale` | <p>Archive instead of deleting stale branches.</p> | `false` | `false` |
 | `excluded-branches` | <p>Branches to exclude from cleanup.</p> | `false` | `""` |
-<!-- action-docs-inputs source="action.yaml" -->
+<!-- action-docs-inputs source="action.yml" -->
 
-<!-- action-docs-outputs source="action.yaml" -->
+<!-- action-docs-outputs source="action.yml" -->
 ## Outputs
 
 | name | description |
@@ -109,4 +109,4 @@ jobs:
 | `message` | <p>Summary of deleted/suggested branches.</p> |
 | `stale-branches` | <p>JSON array string listing the stale branches. Used in dry-run mode, you can pass it easily to a matrix job to handle yourself these branches.</p> |
 | `suggested-branches` | <p>JSON array string listing the branches suggested for deletion. Used in dry-run mode, you can pass it easily to a matrix job to handle yourself these branches.</p> |
-<!-- action-docs-outputs source="action.yaml" -->
+<!-- action-docs-outputs source="action.yml" -->
