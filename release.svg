@@ -1,0 +1,20 @@
+<svg width="127.5" height="20" viewBox="0 0 1275 200" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="Release: passing">
+  <title>Release: passing</title>
+  <linearGradient id="a" x2="0" y2="100%">
+    <stop offset="0" stop-opacity=".1" stop-color="#EEE"/>
+    <stop offset="1" stop-opacity=".1"/>
+  </linearGradient>
+  <mask id="m"><rect width="1275" height="200" rx="30" fill="#FFF"/></mask>
+  <g mask="url(#m)">
+    <rect width="757" height="200" fill="#555"/>
+    <rect width="518" height="200" fill="#3C1" x="757"/>
+    <rect width="1275" height="200" fill="url(#a)"/>
+  </g>
+  <g aria-hidden="true" fill="#fff" text-anchor="start" font-family="Verdana,DejaVu Sans,sans-serif" font-size="110">
+    <text x="290" y="148" textLength="427" fill="#000" opacity="0.25">Release</text>
+    <text x="280" y="138" textLength="427">Release</text>
+    <text x="812" y="148" textLength="418" fill="#000" opacity="0.25">passing</text>
+    <text x="802" y="138" textLength="418">passing</text>
+  </g>
+  <image x="40" y="35" width="200" height="130" xlink:href="data:image/svg+xml;base64,PCEtLSBMaWNlbnNlOiBNSVQuIE1hZGUgYnkgQnJpZ2h0c3BhY2VVSTogaHR0cHM6Ly9naXRodWIuY29tL0JyaWdodHNwYWNlVUkvY29yZSAtLT4KPHN2ZyB3aWR0aD0iMThweCIgaGVpZ2h0PSIxOHB4IiB2aWV3Qm94PSIwIDAgMTggMTgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHBhdGggZmlsbD0iIzQ5NGM0ZSIgZD0iTTQuNzEgMS43MThjLS4yLjItMS44NSAxLjg1Ny0xLjk1NSAxLjk2YTEuMTEgMS4xMSAwIDAgMS0uOTU4LjMwN0E3LjE3IDcuMTcgMCAwIDEgLjQ2IDMuMjEyYTEgMSAwIDAgMSAxLjA4LTEuNjg1bC4zMi4yTDMuMjkuMjkzYTEuMDA2IDEuMDA2IDAgMCAxIDEuNDIgMS40MjV6TTE3LjcxIDEuNzE4bC0xLjk1NCAxLjk2YTEuMTA2IDEuMTA2IDAgMCAxLS45NTguMzA3IDcuMTM4IDcuMTM4IDAgMCAxLTEuMzM4LS43NzMgMSAxIDAgMCAxIDEuMDgtMS42ODVsLjMyLjJMMTYuMjkuMjkzYTEuMDA2IDEuMDA2IDAgMCAxIDEuNDIgMCAxLjAxNyAxLjAxNyAwIDAgMSAwIDEuNDI1ek0xMC43IDIuMjkyYTEgMSAwIDAgMS0xLjQxIDEuNDJMOSAzLjQybC0uMjkuMjlhMS4wMTIgMS4wMTIgMCAwIDEtMS40MTggMCAxLjAwNyAxLjAwNyAwIDAgMSAwLTEuNDJMNy41ODIgMmwtLjI5LS4yOUExIDEgMCAwIDEgOC43MTMuMjkzTDkgLjU4M2wuMjktLjI5YTEgMSAwIDAgMSAxLjQxOCAxLjQybC0uMjkuMjg3ek0xNyA3djJhMSAxIDAgMCAxLTEgMWgtNnYyLjE4YTMgMyAwIDEgMS0yIDBWMTBIMmExIDEgMCAwIDEtMS0xVjdhMSAxIDAgMCAxIDIgMHYxaDVWN2ExIDEgMCAwIDEgMiAwdjFoNVY3YTEgMSAwIDAgMSAyIDB6Ii8+Cjwvc3ZnPgo="/>
+</svg>
