@@ -1,20 +1,20 @@
-<svg width="113.9" height="20" viewBox="0 0 1139 200" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="Tests: passing">
-  <title>Tests: passing</title>
+<svg width="105.5" height="20" viewBox="0 0 1055 200" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="Tests: failing">
+  <title>Tests: failing</title>
   <linearGradient id="a" x2="0" y2="100%">
     <stop offset="0" stop-opacity=".1" stop-color="#EEE"/>
     <stop offset="1" stop-opacity=".1"/>
   </linearGradient>
-  <mask id="m"><rect width="1139" height="200" rx="30" fill="#FFF"/></mask>
+  <mask id="m"><rect width="1055" height="200" rx="30" fill="#FFF"/></mask>
   <g mask="url(#m)">
     <rect width="621" height="200" fill="#555"/>
-    <rect width="518" height="200" fill="#3C1" x="621"/>
-    <rect width="1139" height="200" fill="url(#a)"/>
+    <rect width="434" height="200" fill="#E43" x="621"/>
+    <rect width="1055" height="200" fill="url(#a)"/>
   </g>
   <g aria-hidden="true" fill="#fff" text-anchor="start" font-family="Verdana,DejaVu Sans,sans-serif" font-size="110">
     <text x="290" y="148" textLength="291" fill="#000" opacity="0.25">Tests</text>
     <text x="280" y="138" textLength="291">Tests</text>
-    <text x="676" y="148" textLength="418" fill="#000" opacity="0.25">passing</text>
-    <text x="666" y="138" textLength="418">passing</text>
+    <text x="676" y="148" textLength="334" fill="#000" opacity="0.25">failing</text>
+    <text x="666" y="138" textLength="334">failing</text>
   </g>
   <image x="40" y="35" width="200" height="130" xlink:href="data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjIiIGJhc2VQcm9maWxlPSJ0aW55LXBzIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NiA0NiIgd2lkdGg9IjQ2IiBoZWlnaHQ9IjQ2Ij4KCTx0aXRsZT51c2FiaWxpdHlfdGVzdGluZ19pY29uXzE1MDMyNC1zdmctc3ZnPC90aXRsZT4KCTxkZWZzPgoJCTxpbWFnZSAgd2lkdGg9IjQ0IiBoZWlnaHQ9IjQ0IiBpZD0iaW1nMSIgaHJlZj0iZGF0YTppbWFnZS9wbmc7YmFzZTY0LGlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFDd0FBQUFzQ0FNQUFBQXBXcW96QUFBQUFYTlNSMElCMmNrc2Z3QUFBTkpRVEZSRjNkN2ZEUElOTmM4NDB0UFYvLy8vQVA4QXNMSzJMdFF4dUxxOTI5emU3ZTN1cGFpczdlM3VDTzBKNHVQa3ZzRERrNkthUE1wQXFhdXZ6YzdROFBEeHJLNnkxTlhYMytEaEZ1Z1hPY3c5cUt1dXk4M1B2Yi9DanFPVkJ2Z0hwS2FycjdHMXhzZktuYUNrYnE5MDl2YjN6Yy9SL1B6OC92NytvNmFxaWFXUEEvc0QwZExVMmRyY25xQ2x1NzNBcXF5dzgvVDBwYWVyNk9ucTRPSGprNktaN3UvdzB0VFZYTGRpTWRFMTd1L3dsNkNldjhERDR1UGt6cy9Tc2JPMjgvVDAyZHJibVp5aHA2cXUzZC9nNE9IajcrL3cxbjJGQ3dBQUFFWjBVazVULy8vLy93RC8vLy8vLy8vL0lQL1EvLy8vLy84QS8vLy8vLy8vLy8vLy8vLy8vLy8vQVA4QUFQLy8vLy8vLy8vL0FQOEE4UDhBLy8vL0VQLy9vZi8vLy8vLy8vL2hBQVF1MVIwQUFBR3NTVVJCVkhpY3BkUnBVOEl3RUFiZ2xPYjF3cXR5Q2hUbGxFT2dnRklFeGZ2Ly95VTNUVnZhUUNHTSt3VXk4MHk2MlUyV01VTXpVaVpuQm5UREVQakkxSWtqaVUzT2p3RitBcHllQVdtK1Bjd05mSzZETmNMSEJ4M3dJSHhRR29kaVhPek80RDg0bnN2bDFiVmgzV1N5Y3JVVDU5WmI1dmZnUXBIUWJhbGNzYXYwNTI0bnZpZFJDeFoxV3JCa1hBWWF6WFZHTFhtNjdiaXQzcVFIb0pPRXUrZ3B6V2o1cDl6RWZlQlJiZDFBSmhKckNyMnlJUi9CampESDhjdWNWVEhGbUZ1b1JLeW9CRVVWbVJobTNqT2IwQ1pUNmFTVitBa2p2dVhXUGZ0MUdwSUtMYS9BaXU4OEV6R1ordGdsTnc4c2xkNklZZmxjeHBUR1M2QkR5MHRZcU5pcmhvRXlEL2NPa2t0aHFXQ1orQUlsWDlpaHBjKzlic1hMNENaRW9xWTJKU3dKVUZkc0U4Z2w0RHp3RnNjTkZMbUtWMTd4WnU4ZFJhZUJ3Z2IydzZUbVloRFNqNTRvb2JseW92Z3ptTmhVQTlvYlgyV3E5N1JpaDIvUlNSb3krY2dNNkxZZFh5ZE9wT1hDeThzYTljWG40VEphZkkrSHllUHI1MWYrRGtVdm1aZUp4cXh6MTFwak1LNjF6aFFOOUZ4cjVBcE4yTmFiejk3OWRqbGpwck1mQysxU05UU2tDRnZNaUQ5czh6UldETWYrYlFBQUFBQkpSVTVFcmtKZ2dnPT0iLz4KCTwvZGVmcz4KCTxzdHlsZT4KCQl0c3BhbiB7IHdoaXRlLXNwYWNlOnByZSB9Cgk8L3N0eWxlPgoJPHVzZSBpZD0iQmFja2dyb3VuZCIgaHJlZj0iI2ltZzEiIHg9IjEiIHk9IjEiIC8+Cjwvc3ZnPg=="/>
 </svg>
