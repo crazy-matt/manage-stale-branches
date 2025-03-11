@@ -35,7 +35,7 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
-      - uses: wagoid/commitlint-github-action@0184f5a228ee06430bb9e67d65f73a1a6767496a # ratchet:wagoid/commitlint-github-action@v6
+      - uses: wagoid/commitlint-github-action@b948419dd99f3fd78a6548d48f94e3df7f6bf3ed # ratchet:wagoid/commitlint-github-action@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           configFile: .github/.linters/commitlintrc.yaml
@@ -117,27 +117,6 @@ jobs:
           GITLEAKS_ENABLE_UPLOAD_ARTIFACT: false # sarif upload, would need 'security-events: write'
           GITLEAKS_ENABLE_SUMMARY: true
           GITLEAKS_VERSION: 8.22.0
-
-  pr_review:
-    name: PR Review
-    runs-on: ubuntu-latest
-    timeout-minutes: 1
-    if: |
-      github.event_name == 'pull_request' &&
-      github.actor != 'dependabot[bot]'
-    permissions:
-      contents: read
-      pull-requests: write
-    env:
-      ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
-      - uses: googleapis/code-suggester@f9fef85aa02459e30e62526abe950341cbbd768b # ratchet:googleapis/code-suggester@v5
-        with:
-          command: review
-          pull_number: ${{ github.event.pull_request.number }}
-          git_dir: '.'
 
   vulnerability_scan:
     name: Vulnerability Scan
