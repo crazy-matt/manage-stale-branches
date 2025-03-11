@@ -1,7 +1,7 @@
 ---
 name: Manage Stale Branches
 description: |
-  This action deletes branches that haven't had a commit in the last `stale-older-than` days.
+  This action deletes branches that have not had a commit in the last `stale-duration` (hours, days or weeks).
 inputs:
   github-token:
     description: |
