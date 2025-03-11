@@ -118,27 +118,6 @@ jobs:
           GITLEAKS_ENABLE_SUMMARY: true
           GITLEAKS_VERSION: 8.22.0
 
-  pr_review:
-    name: PR Review
-    runs-on: ubuntu-latest
-    timeout-minutes: 1
-    if: |
-      github.event_name == 'pull_request' &&
-      github.actor != 'dependabot[bot]'
-    permissions:
-      contents: read
-      pull-requests: write
-    env:
-      ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
-      - uses: googleapis/code-suggester@f9fef85aa02459e30e62526abe950341cbbd768b # ratchet:googleapis/code-suggester@v5
-        with:
-          command: review
-          pull_number: ${{ github.event.pull_request.number }}
-          git_dir: '.'
-
   vulnerability_scan:
     name: Vulnerability Scan
     runs-on: ubuntu-latest

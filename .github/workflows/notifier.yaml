@@ -3,8 +3,7 @@ name: Notifier
 on:
   workflow_run:
     workflows:
-      - Integration
-      - Maintenance
+      - Release
     types:
       - completed
 
@@ -27,8 +26,8 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
         with:
-          fetch-depth: 0 # Ensure we fetch all history to get the dependabot branches too
-          ref: ${{ github.event.workflow_run.head_branch || github.ref_name }}
+          fetch-depth: 0 # Ensure we fetch all history to get all commits
+          ref: ${{ github.event.repository.default_branch }}
       - name: Check workflows statuses
         id: check_statuses
         env:

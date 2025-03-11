@@ -1,6 +1,6 @@
 [tools]
 actionlint = "latest"
-gitleaks = "latest"
+gitleaks = "8.22"
 jq = "1"
 markdownlint-cli2 = "latest"
 node = "20"
