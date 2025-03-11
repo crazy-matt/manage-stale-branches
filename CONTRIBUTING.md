@@ -107,9 +107,9 @@ flowchart TD
 
 4. **Version Tags**
 
-   For every release (e.g., v2.0.0), we maintain:
+   For every release (e.g., v2.0.1), we maintain:
 
-   - A specific version tag (v2.0.0)
+   - A specific version tag (v2.0.1)
    - A minor version tag (v2.0) that points to the latest patch
    - A major version tag (v2) that points to the latest minor/patch
 
