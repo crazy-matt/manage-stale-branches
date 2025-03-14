@@ -1,6 +1,7 @@
 # manage-stale-branches  <!-- omit in toc -->
 
 [![Integration](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/integration.yaml/badge.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/integration.yaml)
+[![SAST](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/github-code-scanning/codeql)
 [![Tests](https://github.com/crazy-matt/manage-stale-branches/blob/badges/tests.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/release.yaml)
 [![Release](https://github.com/crazy-matt/manage-stale-branches/blob/badges/release.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/release.yaml)
 
