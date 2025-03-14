@@ -39,6 +39,12 @@ jobs:
           cache: yarn
           cache-dependency-path: yarn.lock
       - name: Install dependencies
+        if: github.actor == 'dependabot[bot]'
+        env:
+          YARN_ENABLE_HARDENED_MODE: 0
+        run: yarn install
+      - name: Install dependencies
+        if: github.actor != 'dependabot[bot]'
         run: yarn install --immutable --check-cache
       - name: Format
         id: format
@@ -51,6 +57,24 @@ jobs:
       - name: Test
         id: test
         run: yarn test
+      - name: Update lock file
+        if: github.actor == 'dependabot[bot]'
+        env:
+          COMMIT_MESSAGE: "chore: Update lock file for Dependabot PR #${{ github.event.pull_request.number }}"
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            gpg --import <(echo "${{ secrets.BOT_GPG_PRIVATE_KEY_BASE64 }}" | base64 -d)
+            git config user.name "gha-bot"
+            git config user.email "gha-bot.noreply.wdx1x@tenet.pm"
+            git config user.signingkey "ABD02F54EDDADCB6"
+            git config commit.gpgsign true
+            git status --porcelain
+            git add yarn.lock
+            git commit -m "$COMMIT_MESSAGE"
+            git push
+          else
+            echo "No changes to commit."
+          fi
       - name: Update tests badge
         if: always()
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # ratchet:actions/github-script@v7

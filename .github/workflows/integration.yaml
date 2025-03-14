@@ -25,10 +25,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 1
     if: |
-      github.event.forced == false && github.actor != 'dependabot[bot]' &&
-      (github.event.inputs.job == 'Lint commit messages' ||
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request' && !startsWith(github.head_ref, 'release-please')))
+      github.event.inputs.job == 'Lint commit messages' ||
+      (github.event.forced == false &&
+      github.event_name == 'pull_request' &&
+      github.actor != 'dependabot[bot]')
     permissions:
       contents: read
       pull-requests: read
@@ -38,17 +38,15 @@ jobs:
       - uses: wagoid/commitlint-github-action@b948419dd99f3fd78a6548d48f94e3df7f6bf3ed # ratchet:wagoid/commitlint-github-action@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          configFile: .github/.linters/commitlintrc.yaml
+          configFile: .github/.linters/commitlint.config.mjs
 
   pin_actions_and_docker_images:
     name: Pin Actions and Docker images
     runs-on: ubuntu-latest
     timeout-minutes: 1
     if: |
-      github.actor != 'dependabot[bot]' &&
-      (github.event.inputs.job == 'Pin Actions and Docker images' ||
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request' && !startsWith(github.head_ref, 'release-please')))
+      github.event.inputs.job == 'Pin Actions and Docker images' ||
+      github.event_name == 'push'
     permissions:
       contents: write
       pull-requests: read
@@ -100,7 +98,7 @@ jobs:
     timeout-minutes: 1
     if: |
       github.event.inputs.job == 'Secrets Scan' ||
-      (github.actor != 'dependabot[bot]' && !startsWith(github.head_ref, 'release-please'))
+      (github.event_name == 'pull_request' && github.actor != 'dependabot[bot]')
     permissions:
       contents: read
       pull-requests: read
@@ -121,19 +119,35 @@ jobs:
   vulnerability_scan:
     name: Vulnerability Scan
     runs-on: ubuntu-latest
-    timeout-minutes: 1
+    timeout-minutes: 3
     if: |
       github.event.inputs.job == 'Vulnerability Scan' ||
-      (github.actor != 'dependabot[bot]' && startsWith(github.head_ref, 'release-please'))
+      github.actor != 'dependabot[bot]'
     permissions:
       contents: write
+      pull-requests: write
       actions: write
       security-events: write
     steps:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - name: Detect new vulnerabilities
+        if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && startsWith(github.head_ref, 'release-please'))
+        uses: AikidoSec/github-actions-workflow@v1.0.13
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          secret-key: ${{ secrets.AIKIDO_SECRET_KEY }}
+          fail-on-timeout: true
+          fail-on-dependency-scan: true
+          fail-on-sast-scan: true
+          fail-on-iac-scan: false
+          minimum-severity: CRITICAL
+          timeout-seconds: 180
+          post-scan-status-comment: on
+          post-sast-review-comments: on
       - name: Scan pkg manifests/github actions
         id: trivy_scan
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
         uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0 # ratchet:aquasecurity/trivy-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -145,7 +159,7 @@ jobs:
           trivy-config: .security/trivy.yaml
       - name: Upload trivy report
         uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # ratchet:actions/upload-artifact@v4
-        if: always() && hashFiles('sbom.json') != ''
+        if: (github.event_name == 'workflow_dispatch' || github.event_name == 'push') && hashFiles('sbom.json') != ''
         with:
           name: sbom-report
           path: sbom.json
