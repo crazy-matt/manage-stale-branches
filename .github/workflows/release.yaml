@@ -102,7 +102,7 @@ jobs:
       security-events: write
     steps:
       # https://github.com/googleapis/release-please-action?tab=readme-ov-file#action-inputs
-      - uses: googleapis/release-please-action@5792afc6b46e9bb55deda9eda973a18c226bc3fc # ratchet:googleapis/release-please-action@v4
+      - uses: googleapis/release-please-action@a02a34c4d625f9be7cb89156071d8567266a2445 # ratchet:googleapis/release-please-action@v4
         id: release
         with:
           config-file: .github/release-please-config.json
