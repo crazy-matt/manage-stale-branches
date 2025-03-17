@@ -5,7 +5,7 @@ set -e
 VERSION=$(jq -r '.version' package.json)
 
 # Run the build with ncc
-yarn ncc build src/index.ts -o dist
+yarn ncc build src/index.ts -o dist --source-map
 
 # Update the dist/package.json with the correct version
 jq --arg version "$VERSION" '. + {version: $version, name: "manage-stale-branches"}' dist/package.json > dist/package.json.tmp

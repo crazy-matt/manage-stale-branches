@@ -99,7 +99,7 @@ jobs:
 | `concurrency` | <p>Number of branches to process concurrently.</p> | `false` | `4` |
 | `dry-run` | <p>Run in dry-run mode (no actual deletion).</p> | `false` | `true` |
 | `archive-stale` | <p>Archive instead of deleting stale branches.</p> | `false` | `false` |
-| `excluded-branches` | <p>Branches to exclude from cleanup.</p> | `false` | `""` |
+| `exclude-patterns` | <p>Branches to exclude from cleanup. It can be a comma-separated list or a multiline string (yaml list). It can use regex patterns.</p> | `false` | `""` |
 <!-- action-docs-inputs source="action.yml" -->
 
 <!-- action-docs-outputs source="action.yml" -->
@@ -107,7 +107,10 @@ jobs:
 
 | name | description |
 | --- | --- |
-| `message` | <p>Summary of deleted/suggested branches.</p> |
+| `summary` | <p>Summary of deleted/suggested branches.</p> |
+| `merged-branches-count` | <p>Number of merged branches deleted.</p> |
 | `stale-branches` | <p>JSON array string listing the stale branches. Used in dry-run mode, you can pass it easily to a matrix job to handle yourself these branches.</p> |
+| `stale-branches-count` | <p>Number of branches identified as stale.</p> |
 | `suggested-branches` | <p>JSON array string listing the branches suggested for deletion. Used in dry-run mode, you can pass it easily to a matrix job to handle yourself these branches.</p> |
+| `suggested-branches-count` | <p>Number of branches suggested for deletion.</p> |
 <!-- action-docs-outputs source="action.yml" -->

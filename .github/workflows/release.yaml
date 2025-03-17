@@ -183,6 +183,8 @@ jobs:
         run: yarn install --immutable --check-cache
       - name: Build
         if: steps.release.outputs.prs_created == 'true'
+        env:
+          VERSION: ${{ steps.release_info.outputs.tag_name }}
         run: yarn build
       - name: Update documentation
         if: steps.release.outputs.prs_created == 'true'

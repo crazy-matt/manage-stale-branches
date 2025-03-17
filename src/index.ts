@@ -1,12 +1,13 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { GithubService } from './services/githubService.ts';
-import { parseTimeWithUnit } from './utils/timeParser.ts';
+import { escapeRegExp } from 'lodash';
+import { GithubService } from './services/githubService.js';
+import { parseTimeWithUnit } from './utils/timeParser.js';
 import {
     generateBranchComparison,
     generateSummaryMessage,
-} from './utils/branchUtils.ts';
-import type { BranchInfo } from './types/BranchInfo.ts';
+} from './utils/branchUtils.js';
+import type { BranchInfo } from './types/BranchInfo.js';
 
 export async function run(): Promise<void> {
     try {
@@ -16,13 +17,21 @@ export async function run(): Promise<void> {
         const suggestedDuration = core.getInput('suggested-duration') || '30d';
         const archiveStale: boolean = core.getBooleanInput('archive-stale');
         const concurrency = parseInt(core.getInput('concurrency') || '4', 10);
-        const excludePatterns = core.getInput('exclude-patterns')
+        const excludePatterns: RegExp[] = core.getInput('exclude-patterns')
             ? core
                   .getInput('exclude-patterns')
                   .split(/\r?\n|,/)
-                  .map((p) => p.trim())
+                  .map((p: string) => p.trim())
                   .filter(Boolean)
-                  .map((p) => new RegExp(p))
+                  .map((p: string) => {
+                      try {
+                          return new RegExp(escapeRegExp(p));
+                      } catch {
+                          core.warning(`Invalid regex pattern: ${p}`);
+                          return null;
+                      }
+                  })
+                  .filter((pattern): pattern is RegExp => pattern !== null)
             : [];
 
         if (!token) {

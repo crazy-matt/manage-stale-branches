@@ -17,10 +17,8 @@
         "noImplicitReturns": true,
         "resolveJsonModule": true,
         "allowSyntheticDefaultImports": true,
-        "rootDir": "./src",
-        "outDir": "./dist",
-        "allowImportingTsExtensions": true,
-        "noEmit": true
+        "rootDir": "src",
+        "outDir": "dist"
     },
     "include": ["src/**/*"]
 }
