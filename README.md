@@ -83,7 +83,8 @@ jobs:
           dry-run: true
           archive-stale: true
           exclude-patterns: |
-            origin/release
+            release
+            keep-this.*
 ```
 
 > Restore your branches with `git checkout -b <branch name> archive/<branch name>`.
