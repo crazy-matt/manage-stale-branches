@@ -103,7 +103,7 @@ export async function run(): Promise<void> {
         const suggestedBranches: BranchInfo[] = [];
 
         core.info(
-            `Processing the following branches out of ${branches.length}:`
+            `Processing the following ${branchInfos.length} branches out of ${branches.length}:`
         );
         branchInfos.forEach((branch) => {
             core.info(

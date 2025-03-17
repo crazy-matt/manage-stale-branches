@@ -34850,7 +34850,7 @@ async function run() {
         const mergedBranches = [];
         const staleBranches = [];
         const suggestedBranches = [];
-        core.info(`Processing the following branches out of ${branches.length}:`);
+        core.info(`Processing the following ${branchInfos.length} branches out of ${branches.length}:`);
         branchInfos.forEach((branch) => {
             core.info(generateBranchComparison(branch, defaultBranch, branch.name));
             if (branch.isMerged) {
