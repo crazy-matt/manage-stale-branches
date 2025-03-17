@@ -101,12 +101,6 @@ export class GithubService {
             return [];
         }
 
-        if (dryRun) {
-            core.info(
-                'Dry-run mode enabled. No branches will be deleted or archived.'
-            );
-        }
-
         core.info(
             `Processing ${branches.length} ${branchType} ${
                 branches.length === 1 ? 'branch' : 'branches'
@@ -120,7 +114,7 @@ export class GithubService {
                     if (archiveStale && !branch.isMerged) {
                         if (dryRun) {
                             core.info(
-                                `[DRY RUN] Would archive branch ${branch.name} to refs/tags/archive/${branch.name}`
+                                `Would archive branch ${branch.name} to refs/tags/archive/${branch.name}`
                             );
                         } else {
                             const { data: refData } =
@@ -145,7 +139,7 @@ export class GithubService {
 
                     if (dryRun) {
                         core.info(
-                            `[DRY RUN] Would delete branch ${branch.name}`
+                            `Would delete branch ${branch.name}`
                         );
                     } else {
                         await this.octokit.rest.git.deleteRef({

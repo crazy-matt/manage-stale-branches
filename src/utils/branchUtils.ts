@@ -7,27 +7,29 @@ export function generateBranchComparison(
     head: string
 ): string {
     // Determine branch color based on status
-    let branchColor = `${styles.greenBright.open}${head}${styles.greenBright.close}`;
+    let branchColor;
     if (branch.isMerged) {
-        branchColor = `${styles.redBright.open}${head}${styles.redBright.close}`;
+        branchColor = `${styles.greenBright.open}${head}${styles.greenBright.close}`;
     } else if (branch.isStale) {
+        branchColor = `${styles.redBright.open}${head}${styles.redBright.close}`;
+    } else if (branch.isSuggested) {
         branchColor = `${styles.yellowBright.open}${head}${styles.yellowBright.close}`;
     }
 
     // Create the detail message
     let detailMessage = '';
     switch (branch.branchStatus) {
+        case 'behind':
+            detailMessage = `${head} is ${styles.green.open}behind${styles.green.close} ${base} by ${styles.magenta.open}${branch.behindBy}${styles.magenta.close} commits.`;
+            break;
+        case 'identical':
+            detailMessage = `${head} is ${styles.green.open}identical${styles.green.close} to ${base}.`;
+            break;
         case 'diverged':
             detailMessage = `${head} has ${styles.red.open}diverged${styles.red.close} from ${base}, and is ahead by ${styles.magenta.open}${branch.aheadBy}${styles.magenta.close} commits and behind by ${styles.magenta.open}${branch.behindBy}${styles.magenta.close} commits.`;
             break;
         case 'ahead':
-            detailMessage = `${head} is ${styles.yellow.open}ahead${styles.yellow.close} of ${base} by ${styles.magenta.open}${branch.aheadBy}${styles.magenta.close} commits.`;
-            break;
-        case 'behind':
-            detailMessage = `${head} is ${styles.yellow.open}behind${styles.yellow.close} ${base} by ${styles.magenta.open}${branch.behindBy}${styles.magenta.close} commits.`;
-            break;
-        case 'identical':
-            detailMessage = `${head} is ${styles.green.open}identical${styles.green.close} to ${base}.`;
+            detailMessage = `${head} is ${styles.red.open}ahead${styles.red.close} of ${base} by ${styles.magenta.open}${branch.aheadBy}${styles.magenta.close} commits.`;
             break;
     }
 
