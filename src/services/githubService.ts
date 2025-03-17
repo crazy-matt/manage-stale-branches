@@ -3,7 +3,11 @@ import pMap from 'p-map';
 import type { BranchInfo } from '../types/BranchInfo.ts';
 
 export class GithubService {
-    constructor(private octokit: any, private owner: string, private repo: string) { }
+    constructor(
+        private octokit: any,
+        private owner: string,
+        private repo: string
+    ) {}
 
     async getBranchInfo(
         defaultBranch: string,
@@ -34,11 +38,12 @@ export class GithubService {
         try {
             // Compare branch with default branch
             const basehead = `heads/${defaultBranch}...heads/${branchName}`;
-            const { data: comparison } = await this.octokit.rest.repos.compareCommitsWithBasehead({
-                owner: this.owner,
-                repo: this.repo,
-                basehead,
-            });
+            const { data: comparison } =
+                await this.octokit.rest.repos.compareCommitsWithBasehead({
+                    owner: this.owner,
+                    repo: this.repo,
+                    basehead,
+                });
 
             // Update comparison values
             branchStatus = comparison.status;
@@ -46,11 +51,13 @@ export class GithubService {
             behindBy = comparison.behind_by;
 
             // A branch is considered merged if it's identical or behind the default branch
-            isMerged = comparison.status === 'identical' || comparison.status === 'behind';
+            isMerged =
+                comparison.status === 'identical' ||
+                comparison.status === 'behind';
 
             core.debug(
                 `Branch ${branchName} comparison: status=${branchStatus}, ` +
-                `ahead=${aheadBy}, behind=${behindBy}, merged=${isMerged}`
+                    `ahead=${aheadBy}, behind=${behindBy}, merged=${isMerged}`
             );
         } catch (error) {
             core.warning(
@@ -87,7 +94,8 @@ export class GithubService {
         }
 
         core.info(
-            `Processing ${branches.length} ${branchType} ${branches.length === 1 ? 'branch' : 'branches'
+            `Processing ${branches.length} ${branchType} ${
+                branches.length === 1 ? 'branch' : 'branches'
             }${dryRun ? ' (dry run)' : ''}`
         );
 
@@ -101,11 +109,12 @@ export class GithubService {
                                 `[DRY RUN] Would archive branch ${branch.name} to refs/tags/archive/${branch.name}`
                             );
                         } else {
-                            const { data: refData } = await this.octokit.rest.git.getRef({
-                                owner: this.owner,
-                                repo: this.repo,
-                                ref: `heads/${branch.name}`,
-                            });
+                            const { data: refData } =
+                                await this.octokit.rest.git.getRef({
+                                    owner: this.owner,
+                                    repo: this.repo,
+                                    ref: `heads/${branch.name}`,
+                                });
 
                             await this.octokit.rest.git.createRef({
                                 owner: this.owner,
@@ -114,12 +123,16 @@ export class GithubService {
                                 sha: refData.object.sha,
                             });
 
-                            core.info(`Archived branch ${branch.name} to refs/tags/archive/${branch.name}`);
+                            core.info(
+                                `Archived branch ${branch.name} to refs/tags/archive/${branch.name}`
+                            );
                         }
                     }
 
                     if (dryRun) {
-                        core.info(`[DRY RUN] Would delete branch ${branch.name}`);
+                        core.info(
+                            `[DRY RUN] Would delete branch ${branch.name}`
+                        );
                     } else {
                         await this.octokit.rest.git.deleteRef({
                             owner: this.owner,
@@ -132,7 +145,8 @@ export class GithubService {
                     return branch;
                 } catch (error) {
                     core.warning(
-                        `Failed to process branch ${branch.name}: ${(error as Error).message
+                        `Failed to process branch ${branch.name}: ${
+                            (error as Error).message
                         }`
                     );
                     return null;

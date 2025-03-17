@@ -38,7 +38,7 @@ jobs:
           node-version: ${{ steps.collect_vars.outputs.node_version }}
           cache: yarn
           cache-dependency-path: yarn.lock
-      - name: Install dependencies
+      - name: Install dependencies (Dependabot changes)
         if: github.actor == 'dependabot[bot]'
         env:
           YARN_ENABLE_HARDENED_MODE: 0

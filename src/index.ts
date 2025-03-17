@@ -2,7 +2,10 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import { GithubService } from './services/githubService.ts';
 import { parseTimeWithUnit } from './utils/timeParser.ts';
-import { generateBranchComparison, generateSummaryMessage } from './utils/branchUtils.ts';
+import {
+    generateBranchComparison,
+    generateSummaryMessage,
+} from './utils/branchUtils.ts';
 import type { BranchInfo } from './types/BranchInfo.ts';
 
 export async function run(): Promise<void> {
@@ -15,21 +18,22 @@ export async function run(): Promise<void> {
         const concurrency = parseInt(core.getInput('concurrency') || '4', 10);
         const excludePatterns = core.getInput('exclude-patterns')
             ? core
-                .getInput('exclude-patterns')
-                .split(/\r?\n|,/)
-                .map((p) => p.trim())
-                .filter(Boolean)
-                .map((p) => new RegExp(p))
+                  .getInput('exclude-patterns')
+                  .split(/\r?\n|,/)
+                  .map((p) => p.trim())
+                  .filter(Boolean)
+                  .map((p) => new RegExp(p))
             : [];
 
         if (!token) {
-            throw new Error(
-                'No authentication token found.'
-            );
+            throw new Error('No authentication token found.');
         }
 
         const staleTime = parseTimeWithUnit(staleDuration, 'stale-duration');
-        const suggestedTime = parseTimeWithUnit(suggestedDuration, 'suggested-duration');
+        const suggestedTime = parseTimeWithUnit(
+            suggestedDuration,
+            'suggested-duration'
+        );
 
         const octokit = github.getOctokit(token);
         const { owner, repo } = github.context.repo;
@@ -50,7 +54,8 @@ export async function run(): Promise<void> {
         const filteredBranches = branches.filter(
             (branch) =>
                 branch.name !== defaultBranch &&
-                (!excludePatterns.length || !excludePatterns.some(regex => regex.test(branch.name)))
+                (!excludePatterns.length ||
+                    !excludePatterns.some((regex) => regex.test(branch.name)))
         );
         const branchInfos = await Promise.all(
             filteredBranches.map((branch) =>
@@ -67,7 +72,9 @@ export async function run(): Promise<void> {
         const suggestedBranches: BranchInfo[] = [];
 
         branchInfos.forEach((branch) => {
-            core.info(generateBranchComparison(branch, defaultBranch, branch.name))
+            core.info(
+                generateBranchComparison(branch, defaultBranch, branch.name)
+            );
 
             if (branch.isMerged) {
                 mergedBranches.push(branch);
@@ -78,21 +85,23 @@ export async function run(): Promise<void> {
             }
         });
 
-        const processedMergedBranches = await githubService.deleteOrArchiveBranches(
-            mergedBranches,
-            false,
-            dryRun,
-            concurrency,
-            'merged'
-        );
+        const processedMergedBranches =
+            await githubService.deleteOrArchiveBranches(
+                mergedBranches,
+                false,
+                dryRun,
+                concurrency,
+                'merged'
+            );
 
-        const processedStaleBranches = await githubService.deleteOrArchiveBranches(
-            staleBranches,
-            archiveStale,
-            dryRun,
-            concurrency,
-            'stale'
-        );
+        const processedStaleBranches =
+            await githubService.deleteOrArchiveBranches(
+                staleBranches,
+                archiveStale,
+                dryRun,
+                concurrency,
+                'stale'
+            );
 
         const message = generateSummaryMessage(
             processedMergedBranches,
