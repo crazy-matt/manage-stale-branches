@@ -291,7 +291,7 @@ describe('Stale Branch Manager', () => {
 
             // Verify that a warning was issued with the correct message
             expect(mockCore.warning).toHaveBeenCalledWith(
-                expect.stringMatching(/^Failed to process branch feature-to-archive:/)
+                expect.stringMatching(/^Failed to process branch \[feature-to-archive\]:/)
             );
 
             // Verify that deleteRef was not called since archiving failed

@@ -34663,7 +34663,7 @@ class GithubService {
             try {
                 if (archiveStale && !branch.isMerged) {
                     if (dryRun) {
-                        core.info(`Would archive branch ${branch.name} to refs/tags/archive/${branch.name}`);
+                        core.info(`Would archive branch [${branch.name}] to [refs/tags/archive/${branch.name}]`);
                     }
                     else {
                         const { data: refData } = await this.octokit.rest.git.getRef({
@@ -34677,11 +34677,11 @@ class GithubService {
                             ref: `refs/tags/archive/${branch.name}`,
                             sha: refData.object.sha,
                         });
-                        core.info(`Archived branch ${branch.name} to refs/tags/archive/${branch.name}`);
+                        core.info(`Archived branch [${branch.name}] to [refs/tags/archive/${branch.name}]`);
                     }
                 }
                 if (dryRun) {
-                    core.info(`Would delete branch ${branch.name}`);
+                    core.info(`Would delete branch [${branch.name}]`);
                 }
                 else {
                     await this.octokit.rest.git.deleteRef({
@@ -34689,12 +34689,12 @@ class GithubService {
                         repo: this.repo,
                         ref: `heads/${branch.name}`,
                     });
-                    core.info(`Deleted branch ${branch.name}`);
+                    core.info(`Deleted branch [${branch.name}]`);
                 }
                 return branch;
             }
             catch (error) {
-                core.warning(`Failed to process branch ${branch.name}: ${error.message}`);
+                core.warning(`Failed to process branch [${branch.name}]: ${error.message}`);
                 return null;
             }
         }, { concurrency });

@@ -114,7 +114,7 @@ export class GithubService {
                     if (archiveStale && !branch.isMerged) {
                         if (dryRun) {
                             core.info(
-                                `Would archive branch ${branch.name} to refs/tags/archive/${branch.name}`
+                                `Would archive branch [${branch.name}] to [refs/tags/archive/${branch.name}]`
                             );
                         } else {
                             const { data: refData } =
@@ -132,26 +132,26 @@ export class GithubService {
                             });
 
                             core.info(
-                                `Archived branch ${branch.name} to refs/tags/archive/${branch.name}`
+                                `Archived branch [${branch.name}] to [refs/tags/archive/${branch.name}]`
                             );
                         }
                     }
 
                     if (dryRun) {
-                        core.info(`Would delete branch ${branch.name}`);
+                        core.info(`Would delete branch [${branch.name}]`);
                     } else {
                         await this.octokit.rest.git.deleteRef({
                             owner: this.owner,
                             repo: this.repo,
                             ref: `heads/${branch.name}`,
                         });
-                        core.info(`Deleted branch ${branch.name}`);
+                        core.info(`Deleted branch [${branch.name}]`);
                     }
 
                     return branch;
                 } catch (error) {
                     core.warning(
-                        `Failed to process branch ${branch.name}: ${
+                        `Failed to process branch [${branch.name}]: ${
                             (error as Error).message
                         }`
                     );
