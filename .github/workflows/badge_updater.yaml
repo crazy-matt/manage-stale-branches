@@ -41,6 +41,8 @@ jobs:
           path: ${{ github.event.client_payload.path }}
 
       - name: Push changes
+        env:
+          BADGE_LABEL: ${{ github.event.client_payload.label }}
         run: |
           if [[ -n $(git status --porcelain) ]]; then
             gpg --import <(echo "${{ secrets.BOT_GPG_PRIVATE_KEY_BASE64 }}" | base64 -d)
@@ -50,7 +52,8 @@ jobs:
             git config commit.gpgsign true
             git status --porcelain
             git add --all
-            git commit -m "ci: update ${{ github.event.client_payload.label }} badge [skip ci]"
+            safe_label="$(echo "$BADGE_LABEL" | tr -cd '[:alnum:]_-')"
+            git commit -m "ci: update ${safe_label} badge [skip ci]"
             git push origin badges --force
           else
             echo "No changes to commit."
