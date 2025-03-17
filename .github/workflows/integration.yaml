@@ -133,7 +133,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - name: Detect new vulnerabilities
         if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && startsWith(github.head_ref, 'release-please'))
-        uses: AikidoSec/github-actions-workflow@v1.0.13
+        uses: AikidoSec/github-actions-workflow@47d83dbcf3e6635044c4b31cef590c1e095217cc # ratchet:AikidoSec/github-actions-workflow@v1.0.13
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           secret-key: ${{ secrets.AIKIDO_SECRET_KEY }}
