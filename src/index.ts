@@ -1,6 +1,5 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import { escapeRegExp } from 'lodash';
 import { GithubService } from './services/githubService.js';
 import { parseTimeWithUnit } from './utils/timeParser.js';
 import {
@@ -25,7 +24,7 @@ export async function run(): Promise<void> {
                   .filter(Boolean)
                   .map((p: string) => {
                       try {
-                          return new RegExp(escapeRegExp(p));
+                          return new RegExp(p);
                       } catch {
                           core.warning(`Invalid regex pattern: ${p}`);
                           return null;
