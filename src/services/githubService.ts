@@ -138,9 +138,7 @@ export class GithubService {
                     }
 
                     if (dryRun) {
-                        core.info(
-                            `Would delete branch ${branch.name}`
-                        );
+                        core.info(`Would delete branch ${branch.name}`);
                     } else {
                         await this.octokit.rest.git.deleteRef({
                             owner: this.owner,

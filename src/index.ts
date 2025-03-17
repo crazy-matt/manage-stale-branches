@@ -102,7 +102,9 @@ export async function run(): Promise<void> {
         const staleBranches: BranchInfo[] = [];
         const suggestedBranches: BranchInfo[] = [];
 
-        core.info(`Retaining branches:`);
+        core.info(
+            `Processing the following branches out of ${branches.length}:`
+        );
         branchInfos.forEach((branch) => {
             core.info(
                 generateBranchComparison(branch, defaultBranch, branch.name)
@@ -116,6 +118,12 @@ export async function run(): Promise<void> {
                 suggestedBranches.push(branch);
             }
         });
+
+        if (dryRun) {
+            core.info(
+                'Dry-run mode enabled. No branches will be deleted or archived.'
+            );
+        }
 
         const processedMergedBranches =
             await githubService.deleteOrArchiveBranches(

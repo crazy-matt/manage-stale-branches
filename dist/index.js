@@ -34658,15 +34658,12 @@ class GithubService {
             core.info(`No ${branchType} branch to process.`);
             return [];
         }
-        if (dryRun) {
-            core.info('Dry-run mode enabled. No branches will be deleted or archived.');
-        }
         core.info(`Processing ${branches.length} ${branchType} ${branches.length === 1 ? 'branch' : 'branches'}${dryRun ? ' (dry run)' : ''}`);
         const processedBranches = await pMap(branches, async (branch) => {
             try {
                 if (archiveStale && !branch.isMerged) {
                     if (dryRun) {
-                        core.info(`[DRY RUN] Would archive branch ${branch.name} to refs/tags/archive/${branch.name}`);
+                        core.info(`Would archive branch ${branch.name} to refs/tags/archive/${branch.name}`);
                     }
                     else {
                         const { data: refData } = await this.octokit.rest.git.getRef({
@@ -34684,7 +34681,7 @@ class GithubService {
                     }
                 }
                 if (dryRun) {
-                    core.info(`[DRY RUN] Would delete branch ${branch.name}`);
+                    core.info(`Would delete branch ${branch.name}`);
                 }
                 else {
                     await this.octokit.rest.git.deleteRef({
@@ -34710,6 +34707,34 @@ var ansi_styles = __nccwpck_require__(4412);
 var ansi_styles_default = /*#__PURE__*/__nccwpck_require__.n(ansi_styles);
 ;// CONCATENATED MODULE: ./src/utils/branchUtils.ts
 
+function generateBranchComparison(branch, base, head) {
+    let branchColor;
+    if (branch.isMerged) {
+        branchColor = `${(ansi_styles_default()).greenBright.open}${head}${(ansi_styles_default()).greenBright.close}`;
+    }
+    else if (branch.isStale) {
+        branchColor = `${(ansi_styles_default()).redBright.open}${head}${(ansi_styles_default()).redBright.close}`;
+    }
+    else if (branch.isSuggested) {
+        branchColor = `${(ansi_styles_default()).yellowBright.open}${head}${(ansi_styles_default()).yellowBright.close}`;
+    }
+    let detailMessage = '';
+    switch (branch.branchStatus) {
+        case 'behind':
+            detailMessage = `${head} is ${(ansi_styles_default()).green.open}behind${(ansi_styles_default()).green.close} ${base} by ${(ansi_styles_default()).magenta.open}${branch.behindBy}${(ansi_styles_default()).magenta.close} commits.`;
+            break;
+        case 'identical':
+            detailMessage = `${head} is ${(ansi_styles_default()).green.open}identical${(ansi_styles_default()).green.close} to ${base}.`;
+            break;
+        case 'diverged':
+            detailMessage = `${head} has ${(ansi_styles_default()).red.open}diverged${(ansi_styles_default()).red.close} from ${base}, and is ahead by ${(ansi_styles_default()).magenta.open}${branch.aheadBy}${(ansi_styles_default()).magenta.close} commits and behind by ${(ansi_styles_default()).magenta.open}${branch.behindBy}${(ansi_styles_default()).magenta.close} commits.`;
+            break;
+        case 'ahead':
+            detailMessage = `${head} is ${(ansi_styles_default()).red.open}ahead${(ansi_styles_default()).red.close} of ${base} by ${(ansi_styles_default()).magenta.open}${branch.aheadBy}${(ansi_styles_default()).magenta.close} commits.`;
+            break;
+    }
+    return `::group::[${branchColor}]\n${(ansi_styles_default()).bold.open}${detailMessage}${(ansi_styles_default()).bold.close}\n::endgroup::`;
+}
 function generateSummaryMessage(processedMergedBranches, processedStaleBranches, suggestedBranches) {
     let message = '';
     if (processedMergedBranches.length > 0) {
@@ -34722,31 +34747,6 @@ function generateSummaryMessage(processedMergedBranches, processedStaleBranches,
         message += `Suggested stale branches: ${suggestedBranches.map((b) => b.name).join(', ')}\n`;
     }
     return message;
-}
-function generateBranchComparison(branch, base, head) {
-    let branchColor = `${(ansi_styles_default()).greenBright.open}${head}${(ansi_styles_default()).greenBright.close}`;
-    if (branch.isMerged) {
-        branchColor = `${(ansi_styles_default()).redBright.open}${head}${(ansi_styles_default()).redBright.close}`;
-    }
-    else if (branch.isStale) {
-        branchColor = `${(ansi_styles_default()).yellowBright.open}${head}${(ansi_styles_default()).yellowBright.close}`;
-    }
-    let detailMessage = '';
-    switch (branch.branchStatus) {
-        case 'diverged':
-            detailMessage = `${head} has ${(ansi_styles_default()).red.open}diverged${(ansi_styles_default()).red.close} from ${base}, and is ahead by ${(ansi_styles_default()).magenta.open}${branch.aheadBy}${(ansi_styles_default()).magenta.close} commits and behind by ${(ansi_styles_default()).magenta.open}${branch.behindBy}${(ansi_styles_default()).magenta.close} commits.`;
-            break;
-        case 'ahead':
-            detailMessage = `${head} is ${(ansi_styles_default()).yellow.open}ahead${(ansi_styles_default()).yellow.close} of ${base} by ${(ansi_styles_default()).magenta.open}${branch.aheadBy}${(ansi_styles_default()).magenta.close} commits.`;
-            break;
-        case 'behind':
-            detailMessage = `${head} is ${(ansi_styles_default()).yellow.open}behind${(ansi_styles_default()).yellow.close} ${base} by ${(ansi_styles_default()).magenta.open}${branch.behindBy}${(ansi_styles_default()).magenta.close} commits.`;
-            break;
-        case 'identical':
-            detailMessage = `${head} is ${(ansi_styles_default()).green.open}identical${(ansi_styles_default()).green.close} to ${base}.`;
-            break;
-    }
-    return `::group::[${branchColor}]\n${(ansi_styles_default()).bold.open}${detailMessage}${(ansi_styles_default()).bold.close}\n::endgroup::`;
 }
 
 ;// CONCATENATED MODULE: ./src/utils/timeParser.ts
@@ -34850,7 +34850,7 @@ async function run() {
         const mergedBranches = [];
         const staleBranches = [];
         const suggestedBranches = [];
-        core.info(`Retaining branches:`);
+        core.info(`Processing the following branches out of ${branches.length}:`);
         branchInfos.forEach((branch) => {
             core.info(generateBranchComparison(branch, defaultBranch, branch.name));
             if (branch.isMerged) {
@@ -34863,6 +34863,9 @@ async function run() {
                 suggestedBranches.push(branch);
             }
         });
+        if (dryRun) {
+            core.info('Dry-run mode enabled. No branches will be deleted or archived.');
+        }
         const processedMergedBranches = await githubService.deleteOrArchiveBranches(mergedBranches, false, dryRun, concurrency, 'merged');
         const processedStaleBranches = await githubService.deleteOrArchiveBranches(staleBranches, archiveStale, dryRun, concurrency, 'stale');
         const message = generateSummaryMessage(processedMergedBranches, processedStaleBranches, suggestedBranches);
