@@ -73,9 +73,35 @@ export function createCommitResponse(date: string): GetCommitResponseData {
 
 // Helper functions for date manipulation
 export const dateHelpers = {
-    createDate: (hoursAgo: number) => {
-        const date = new Date(Date.now());
-        date.setHours(date.getHours() - hoursAgo);
-        return date.toISOString();
+    createDate: (timeAgo: string): string => {
+        const match = timeAgo.trim().match(/^(-?\d+)\s*([hdw])$/i);
+        if (!match) {
+            throw new Error('Invalid time format');
+        }
+
+        const [, value, unit] = match;
+        const numValue = parseInt(value, 10);
+
+        // Convert to milliseconds
+        const HOUR_IN_MS = 60 * 60 * 1000;
+        const DAY_IN_MS = 24 * HOUR_IN_MS;
+        const WEEK_IN_MS = 7 * DAY_IN_MS;
+
+        let milliseconds: number;
+        switch (unit.toLowerCase()) {
+            case 'h':
+                milliseconds = numValue * HOUR_IN_MS;
+                break;
+            case 'd':
+                milliseconds = numValue * DAY_IN_MS;
+                break;
+            case 'w':
+                milliseconds = numValue * WEEK_IN_MS;
+                break;
+            default:
+                throw new Error(`Unknown unit '${unit}'`);
+        }
+
+        return new Date(Date.now() - milliseconds).toISOString();
     }
 };

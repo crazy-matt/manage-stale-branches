@@ -82,7 +82,7 @@ jobs:
           suggested-duration: 30d
           dry-run: true
           archive-stale: true
-          excluded-branches: |
+          exclude-patterns: |
             origin/release
 ```
 

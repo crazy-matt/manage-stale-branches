@@ -63,15 +63,15 @@ describe('Stale Branch Manager', () => {
     // Category: Time Unit Parsing
     describe('Time Unit Parsing', () => {
         test.each([
-            ['60d', 60 * 24],
-            ['1w', 7 * 24],
-            ['168h', 168],
-            ['2w', 14 * 24],
-            ['48h', 48],
-            [' 60 d ', 60 * 24], // handles whitespace
-        ])('should parse "%s" correctly', async (input, staleDurationInHours) => {
+            ['60d', '61d'],    // 60 days threshold, branch is 61 days old
+            ['1w', '8d'],      // 1 week threshold, branch is 8 days old
+            ['168h', '169h'],  // 168 hours threshold, branch is 169 hours old
+            ['2w', '15d'],     // 2 weeks threshold, branch is 15 days old
+            ['48h', '49h'],    // 48 hours threshold, branch is 49 hours old
+            [' 60 d ', '61d'], // handles whitespace, branch is 61 days old
+        ])('should parse "%s" correctly', async (staleDuration, branchAge) => {
             mockCore.getInput.mockImplementation((name: string) => {
-                if (name === 'stale-duration') return input;
+                if (name === 'stale-duration') return staleDuration;
                 if (name === 'suggested-duration') return '30d';
                 return '';
             });
@@ -83,7 +83,7 @@ describe('Stale Branch Manager', () => {
 
             mockOctokit.rest.repos.getCommit.mockResolvedValue(
                 createMockResponse(
-                    createCommitResponse(dateHelpers.createDate(staleDurationInHours + 1)) // Make branch 1 hour older than threshold in each case
+                    createCommitResponse(dateHelpers.createDate(branchAge))
                 )
             );
 
@@ -160,7 +160,7 @@ describe('Stale Branch Manager', () => {
                     }
                     return Promise.resolve(
                         createMockResponse(
-                            createCommitResponse(dateHelpers.createDate(parseInt(branch.time) * 24))
+                            createCommitResponse(dateHelpers.createDate(branch.time))
                         )
                     );
                 });
@@ -171,10 +171,13 @@ describe('Stale Branch Manager', () => {
             await run();
 
             expect(mockCore.setOutput.mock.calls).toEqual([
-                ['message',
+                ['summary',
                     "Deleted stale branches: stale-1, stale-2\n" +
                     "Suggested stale branches: suggested-1, suggested-2\n"
                 ],
+                ['merged-branches-count', 0],
+                ['stale-branches-count', 2],
+                ['suggested-branches-count', 2],
                 ['stale-branches', JSON.stringify(['stale-1', 'stale-2'])],
                 ['suggested-branches', JSON.stringify(['suggested-1', 'suggested-2'])]
             ]);
@@ -182,7 +185,7 @@ describe('Stale Branch Manager', () => {
 
         test('should respect excluded branches', async () => {
             mockCore.getInput.mockImplementation((name) => {
-                if (name === 'excluded-branches') return 'stale-1';
+                if (name === 'exclude-patterns') return 'stale-1';
                 return '';
             });
 
@@ -197,7 +200,7 @@ describe('Stale Branch Manager', () => {
 
     // Category: Archive Functionality
     describe('Archive Functionality', () => {
-        test('should archive instead of delete when archive-stale is true', async () => {
+        test('should archive before deletion when archive-stale is true', async () => {
             mockCore.getBooleanInput.mockImplementation((name) =>
                 name === 'archive-stale' ? true : false
             );
@@ -212,7 +215,7 @@ describe('Stale Branch Manager', () => {
 
             mockOctokit.rest.repos.getCommit.mockResolvedValue(
                 createMockResponse(
-                    createCommitResponse(dateHelpers.createDate(parseInt(timeOld) * 24))
+                    createCommitResponse(dateHelpers.createDate(timeOld))
                 )
             );
 
@@ -255,7 +258,7 @@ describe('Stale Branch Manager', () => {
             // Mock the commit date to make the branch stale
             mockOctokit.rest.repos.getCommit.mockResolvedValue(
                 createMockResponse(
-                    createCommitResponse(dateHelpers.createDate(parseInt(timeOld) * 24))
+                    createCommitResponse(dateHelpers.createDate(timeOld))
                 )
             );
 
@@ -308,7 +311,7 @@ describe('Stale Branch Manager', () => {
                     }
                     return Promise.resolve(
                         createMockResponse(
-                            createCommitResponse(dateHelpers.createDate(parseInt(branch.time) * 24))
+                            createCommitResponse(dateHelpers.createDate(branch.time))
                         )
                     );
                 });
@@ -447,11 +450,9 @@ describe('Stale Branch Manager', () => {
                     if (!branch) {
                         throw new Error(`Branch ${ref} not found in test data`);
                     }
-                    // Convert days to hours for the helper
-                    const hoursAgo = parseInt(branch.time) * 24;
                     return Promise.resolve(
                         createMockResponse(
-                            createCommitResponse(dateHelpers.createDate(hoursAgo))
+                            createCommitResponse(dateHelpers.createDate(branch.time))
                         )
                     );
                 });
