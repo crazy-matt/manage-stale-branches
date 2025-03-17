@@ -19,7 +19,7 @@ export const mockOctokit = {
                     default_branch: 'main'
                 }
             }),
-            compareCommits: vi.fn(),
+            compareCommitsWithBasehead: vi.fn(),
         },
         git: {
             getRef: vi.fn(),

@@ -1,6 +1,8 @@
 export interface BranchInfo {
     name: string;
     isMerged: boolean;
+    isStale: boolean;
+    isSuggested: boolean;
     lastCommitDate: Date;
     // The comparative status of the head branch to the base branch: "diverged" | "ahead" | "behind" | "identical".
     branchStatus: string;

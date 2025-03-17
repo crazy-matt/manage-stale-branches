@@ -108,9 +108,10 @@ jobs:
 | name | description |
 | --- | --- |
 | `summary` | <p>Summary of deleted/suggested branches.</p> |
-| `merged-branches-count` | <p>Number of merged branches deleted.</p> |
+| `merged-branches` | <p>JSON array string listing the merged branches which have been deleted. Used in dry-run mode, you can pass it easily to a matrix job to handle yourself these branches.</p> |
+| `merged-branches-count` | <p>Deleted merged branches count.</p> |
 | `stale-branches` | <p>JSON array string listing the stale branches. Used in dry-run mode, you can pass it easily to a matrix job to handle yourself these branches.</p> |
-| `stale-branches-count` | <p>Number of branches identified as stale.</p> |
+| `stale-branches-count` | <p>Stale branches count.</p> |
 | `suggested-branches` | <p>JSON array string listing the branches suggested for deletion. Used in dry-run mode, you can pass it easily to a matrix job to handle yourself these branches.</p> |
-| `suggested-branches-count` | <p>Number of branches suggested for deletion.</p> |
+| `suggested-branches-count` | <p>Suggested branches count.</p> |
 <!-- action-docs-outputs source="action.yml" -->

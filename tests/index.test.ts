@@ -1,4 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import createDebug from 'debug';
+const debug = createDebug('manage-stale-branches:test:main');
 import { run } from '../src/index';
 import { mockCore, mockOctokit } from './setup';
 import { createMockResponse, createBranchResponse, createCommitResponse, dateHelpers } from './types';
@@ -77,23 +79,43 @@ describe('Stale Branch Manager', () => {
             });
 
             const branchName = 'test-branch';
+
+            debug('Test parameters:', { staleDuration, branchAge });
+
+            // Mock the basic branch response
             mockOctokit.rest.repos.listBranches.mockResolvedValue(
                 createMockResponse([createBranchResponse(branchName)])
             );
 
+            // Mock the commit response with the old date to make it stale
+            const commitDate = dateHelpers.createDate(branchAge);
+            debug('Generated commit date:', commitDate);
+
             mockOctokit.rest.repos.getCommit.mockResolvedValue(
                 createMockResponse(
-                    createCommitResponse(dateHelpers.createDate(branchAge))
+                    createCommitResponse(commitDate)
                 )
+            );
+
+            mockOctokit.rest.repos.compareCommitsWithBasehead.mockResolvedValue(
+                createMockResponse({
+                    status: "diverged",
+                    ahead_by: 1,
+                    behind_by: 1
+                })
             );
 
             await run();
 
-            // Verify branch was processed as stale
-            expect(mockCore.setOutput).toHaveBeenCalledWith(
-                'stale-branches',
-                JSON.stringify([branchName])
-            );
+            // Log the actual calls to setOutput
+            debug('setOutput calls:', mockCore.setOutput.mock.calls);
+
+            expect(mockCore.setOutput).toHaveBeenCalledWith('merged-branches-count', 0);
+            expect(mockCore.setOutput).toHaveBeenCalledWith('stale-branches-count', 1);
+            expect(mockCore.setOutput).toHaveBeenCalledWith('suggested-branches-count', 0);
+            expect(mockCore.setOutput).toHaveBeenCalledWith('merged-branches', '[]');
+            expect(mockCore.setOutput).toHaveBeenCalledWith('stale-branches', JSON.stringify([branchName]));
+            expect(mockCore.setOutput).toHaveBeenCalledWith('suggested-branches', '[]');
         });
 
         test.each([
@@ -136,21 +158,15 @@ describe('Stale Branch Manager', () => {
                 )
             );
 
-            // Set up compareCommits mock once for all branches
-            mockOctokit.rest.repos.compareCommits.mockImplementation(({ base }) => {
-                if (base === 'main') {
-                    return Promise.resolve(createMockResponse({
-                        data: {
-                            status: "identical",
-                        }
-                    }));
-                }
+            // Set up compareCommitsWithBasehead mock for all branches
+            mockOctokit.rest.repos.compareCommitsWithBasehead.mockImplementation(() => {
                 return Promise.resolve(createMockResponse({
-                    data: {
-                        status: "diverged",
-                    }
+                    status: "diverged",
+                    ahead_by: 1,
+                    behind_by: 1
                 }));
             });
+
 
             categoryState.branches.forEach(() => {
                 mockOctokit.rest.repos.getCommit.mockImplementation(({ ref }) => {
@@ -176,9 +192,10 @@ describe('Stale Branch Manager', () => {
                     "Suggested stale branches: suggested-1, suggested-2\n"
                 ],
                 ['merged-branches-count', 0],
+                ['merged-branches', '[]'],
                 ['stale-branches-count', 2],
-                ['suggested-branches-count', 2],
                 ['stale-branches', JSON.stringify(['stale-1', 'stale-2'])],
+                ['suggested-branches-count', 2],
                 ['suggested-branches', JSON.stringify(['suggested-1', 'suggested-2'])]
             ]);
         });

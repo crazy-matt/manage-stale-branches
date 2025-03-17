@@ -1,5 +1,39 @@
-import type { BranchInfo } from '../types/BranchInfo.ts';
 import styles from 'ansi-styles';
+import type { BranchInfo } from '../types/BranchInfo.js';
+
+export function generateBranchComparison(
+    branch: BranchInfo,
+    base: string,
+    head: string
+): string {
+    // Determine branch color based on status
+    let branchColor = `${styles.greenBright.open}${head}${styles.greenBright.close}`;
+    if (branch.isMerged) {
+        branchColor = `${styles.redBright.open}${head}${styles.redBright.close}`;
+    } else if (branch.isStale) {
+        branchColor = `${styles.yellowBright.open}${head}${styles.yellowBright.close}`;
+    }
+
+    // Create the detail message
+    let detailMessage = '';
+    switch (branch.branchStatus) {
+        case 'diverged':
+            detailMessage = `${head} has ${styles.red.open}diverged${styles.red.close} from ${base}, and is ahead by ${styles.magenta.open}${branch.aheadBy}${styles.magenta.close} commits and behind by ${styles.magenta.open}${branch.behindBy}${styles.magenta.close} commits.`;
+            break;
+        case 'ahead':
+            detailMessage = `${head} is ${styles.yellow.open}ahead${styles.yellow.close} of ${base} by ${styles.magenta.open}${branch.aheadBy}${styles.magenta.close} commits.`;
+            break;
+        case 'behind':
+            detailMessage = `${head} is ${styles.yellow.open}behind${styles.yellow.close} ${base} by ${styles.magenta.open}${branch.behindBy}${styles.magenta.close} commits.`;
+            break;
+        case 'identical':
+            detailMessage = `${head} is ${styles.green.open}identical${styles.green.close} to ${base}.`;
+            break;
+    }
+
+    // Return formatted group with collapsible detail
+    return `::group::[${branchColor}]\n${styles.bold.open}${detailMessage}${styles.bold.close}\n::endgroup::`;
+}
 
 export function generateSummaryMessage(
     processedMergedBranches: BranchInfo[],
@@ -15,30 +49,6 @@ export function generateSummaryMessage(
     }
     if (suggestedBranches.length > 0) {
         message += `Suggested stale branches: ${suggestedBranches.map((b) => b.name).join(', ')}\n`;
-    }
-    return message;
-}
-
-export function generateBranchComparison(
-    branch: BranchInfo,
-    base: string,
-    head: string
-): string {
-    let message: string;
-    message = `${styles.bold.open}${head} has a status of [${branch.branchStatus}] in comparison to ${base}. ${head} is ahead by ${branch.aheadBy} commits and behind by ${branch.behindBy} commits.${styles.bold.close}`;
-    switch (branch.branchStatus) {
-        case 'diverged':
-            message = `${styles.bold.open}${head} has ${styles.red.open}diverged${styles.red.close} from ${base}, and is ahead by ${styles.magenta.open}${branch.aheadBy}${styles.magenta.close} commits and behind by ${styles.magenta.open}${branch.behindBy}${styles.magenta.close} commits.${styles.bold.close}`;
-            break;
-        case 'ahead':
-            message = `${styles.bold.open}${head} is ${styles.yellow.open}ahead${styles.yellow.close} of ${base} by ${styles.magenta.open}${branch.aheadBy}${styles.magenta.close} commits.${styles.bold.close}`;
-            break;
-        case 'behind':
-            message = `${styles.bold.open}${head} is ${styles.yellow.open}behind${styles.yellow.close} ${base} by ${styles.magenta.open}${branch.behindBy}${styles.magenta.close} commits.${styles.bold.close}`;
-            break;
-        case 'identical':
-            message = `${styles.bold.open}${head} is ${styles.green.open}identical${styles.green.close} to ${base}.${styles.bold.close}`;
-            break;
     }
     return message;
 }

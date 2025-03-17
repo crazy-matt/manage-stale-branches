@@ -1,6 +1,8 @@
 import * as core from '@actions/core';
 import pMap from 'p-map';
-import type { BranchInfo } from '../types/BranchInfo.ts';
+import createDebug from 'debug';
+const debug = createDebug('manage-stale-branches:githubService');
+import type { BranchInfo } from '../types/BranchInfo.js';
 
 export class GithubService {
     constructor(
@@ -11,7 +13,9 @@ export class GithubService {
 
     async getBranchInfo(
         defaultBranch: string,
-        branchName: string
+        branchName: string,
+        staleCutoff: Date,
+        suggestedCutoff: Date
     ): Promise<BranchInfo> {
         // Get the last commit date
         const { data: commit } = await this.octokit.rest.repos.getCommit({
@@ -31,9 +35,12 @@ export class GithubService {
 
         // Initialize comparison values
         let isMerged = false;
+        let isStale = false;
+        let isSuggested = false;
         let branchStatus = '';
         let aheadBy = 0;
         let behindBy = 0;
+        const commitDateObj = new Date(commitDate);
 
         try {
             // Compare branch with default branch
@@ -54,11 +61,16 @@ export class GithubService {
             isMerged =
                 comparison.status === 'identical' ||
                 comparison.status === 'behind';
+            isStale = commitDateObj < staleCutoff;
+            isSuggested = commitDateObj < suggestedCutoff;
 
-            core.debug(
-                `Branch ${branchName} comparison: status=${branchStatus}, ` +
-                    `ahead=${aheadBy}, behind=${behindBy}, merged=${isMerged}`
-            );
+            debug(`Branch ${branchName}:
+                commitDate=${commitDate},
+                staleCutoff=${staleCutoff},
+                status=${branchStatus},
+                isMerged=${isMerged},
+                isStale=${isStale},
+                isSuggested=${isSuggested}`);
         } catch (error) {
             core.warning(
                 `Failed to check comparison status for ${branchName}: ${(error as Error).message}`
@@ -68,7 +80,9 @@ export class GithubService {
         return {
             name: branchName,
             isMerged,
-            lastCommitDate: new Date(commitDate),
+            isStale,
+            isSuggested,
+            lastCommitDate: commitDateObj,
             branchStatus,
             aheadBy,
             behindBy,

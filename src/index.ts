@@ -1,12 +1,14 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
+import createDebug from 'debug';
+const debug = createDebug('manage-stale-branches:main');
+import type { BranchInfo } from './types/BranchInfo.js';
 import { GithubService } from './services/githubService.js';
-import { parseTimeWithUnit } from './utils/timeParser.js';
 import {
     generateBranchComparison,
     generateSummaryMessage,
 } from './utils/branchUtils.js';
-import type { BranchInfo } from './types/BranchInfo.js';
+import { parseTimeWithUnit } from './utils/timeParser.js';
 
 export async function run(): Promise<void> {
     try {
@@ -65,20 +67,42 @@ export async function run(): Promise<void> {
                 (!excludePatterns.length ||
                     !excludePatterns.some((regex) => regex.test(branch.name)))
         );
-        const branchInfos = await Promise.all(
-            filteredBranches.map((branch) =>
-                githubService.getBranchInfo(defaultBranch, branch.name)
-            )
-        );
 
         const now = Date.now();
         const staleCutoff = new Date(now - staleTime);
         const suggestedCutoff = new Date(now - suggestedTime);
+        const branchInfos = await Promise.all(
+            filteredBranches.map((branch) =>
+                githubService.getBranchInfo(
+                    defaultBranch,
+                    branch.name,
+                    staleCutoff,
+                    suggestedCutoff
+                )
+            )
+        );
+        branchInfos.forEach((branch) => {
+            debug(
+                JSON.stringify({
+                    name: branch.name,
+                    isMerged: branch.isMerged,
+                    isStale: branch.isStale,
+                    isSuggested: branch.isSuggested,
+                    lastCommitDate: branch.lastCommitDate.toISOString(),
+                    branchStatus: branch.branchStatus,
+                    aheadBy: branch.aheadBy,
+                    behindBy: branch.behindBy,
+                    staleCutoff: staleCutoff.toISOString(),
+                    suggestedCutoff: suggestedCutoff.toISOString(),
+                })
+            );
+        });
 
         const mergedBranches: BranchInfo[] = [];
         const staleBranches: BranchInfo[] = [];
         const suggestedBranches: BranchInfo[] = [];
 
+        core.info(`Retaining branches:`);
         branchInfos.forEach((branch) => {
             core.info(
                 generateBranchComparison(branch, defaultBranch, branch.name)
@@ -86,9 +110,9 @@ export async function run(): Promise<void> {
 
             if (branch.isMerged) {
                 mergedBranches.push(branch);
-            } else if (branch.lastCommitDate < staleCutoff) {
+            } else if (branch.isStale) {
                 staleBranches.push(branch);
-            } else if (branch.lastCommitDate < suggestedCutoff) {
+            } else if (branch.isSuggested) {
                 suggestedBranches.push(branch);
             }
         });
@@ -123,16 +147,18 @@ export async function run(): Promise<void> {
         }
 
         core.setOutput('merged-branches-count', processedMergedBranches.length);
-        core.setOutput('stale-branches-count', processedStaleBranches.length);
-        core.setOutput('suggested-branches-count', suggestedBranches.length);
+        core.setOutput(
+            'merged-branches',
+            JSON.stringify(processedMergedBranches.map((b) => b.name))
+        );
 
-        // Using JSON.stringify to create proper JSON array strings
+        core.setOutput('stale-branches-count', processedStaleBranches.length);
         core.setOutput(
             'stale-branches',
-            JSON.stringify(
-                [...mergedBranches, ...staleBranches].map((b) => b.name)
-            )
+            JSON.stringify(processedStaleBranches.map((b) => b.name))
         );
+
+        core.setOutput('suggested-branches-count', suggestedBranches.length);
         core.setOutput(
             'suggested-branches',
             JSON.stringify(suggestedBranches.map((b) => b.name))
