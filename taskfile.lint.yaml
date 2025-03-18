@@ -9,6 +9,7 @@ tasks:
       - defer: \rm -f .task_errors
       #- cmd: task lint:actions || touch .task_errors
       - cmd: task lint:markdown || touch .task_errors
+      - cmd: task lint:scripts || touch .task_errors
       - cmd: task lint:yaml || touch .task_errors
       - cmd: if [ -f .task_errors ]; then exit 1; fi
 
@@ -31,6 +32,13 @@ tasks:
     cmds:
       - echo "📒  {{.TASK}}"
       - markdownlint-cli2 --config .linters/.markdownlint-cli2.yaml .
+
+  scripts:
+    desc: Lint shell scripts (https://github.com/koalaman/shellcheck)
+    cmds:
+      - echo "📒  {{.TASK}}"
+      - |
+        find . -path "./.history" -prune -o \( -name "*.sh" \) -print -exec shellcheck --severity=error --rcfile=.linters/.shellcheckrc {} +
 
   yaml:
     desc: Lint yaml files (https://github.com/adrienverge/yamllint)
