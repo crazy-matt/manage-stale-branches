@@ -1,5 +1,5 @@
 {
-    "name": "manage-stale-branches-exp",
+    "name": "manage-stale-branches",
     "version": "3.0.0",
     "packageManager": "yarn@4.7.0",
     "type": "module",
