@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/crazy-matt/manage-stale-branches/compare/v3.0.0...v3.0.1) (2025-03-18)
+
+
+### Bug Fixes
+
+* correct package name ([c1b2156](https://github.com/crazy-matt/manage-stale-branches/commit/c1b2156178222eaf8bc7f8a4bf7084595b3e8968))
+
 ## [3.0.0](https://github.com/crazy-matt/manage-stale-branches/compare/v2.0.1...v3.0.0) (2025-03-18)
 
 
