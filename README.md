@@ -22,6 +22,7 @@ If you set the `dry-run` input to true, the action will simply output a preview 
 <summary>Table of Contents</summary>
 
 - [Using the Action](#using-the-action)
+  - [Preview](#preview)
   - [Minimalistic Workflow](#minimalistic-workflow)
   - [Sample Workflow](#sample-workflow)
 - [Inputs](#inputs)
@@ -44,6 +45,10 @@ In your GitHub workflows, you can reference the action by:
 ```
 
 For more information, refer to the [GitHub Actions Quickstart](https://docs.github.com/en/actions/quickstart).
+
+### Preview
+
+<div align="center"><img src="./assets/logs.png" alt="Action Logs"></div>
 
 ### Minimalistic Workflow
 
