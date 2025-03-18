@@ -84,7 +84,7 @@ jobs:
           archive-stale: true
           exclude-patterns: |
             release
-            keep-this.*
+            ^keep-this.*
 ```
 
 > Restore your branches with `git checkout -b <branch name> archive/<branch name>`.
