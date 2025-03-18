@@ -82,6 +82,7 @@ jobs:
           suggested-duration: 30d
           dry-run: true
           archive-stale: true
+          rate-limit-threshold: 95
           exclude-patterns: |
             release
             ^keep-this.*
@@ -101,6 +102,7 @@ jobs:
 | `dry-run` | <p>Run in dry-run mode (no actual deletion).</p> | `false` | `true` |
 | `archive-stale` | <p>Archive instead of deleting stale branches.</p> | `false` | `false` |
 | `exclude-patterns` | <p>Branches to exclude from cleanup. It can be a comma-separated list or a multiline string (yaml list). It can use regex patterns.</p> | `false` | `""` |
+| `rate-limit-threshold` | <p>GitHub API rate limit threshold percentage (0-100). The action will exit gracefully when the rate limit usage reaches this threshold. It defaults to no threshold.</p> | `false` | `100` |
 <!-- action-docs-inputs source="action.yml" -->
 
 <!-- action-docs-outputs source="action.yml" -->

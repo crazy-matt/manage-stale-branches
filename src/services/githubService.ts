@@ -3,13 +3,33 @@ import pMap from 'p-map';
 import createDebug from 'debug';
 const debug = createDebug('manage-stale-branches:githubService');
 import type { BranchInfo } from '../types/BranchInfo.js';
+import type { RateLimitService } from './rateLimitService.js';
 
 export class GithubService {
+    private rateLimitService: RateLimitService | null = null;
+
     constructor(
         private octokit: any,
         private owner: string,
         private repo: string
     ) {}
+
+    setRateLimitService(rateLimitService: RateLimitService): void {
+        this.rateLimitService = rateLimitService;
+    }
+
+    private async executeWithRateLimitCheck<T>(
+        operation: string,
+        fn: () => Promise<T>
+    ): Promise<T | null> {
+        if (this.rateLimitService) {
+            // Add proper type assertion for the return value
+            return await this.rateLimitService.withRateLimitCheck<T>(operation)(
+                fn
+            );
+        }
+        return await fn();
+    }
 
     async getBranchInfo(
         defaultBranch: string,
@@ -18,12 +38,23 @@ export class GithubService {
         suggestedCutoff: Date
     ): Promise<BranchInfo> {
         // Get the last commit date
-        const { data: commit } = await this.octokit.rest.repos.getCommit({
-            owner: this.owner,
-            repo: this.repo,
-            ref: branchName,
-        });
+        const getCommitResult = await this.executeWithRateLimitCheck(
+            `getCommit for ${branchName}`,
+            async () =>
+                await this.octokit.rest.repos.getCommit({
+                    owner: this.owner,
+                    repo: this.repo,
+                    ref: branchName,
+                })
+        );
 
+        if (getCommitResult === null) {
+            throw new Error(
+                `Rate limit reached while getting commit for branch ${branchName}`
+            );
+        }
+
+        const commit = getCommitResult.data;
         const commitDate =
             commit.commit.committer?.date || commit.commit.author?.date;
         if (!commitDate) {
@@ -45,12 +76,23 @@ export class GithubService {
         try {
             // Compare branch with default branch
             const basehead = `heads/${defaultBranch}...heads/${branchName}`;
-            const { data: comparison } =
-                await this.octokit.rest.repos.compareCommitsWithBasehead({
-                    owner: this.owner,
-                    repo: this.repo,
-                    basehead,
-                });
+            const compareResult = await this.executeWithRateLimitCheck(
+                `compareCommits for ${branchName}`,
+                async () =>
+                    await this.octokit.rest.repos.compareCommitsWithBasehead({
+                        owner: this.owner,
+                        repo: this.repo,
+                        basehead,
+                    })
+            );
+
+            if (compareResult === null) {
+                throw new Error(
+                    `Rate limit reached while comparing commits for branch ${branchName}`
+                );
+            }
+
+            const comparison = compareResult.data;
 
             // Update comparison values
             branchStatus = comparison.status;
@@ -95,7 +137,7 @@ export class GithubService {
         dryRun: boolean,
         concurrency: number,
         branchType: string
-    ): Promise<BranchInfo[]> {
+    ): Promise<BranchInfo[] | null> {
         if (branches.length === 0) {
             core.info(`No ${branchType} branch to process.`);
             return [];
@@ -117,19 +159,38 @@ export class GithubService {
                                 `Would archive branch [${branch.name}] to [refs/tags/archive/${branch.name}]`
                             );
                         } else {
-                            const { data: refData } =
-                                await this.octokit.rest.git.getRef({
-                                    owner: this.owner,
-                                    repo: this.repo,
-                                    ref: `heads/${branch.name}`,
-                                });
+                            const getRefResult =
+                                await this.executeWithRateLimitCheck(
+                                    `getRef for ${branch.name}`,
+                                    async () =>
+                                        await this.octokit.rest.git.getRef({
+                                            owner: this.owner,
+                                            repo: this.repo,
+                                            ref: `heads/${branch.name}`,
+                                        })
+                                );
 
-                            await this.octokit.rest.git.createRef({
-                                owner: this.owner,
-                                repo: this.repo,
-                                ref: `refs/tags/archive/${branch.name}`,
-                                sha: refData.object.sha,
-                            });
+                            if (getRefResult === null) {
+                                return null; // Rate limit reached
+                            }
+
+                            const refData = getRefResult.data;
+
+                            const createRefResult =
+                                await this.executeWithRateLimitCheck(
+                                    `createRef for archive/${branch.name}`,
+                                    async () =>
+                                        await this.octokit.rest.git.createRef({
+                                            owner: this.owner,
+                                            repo: this.repo,
+                                            ref: `refs/tags/archive/${branch.name}`,
+                                            sha: refData.object.sha,
+                                        })
+                                );
+
+                            if (createRefResult === null) {
+                                return null; // Rate limit reached
+                            }
 
                             core.info(
                                 `Archived branch [${branch.name}] to [refs/tags/archive/${branch.name}]`
@@ -140,11 +201,21 @@ export class GithubService {
                     if (dryRun) {
                         core.info(`Would delete branch [${branch.name}]`);
                     } else {
-                        await this.octokit.rest.git.deleteRef({
-                            owner: this.owner,
-                            repo: this.repo,
-                            ref: `heads/${branch.name}`,
-                        });
+                        const deleteRefResult =
+                            await this.executeWithRateLimitCheck(
+                                `deleteRef for ${branch.name}`,
+                                async () =>
+                                    await this.octokit.rest.git.deleteRef({
+                                        owner: this.owner,
+                                        repo: this.repo,
+                                        ref: `heads/${branch.name}`,
+                                    })
+                            );
+
+                        if (deleteRefResult === null) {
+                            return null; // Rate limit reached
+                        }
+
                         core.info(`Deleted branch [${branch.name}]`);
                     }
 
@@ -160,6 +231,18 @@ export class GithubService {
             },
             { concurrency }
         );
+
+        // Check if any branch operation returned null due to rate limit
+        if (
+            processedBranches.some(
+                (branch) => branch === null && this.rateLimitService !== null
+            )
+        ) {
+            core.warning(
+                'Rate limit threshold reached during branch processing'
+            );
+            return null;
+        }
 
         // Filter out null values from failed operations
         return processedBranches.filter(

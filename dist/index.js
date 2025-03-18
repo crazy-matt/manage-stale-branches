@@ -34593,17 +34593,31 @@ class GithubService {
     octokit;
     owner;
     repo;
+    rateLimitService = null;
     constructor(octokit, owner, repo) {
         this.octokit = octokit;
         this.owner = owner;
         this.repo = repo;
     }
+    setRateLimitService(rateLimitService) {
+        this.rateLimitService = rateLimitService;
+    }
+    async executeWithRateLimitCheck(operation, fn) {
+        if (this.rateLimitService) {
+            return await this.rateLimitService.withRateLimitCheck(operation)(fn);
+        }
+        return await fn();
+    }
     async getBranchInfo(defaultBranch, branchName, staleCutoff, suggestedCutoff) {
-        const { data: commit } = await this.octokit.rest.repos.getCommit({
+        const getCommitResult = await this.executeWithRateLimitCheck(`getCommit for ${branchName}`, async () => await this.octokit.rest.repos.getCommit({
             owner: this.owner,
             repo: this.repo,
             ref: branchName,
-        });
+        }));
+        if (getCommitResult === null) {
+            throw new Error(`Rate limit reached while getting commit for branch ${branchName}`);
+        }
+        const commit = getCommitResult.data;
         const commitDate = commit.commit.committer?.date || commit.commit.author?.date;
         if (!commitDate) {
             core.warning(`Skipping branch ${branchName} due to missing commit date`);
@@ -34618,11 +34632,15 @@ class GithubService {
         const commitDateObj = new Date(commitDate);
         try {
             const basehead = `heads/${defaultBranch}...heads/${branchName}`;
-            const { data: comparison } = await this.octokit.rest.repos.compareCommitsWithBasehead({
+            const compareResult = await this.executeWithRateLimitCheck(`compareCommits for ${branchName}`, async () => await this.octokit.rest.repos.compareCommitsWithBasehead({
                 owner: this.owner,
                 repo: this.repo,
                 basehead,
-            });
+            }));
+            if (compareResult === null) {
+                throw new Error(`Rate limit reached while comparing commits for branch ${branchName}`);
+            }
+            const comparison = compareResult.data;
             branchStatus = comparison.status;
             aheadBy = comparison.ahead_by;
             behindBy = comparison.behind_by;
@@ -34666,17 +34684,24 @@ class GithubService {
                         core.info(`Would archive branch [${branch.name}] to [refs/tags/archive/${branch.name}]`);
                     }
                     else {
-                        const { data: refData } = await this.octokit.rest.git.getRef({
+                        const getRefResult = await this.executeWithRateLimitCheck(`getRef for ${branch.name}`, async () => await this.octokit.rest.git.getRef({
                             owner: this.owner,
                             repo: this.repo,
                             ref: `heads/${branch.name}`,
-                        });
-                        await this.octokit.rest.git.createRef({
+                        }));
+                        if (getRefResult === null) {
+                            return null;
+                        }
+                        const refData = getRefResult.data;
+                        const createRefResult = await this.executeWithRateLimitCheck(`createRef for archive/${branch.name}`, async () => await this.octokit.rest.git.createRef({
                             owner: this.owner,
                             repo: this.repo,
                             ref: `refs/tags/archive/${branch.name}`,
                             sha: refData.object.sha,
-                        });
+                        }));
+                        if (createRefResult === null) {
+                            return null;
+                        }
                         core.info(`Archived branch [${branch.name}] to [refs/tags/archive/${branch.name}]`);
                     }
                 }
@@ -34684,11 +34709,14 @@ class GithubService {
                     core.info(`Would delete branch [${branch.name}]`);
                 }
                 else {
-                    await this.octokit.rest.git.deleteRef({
+                    const deleteRefResult = await this.executeWithRateLimitCheck(`deleteRef for ${branch.name}`, async () => await this.octokit.rest.git.deleteRef({
                         owner: this.owner,
                         repo: this.repo,
                         ref: `heads/${branch.name}`,
-                    });
+                    }));
+                    if (deleteRefResult === null) {
+                        return null;
+                    }
                     core.info(`Deleted branch [${branch.name}]`);
                 }
                 return branch;
@@ -34698,7 +34726,55 @@ class GithubService {
                 return null;
             }
         }, { concurrency });
+        if (processedBranches.some((branch) => branch === null && this.rateLimitService !== null)) {
+            core.warning('Rate limit threshold reached during branch processing');
+            return null;
+        }
         return processedBranches.filter((branch) => branch !== null);
+    }
+}
+
+;// CONCATENATED MODULE: ./src/services/rateLimitService.ts
+
+
+const rateLimitService_debug = src_default()('manage-stale-branches:rateLimitService');
+class RateLimitService {
+    octokit;
+    thresholdPercentage;
+    constructor(octokit, thresholdPercentage = 95) {
+        this.octokit = octokit;
+        this.thresholdPercentage = thresholdPercentage;
+    }
+    async checkRateLimit() {
+        try {
+            const { data: rateLimitData } = await this.octokit.rest.rateLimit.get();
+            const { rate } = rateLimitData;
+            const remaining = rate.remaining;
+            const limit = rate.limit;
+            const usedPercentage = ((limit - remaining) / limit) * 100;
+            rateLimitService_debug(`Rate limit: ${remaining}/${limit} (${usedPercentage.toFixed(2)}% used)`);
+            if (usedPercentage >= this.thresholdPercentage) {
+                const resetDate = new Date(rate.reset * 1000);
+                core.warning(`Rate limit threshold reached: ${usedPercentage.toFixed(2)}% used. Limit resets at ${resetDate.toISOString()}`);
+                return false;
+            }
+            return true;
+        }
+        catch (error) {
+            core.warning(`Failed to check rate limit: ${error.message}`);
+            return true;
+        }
+    }
+    withRateLimitCheck(operation) {
+        return async (fn) => {
+            const result = await fn();
+            const isBelowThreshold = await this.checkRateLimit();
+            if (!isBelowThreshold) {
+                core.warning(`Rate limit threshold reached after ${operation}. Exiting gracefully.`);
+                return null;
+            }
+            return result;
+        };
     }
 }
 
@@ -34784,6 +34860,7 @@ const src_debug = src_default()('manage-stale-branches:main');
 
 
 
+
 async function run() {
     try {
         const token = core.getInput('github-token') || process.env.GITHUB_TOKEN;
@@ -34792,6 +34869,7 @@ async function run() {
         const suggestedDuration = core.getInput('suggested-duration') || '30d';
         const archiveStale = core.getBooleanInput('archive-stale');
         const concurrency = parseInt(core.getInput('concurrency') || '4', 10);
+        const rateLimitThreshold = parseInt(core.getInput('rate-limit-threshold') || '95', 10);
         const excludePatterns = core.getInput('exclude-patterns')
             ? core.getInput('exclude-patterns')
                 .split(/\r?\n|,/)
@@ -34816,37 +34894,67 @@ async function run() {
         const octokit = github.getOctokit(token);
         const { owner, repo } = github.context.repo;
         const githubService = new GithubService(octokit, owner, repo);
-        const { data: repoInfo } = await octokit.rest.repos.get({
-            owner,
-            repo,
+        const rateLimitService = new RateLimitService(octokit, rateLimitThreshold);
+        const isBelowThreshold = await rateLimitService.checkRateLimit();
+        if (!isBelowThreshold) {
+            core.warning('Rate limit threshold already reached before starting processing. Exiting early.');
+            return;
+        }
+        const getRepoOp = rateLimitService.withRateLimitCheck('get repository info');
+        const repoResult = await getRepoOp(async () => {
+            return await octokit.rest.repos.get({
+                owner,
+                repo,
+            });
         });
-        const defaultBranch = repoInfo.default_branch;
+        if (!repoResult) {
+            core.warning('Exiting due to rate limit threshold being reached.');
+            return;
+        }
+        const defaultBranch = repoResult.data.default_branch;
         core.info(`Fetching branches from ${owner}/${repo}...`);
-        const { data: branches } = await octokit.rest.repos.listBranches({
-            owner,
-            repo,
+        const listBranchesOp = rateLimitService.withRateLimitCheck('list branches');
+        const branchesResult = await listBranchesOp(async () => {
+            return await octokit.rest.repos.listBranches({
+                owner,
+                repo,
+            });
         });
+        if (!branchesResult) {
+            core.warning('Exiting due to rate limit threshold being reached.');
+            return;
+        }
+        const branches = branchesResult.data;
         const filteredBranches = branches.filter((branch) => branch.name !== defaultBranch &&
             (!excludePatterns.length ||
                 !excludePatterns.some((regex) => regex.test(branch.name))));
         const now = Date.now();
         const staleCutoff = new Date(now - staleTime);
         const suggestedCutoff = new Date(now - suggestedTime);
-        const branchInfos = await Promise.all(filteredBranches.map((branch) => githubService.getBranchInfo(defaultBranch, branch.name, staleCutoff, suggestedCutoff)));
-        branchInfos.forEach((branch) => {
+        const branchInfos = [];
+        for (const branch of filteredBranches) {
+            const getBranchInfoOp = rateLimitService.withRateLimitCheck(`get branch info for ${branch.name}`);
+            const branchInfo = await getBranchInfoOp(async () => {
+                return await githubService.getBranchInfo(defaultBranch, branch.name, staleCutoff, suggestedCutoff);
+            });
+            if (!branchInfo) {
+                core.warning('Exiting due to rate limit threshold being reached.');
+                return;
+            }
+            branchInfos.push(branchInfo);
             src_debug(JSON.stringify({
-                name: branch.name,
-                isMerged: branch.isMerged,
-                isStale: branch.isStale,
-                isSuggested: branch.isSuggested,
-                lastCommitDate: branch.lastCommitDate.toISOString(),
-                branchStatus: branch.branchStatus,
-                aheadBy: branch.aheadBy,
-                behindBy: branch.behindBy,
+                name: branchInfo.name,
+                isMerged: branchInfo.isMerged,
+                isStale: branchInfo.isStale,
+                isSuggested: branchInfo.isSuggested,
+                lastCommitDate: branchInfo.lastCommitDate.toISOString(),
+                branchStatus: branchInfo.branchStatus,
+                aheadBy: branchInfo.aheadBy,
+                behindBy: branchInfo.behindBy,
                 staleCutoff: staleCutoff.toISOString(),
                 suggestedCutoff: suggestedCutoff.toISOString(),
             }));
-        });
+        }
         const mergedBranches = [];
         const staleBranches = [];
         const suggestedBranches = [];
@@ -34866,8 +34974,17 @@ async function run() {
         if (dryRun) {
             core.info('Dry-run mode enabled. No branches will be deleted or archived.');
         }
+        githubService.setRateLimitService(rateLimitService);
         const processedMergedBranches = await githubService.deleteOrArchiveBranches(mergedBranches, false, dryRun, concurrency, 'merged');
+        if (processedMergedBranches === null) {
+            core.warning('Rate limit threshold reached during merged branch processing. Stopping further operations.');
+            return;
+        }
         const processedStaleBranches = await githubService.deleteOrArchiveBranches(staleBranches, archiveStale, dryRun, concurrency, 'stale');
+        if (processedStaleBranches === null) {
+            core.warning('Rate limit threshold reached during stale branch processing. Stopping further operations.');
+            return;
+        }
         const message = generateSummaryMessage(processedMergedBranches, processedStaleBranches, suggestedBranches);
         if (message) {
             core.info(message);

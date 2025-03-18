@@ -36,6 +36,13 @@ inputs:
       It can use regex patterns.
     required: false
     default: ""
+  rate-limit-threshold:
+    description: |
+      GitHub API rate limit threshold percentage (0-100).
+      The action will exit gracefully when the rate limit usage reaches this threshold.
+      The action defaults to no threshold (100).
+    required: false
+    default: 100
 
 outputs:
   summary:

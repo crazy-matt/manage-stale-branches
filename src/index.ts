@@ -1,14 +1,21 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
+import type { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
 import createDebug from 'debug';
 const debug = createDebug('manage-stale-branches:main');
 import type { BranchInfo } from './types/BranchInfo.js';
 import { GithubService } from './services/githubService.js';
+import { RateLimitService } from './services/rateLimitService.js';
 import {
     generateBranchComparison,
     generateSummaryMessage,
 } from './utils/branchUtils.js';
 import { parseTimeWithUnit } from './utils/timeParser.js';
+
+// Response types for GitHub API calls
+type RepoGetResponse = RestEndpointMethodTypes['repos']['get']['response'];
+type BranchesListResponse =
+    RestEndpointMethodTypes['repos']['listBranches']['response'];
 
 export async function run(): Promise<void> {
     try {
@@ -18,6 +25,10 @@ export async function run(): Promise<void> {
         const suggestedDuration = core.getInput('suggested-duration') || '30d';
         const archiveStale: boolean = core.getBooleanInput('archive-stale');
         const concurrency = parseInt(core.getInput('concurrency') || '4', 10);
+        const rateLimitThreshold = parseInt(
+            core.getInput('rate-limit-threshold') || '95',
+            10
+        );
         const excludePatterns: RegExp[] = core.getInput('exclude-patterns')
             ? core
                   .getInput('exclude-patterns')
@@ -48,19 +59,55 @@ export async function run(): Promise<void> {
         const octokit = github.getOctokit(token);
         const { owner, repo } = github.context.repo;
         const githubService = new GithubService(octokit, owner, repo);
+        const rateLimitService = new RateLimitService(
+            octokit,
+            rateLimitThreshold
+        );
 
-        // Get the default branch name
-        const { data: repoInfo } = await octokit.rest.repos.get({
-            owner,
-            repo,
+        // Initial check of rate limit
+        const isBelowThreshold = await rateLimitService.checkRateLimit();
+        if (!isBelowThreshold) {
+            core.warning(
+                'Rate limit threshold already reached before starting processing. Exiting early.'
+            );
+            return;
+        }
+
+        const getRepoOp = rateLimitService.withRateLimitCheck<RepoGetResponse>(
+            'get repository info'
+        );
+        const repoResult = await getRepoOp(async () => {
+            return await octokit.rest.repos.get({
+                owner,
+                repo,
+            });
         });
-        const defaultBranch = repoInfo.default_branch;
+
+        if (!repoResult) {
+            core.warning('Exiting due to rate limit threshold being reached.');
+            return;
+        }
+
+        const defaultBranch = repoResult.data.default_branch;
 
         core.info(`Fetching branches from ${owner}/${repo}...`);
-        const { data: branches } = await octokit.rest.repos.listBranches({
-            owner,
-            repo,
+        const listBranchesOp =
+            rateLimitService.withRateLimitCheck<BranchesListResponse>(
+                'list branches'
+            );
+        const branchesResult = await listBranchesOp(async () => {
+            return await octokit.rest.repos.listBranches({
+                owner,
+                repo,
+            });
         });
+
+        if (!branchesResult) {
+            core.warning('Exiting due to rate limit threshold being reached.');
+            return;
+        }
+
+        const branches = branchesResult.data;
         const filteredBranches = branches.filter(
             (branch) =>
                 branch.name !== defaultBranch &&
@@ -71,32 +118,47 @@ export async function run(): Promise<void> {
         const now = Date.now();
         const staleCutoff = new Date(now - staleTime);
         const suggestedCutoff = new Date(now - suggestedTime);
-        const branchInfos = await Promise.all(
-            filteredBranches.map((branch) =>
-                githubService.getBranchInfo(
+
+        // Process branches with rate limiting
+        const branchInfos: BranchInfo[] = [];
+        for (const branch of filteredBranches) {
+            const getBranchInfoOp =
+                rateLimitService.withRateLimitCheck<BranchInfo>(
+                    `get branch info for ${branch.name}`
+                );
+            const branchInfo = await getBranchInfoOp(async () => {
+                return await githubService.getBranchInfo(
                     defaultBranch,
                     branch.name,
                     staleCutoff,
                     suggestedCutoff
-                )
-            )
-        );
-        branchInfos.forEach((branch) => {
+                );
+            });
+
+            if (!branchInfo) {
+                core.warning(
+                    'Exiting due to rate limit threshold being reached.'
+                );
+                return;
+            }
+
+            branchInfos.push(branchInfo);
+
             debug(
                 JSON.stringify({
-                    name: branch.name,
-                    isMerged: branch.isMerged,
-                    isStale: branch.isStale,
-                    isSuggested: branch.isSuggested,
-                    lastCommitDate: branch.lastCommitDate.toISOString(),
-                    branchStatus: branch.branchStatus,
-                    aheadBy: branch.aheadBy,
-                    behindBy: branch.behindBy,
+                    name: branchInfo.name,
+                    isMerged: branchInfo.isMerged,
+                    isStale: branchInfo.isStale,
+                    isSuggested: branchInfo.isSuggested,
+                    lastCommitDate: branchInfo.lastCommitDate.toISOString(),
+                    branchStatus: branchInfo.branchStatus,
+                    aheadBy: branchInfo.aheadBy,
+                    behindBy: branchInfo.behindBy,
                     staleCutoff: staleCutoff.toISOString(),
                     suggestedCutoff: suggestedCutoff.toISOString(),
                 })
             );
-        });
+        }
 
         const mergedBranches: BranchInfo[] = [];
         const staleBranches: BranchInfo[] = [];
@@ -125,6 +187,9 @@ export async function run(): Promise<void> {
             );
         }
 
+        // Update GithubService to use our rate limit checker
+        githubService.setRateLimitService(rateLimitService);
+
         const processedMergedBranches =
             await githubService.deleteOrArchiveBranches(
                 mergedBranches,
@@ -134,6 +199,14 @@ export async function run(): Promise<void> {
                 'merged'
             );
 
+        // Check if we hit the rate limit during merged branch processing
+        if (processedMergedBranches === null) {
+            core.warning(
+                'Rate limit threshold reached during merged branch processing. Stopping further operations.'
+            );
+            return;
+        }
+
         const processedStaleBranches =
             await githubService.deleteOrArchiveBranches(
                 staleBranches,
@@ -142,6 +215,14 @@ export async function run(): Promise<void> {
                 concurrency,
                 'stale'
             );
+
+        // Check if we hit the rate limit during stale branch processing
+        if (processedStaleBranches === null) {
+            core.warning(
+                'Rate limit threshold reached during stale branch processing. Stopping further operations.'
+            );
+            return;
+        }
 
         const message = generateSummaryMessage(
             processedMergedBranches,
