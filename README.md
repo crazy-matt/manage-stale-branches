@@ -38,9 +38,9 @@ If you set the `dry-run` input to true, the action will simply output a preview 
 In your GitHub workflows, you can reference the action by:
 
 ```yaml
-- uses: crazy-matt/manage-stale-branches@v2      # Always use the latest 2.x.x
-- uses: crazy-matt/manage-stale-branches@v2.0    # Always use the latest 2.0.x
-- uses: crazy-matt/manage-stale-branches@v2.0.1  # Use this specific version
+- uses: crazy-matt/manage-stale-branches@v3      # Always use the latest 3.x.x
+- uses: crazy-matt/manage-stale-branches@v3.0    # Always use the latest 3.0.x
+- uses: crazy-matt/manage-stale-branches@v3.0.0  # Use this specific version
 ```
 
 For more information, refer to the [GitHub Actions Quickstart](https://docs.github.com/en/actions/quickstart).
@@ -57,7 +57,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: crazy-matt/manage-stale-branches@v2
+      - uses: crazy-matt/manage-stale-branches@v3
 ```
 
 > you don't need to checkout your repository as this action uses the Github API.
@@ -76,7 +76,7 @@ jobs:
       contents: write
     steps:
       - name: Manage Stale Branches
-        uses: crazy-matt/manage-stale-branches@v2
+        uses: crazy-matt/manage-stale-branches@v3
         with:
           stale-duration: 60d
           suggested-duration: 30d
@@ -102,7 +102,7 @@ jobs:
 | `dry-run` | <p>Run in dry-run mode (no actual deletion).</p> | `false` | `true` |
 | `archive-stale` | <p>Archive instead of deleting stale branches.</p> | `false` | `false` |
 | `exclude-patterns` | <p>Branches to exclude from cleanup. It can be a comma-separated list or a multiline string (yaml list). It can use regex patterns.</p> | `false` | `""` |
-| `rate-limit-threshold` | <p>GitHub API rate limit threshold percentage (0-100). The action will exit gracefully when the rate limit usage reaches this threshold. It defaults to no threshold.</p> | `false` | `100` |
+| `rate-limit-threshold` | <p>GitHub API rate limit threshold percentage (0-100). The action will exit gracefully when the rate limit usage reaches this threshold. The action defaults to no threshold (100).</p> | `false` | `100` |
 <!-- action-docs-inputs source="action.yml" -->
 
 <!-- action-docs-outputs source="action.yml" -->
