@@ -975,12 +975,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^22.13.14":
-  version: 22.13.14
-  resolution: "@types/node@npm:22.13.14"
+"@types/node@npm:^22.14.0":
+  version: 22.14.0
+  resolution: "@types/node@npm:22.14.0"
   dependencies:
-    undici-types: "npm:~6.20.0"
-  checksum: 10c0/fa2ab5b8277bfbcc86c42e46a3ea9871b0d559894cc9d955685d17178c9499f0b1bf03d1d1ea8d92ef2dda818988f4035acb8abf9dc15423a998fa56173ab804
+    undici-types: "npm:~6.21.0"
+  checksum: 10c0/9d79f3fa1af9c2c869514f419c4a4905b34c10e12915582fd1784868ac4e74c6d306cf5eb47ef889b6750ab85a31be96618227b86739c4a3e0b1c15063f384c6
   languageName: node
   linkType: hard
 
@@ -1739,12 +1739,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-prettier@npm:^5.2.5":
-  version: 5.2.5
-  resolution: "eslint-plugin-prettier@npm:5.2.5"
+"eslint-plugin-prettier@npm:^5.2.6":
+  version: 5.2.6
+  resolution: "eslint-plugin-prettier@npm:5.2.6"
   dependencies:
     prettier-linter-helpers: "npm:^1.0.0"
-    synckit: "npm:^0.10.2"
+    synckit: "npm:^0.11.0"
   peerDependencies:
     "@types/eslint": ">=8.0.0"
     eslint: ">=8.0.0"
@@ -1755,7 +1755,7 @@ __metadata:
       optional: true
     eslint-config-prettier:
       optional: true
-  checksum: 10c0/b88d4ecfccfdea786aa8c2df8c6b52754070fec48ef5df0dcd325daf7cbe01730a96fb6a8c5ae0ddd173472b43704d6452169b058284e842dfee5894172f310b
+  checksum: 10c0/9911740a5edac7933d92671381908671c61ffa32a3cee7aed667ebab89831ee2c0b69eb9530f68dbe172ca9d4b3fa3d47350762dc1eb096a3ce125fa31c0e616
   languageName: node
   linkType: hard
 
@@ -2498,7 +2498,7 @@ __metadata:
     "@octokit/core": "npm:^6.1.4"
     "@octokit/plugin-rest-endpoint-methods": "npm:^13.5.0"
     "@types/debug": "npm:^4.1.12"
-    "@types/node": "npm:^22.13.14"
+    "@types/node": "npm:^22.14.0"
     "@typescript-eslint/eslint-plugin": "npm:^8.29.0"
     "@typescript-eslint/parser": "npm:^8.29.0"
     "@vercel/ncc": "npm:^0.38.3"
@@ -2508,7 +2508,7 @@ __metadata:
     debug: "npm:^4.4.0"
     eslint: "npm:^9.23.0"
     eslint-config-prettier: "npm:^10.1.1"
-    eslint-plugin-prettier: "npm:^5.2.5"
+    eslint-plugin-prettier: "npm:^5.2.6"
     p-map: "npm:^7.0.3"
     prettier: "npm:^3.4.2"
     ts-node: "npm:^10.9.2"
@@ -3228,13 +3228,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"synckit@npm:^0.10.2":
-  version: 0.10.3
-  resolution: "synckit@npm:0.10.3"
+"synckit@npm:^0.11.0":
+  version: 0.11.2
+  resolution: "synckit@npm:0.11.2"
   dependencies:
     "@pkgr/core": "npm:^0.2.0"
     tslib: "npm:^2.8.1"
-  checksum: 10c0/9855d10231ae9b69c3aa08d46c96bd4befdcac33da44e29fb80e5c1430e453b5a33b8c073cdd25cfe9578f1d625c7d60c394ece1e202237116c1484def614041
+  checksum: 10c0/e7744abce8041233d6be40c05dcbff6177aec88f2625a586a01855aa97757d3b6c640714e0c73eed917a382bd76eb815d4af66ca80ca8f94f880fd4dfb9429c6
   languageName: node
   linkType: hard
 
@@ -3428,10 +3428,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici-types@npm:~6.20.0":
-  version: 6.20.0
-  resolution: "undici-types@npm:6.20.0"
-  checksum: 10c0/68e659a98898d6a836a9a59e6adf14a5d799707f5ea629433e025ac90d239f75e408e2e5ff086afc3cace26f8b26ee52155293564593fbb4a2f666af57fc59bf
+"undici-types@npm:~6.21.0":
+  version: 6.21.0
+  resolution: "undici-types@npm:6.21.0"
+  checksum: 10c0/c01ed51829b10aa72fc3ce64b747f8e74ae9b60eafa19a7b46ef624403508a54c526ffab06a14a26b3120d055e1104d7abe7c9017e83ced038ea5cf52f8d5e04
   languageName: node
   linkType: hard
 
