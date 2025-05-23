@@ -712,14 +712,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@octokit/plugin-rest-endpoint-methods@npm:^14.0.0":
-  version: 14.0.0
-  resolution: "@octokit/plugin-rest-endpoint-methods@npm:14.0.0"
+"@octokit/plugin-rest-endpoint-methods@npm:^15.0.0":
+  version: 15.0.0
+  resolution: "@octokit/plugin-rest-endpoint-methods@npm:15.0.0"
   dependencies:
     "@octokit/types": "npm:^14.0.0"
   peerDependencies:
     "@octokit/core": ">=6"
-  checksum: 10c0/c3f26c5277d4aa0c898d8fdbf84326943ea80496e6f60ae34834415384ab629e1e3702d1ed82d40c31a7370edfcb5fa9fe434b0357b302b3be309879bad1d4e6
+  checksum: 10c0/990505d0eceec4883c730ab86a64f95a2ec472cf9779e4a8a84b6a2e291d1f434cbfe21fcdec1a40fa02f24504fc6480b533e94f70623d7a0065dc283daae598
   languageName: node
   linkType: hard
 
@@ -2899,7 +2899,7 @@ __metadata:
     "@actions/core": "npm:^1.11.1"
     "@actions/github": "npm:^6.0.1"
     "@octokit/core": "npm:^7.0.2"
-    "@octokit/plugin-rest-endpoint-methods": "npm:^14.0.0"
+    "@octokit/plugin-rest-endpoint-methods": "npm:^15.0.0"
     "@types/debug": "npm:^4.1.12"
     "@types/node": "npm:^22.15.18"
     "@typescript-eslint/eslint-plugin": "npm:^8.32.1"
