@@ -594,9 +594,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@octokit/core@npm:^7.0.2":
-  version: 7.0.2
-  resolution: "@octokit/core@npm:7.0.2"
+"@octokit/core@npm:^7.0.3":
+  version: 7.0.3
+  resolution: "@octokit/core@npm:7.0.3"
   dependencies:
     "@octokit/auth-token": "npm:^6.0.0"
     "@octokit/graphql": "npm:^9.0.1"
@@ -605,7 +605,7 @@ __metadata:
     "@octokit/types": "npm:^14.0.0"
     before-after-hook: "npm:^4.0.0"
     universal-user-agent: "npm:^7.0.0"
-  checksum: 10c0/845a6ff07fcf307b4eab29119123cba698b9edcf93539a8cb4fc99b7e041573ac047d50b30cf7ebbe368fc18b29cdb9f30fdfcffb26267492d7c767d100fc25f
+  checksum: 10c0/51427b4c3337e15b394d60277b673c5628a72d245a23b1a446e4249d15e37983fa01d09f10c8ab281207e024929f4d2f6cc27a4d345ec0ece2df78d42586d846
   languageName: node
   linkType: hard
 
@@ -2665,7 +2665,7 @@ __metadata:
   dependencies:
     "@actions/core": "npm:^1.11.1"
     "@actions/github": "npm:^6.0.1"
-    "@octokit/core": "npm:^7.0.2"
+    "@octokit/core": "npm:^7.0.3"
     "@octokit/plugin-rest-endpoint-methods": "npm:^16.0.0"
     "@types/debug": "npm:^4.1.12"
     "@types/node": "npm:^24.0.4"
