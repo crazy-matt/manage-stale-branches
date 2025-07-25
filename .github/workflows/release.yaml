@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
-      - uses: jdx/mise-action@bfb9fa0b029db830a8c570757cee683df207a6c5
+      - uses: jdx/mise-action@eb2f5cb41b0a8175dad2f797e3daca6fe7795a19
         with:
           install_args: task markdownlint-cli2 yamllint
       - name: Retrieve env vars values
@@ -246,7 +246,7 @@ jobs:
           # Push tags
           git push origin $MAJOR $MAJOR.$MINOR
       - name: Generate SBOM
-        uses: anchore/sbom-action@cee1b8e05ae5b2593a75e197229729eabaa9f8ec # ratchet:anchore/sbom-action@v0
+        uses: anchore/sbom-action@7b36ad622f042cab6f59a75c2ac24ccb256e9b45 # ratchet:anchore/sbom-action@v0
         with:
           dependency-snapshot: false
           upload-artifact: false
