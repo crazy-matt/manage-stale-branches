@@ -23,7 +23,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v4
       - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac
         with:
           install_args: task markdownlint-cli2 yamllint
@@ -153,7 +153,7 @@ jobs:
             core.setOutput("release_branch", prReleaseBranch);
       - name: Checkout release branch
         if: steps.release.outputs.prs_created == 'true'
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v4
         with:
           token: ${{ secrets.BOT_TOKEN }}
           ref: ${{ steps.release_info.outputs.release_branch }}
@@ -213,7 +213,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v4
         with:
           token: ${{ secrets.BOT_TOKEN }}
           ref: ${{ github.event.release.tag_name }}

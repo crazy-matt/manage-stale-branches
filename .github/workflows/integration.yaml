@@ -34,7 +34,7 @@ jobs:
       pull-requests: read
     steps:
       - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v4
       - uses: wagoid/commitlint-github-action@b948419dd99f3fd78a6548d48f94e3df7f6bf3ed # ratchet:wagoid/commitlint-github-action@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -52,7 +52,7 @@ jobs:
       pull-requests: read
     steps:
       - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v4
         with:
           token: ${{ secrets.BOT_TOKEN }}
           ref: ${{ github.head_ref || github.ref_name }}
@@ -105,7 +105,7 @@ jobs:
       pull-requests: read
     steps:
       - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Scan
@@ -132,7 +132,7 @@ jobs:
       security-events: write
     steps:
       - name: Checkout repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # ratchet:actions/checkout@v4
       - name: Detect new vulnerabilities
         if: github.event_name == 'pull_request'
         uses: AikidoSec/github-actions-workflow@47d83dbcf3e6635044c4b31cef590c1e095217cc # ratchet:AikidoSec/github-actions-workflow@v1.0.13
