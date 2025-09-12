@@ -33,7 +33,7 @@ jobs:
         run: echo "node_version=$(grep 'node ' mise.toml | cut -d '"' -f2 | cut -d '.' -f1)" >> $GITHUB_OUTPUT
       - name: Enable Corepack
         run: corepack enable
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # ratchet:actions/setup-node@v4
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # ratchet:actions/setup-node@v4
         with:
           node-version: ${{ steps.collect_vars.outputs.node_version }}
           cache: yarn
@@ -172,7 +172,7 @@ jobs:
       - name: Enable Corepack
         if: steps.release.outputs.prs_created == 'true'
         run: corepack enable
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # ratchet:actions/setup-node@v4
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # ratchet:actions/setup-node@v4
         if: steps.release.outputs.prs_created == 'true'
         with:
           node-version: ${{ steps.collect_vars.outputs.node_version }}
