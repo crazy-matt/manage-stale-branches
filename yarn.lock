@@ -594,18 +594,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@octokit/core@npm:^7.0.3":
-  version: 7.0.3
-  resolution: "@octokit/core@npm:7.0.3"
+"@octokit/core@npm:^7.0.4":
+  version: 7.0.4
+  resolution: "@octokit/core@npm:7.0.4"
   dependencies:
     "@octokit/auth-token": "npm:^6.0.0"
     "@octokit/graphql": "npm:^9.0.1"
     "@octokit/request": "npm:^10.0.2"
     "@octokit/request-error": "npm:^7.0.0"
-    "@octokit/types": "npm:^14.0.0"
+    "@octokit/types": "npm:^15.0.0"
     before-after-hook: "npm:^4.0.0"
     universal-user-agent: "npm:^7.0.0"
-  checksum: 10c0/51427b4c3337e15b394d60277b673c5628a72d245a23b1a446e4249d15e37983fa01d09f10c8ab281207e024929f4d2f6cc27a4d345ec0ece2df78d42586d846
+  checksum: 10c0/73f22e4cf0c304027c078cfa2caa0495dfd9f2693212ecf7d77ddab0120bda34ed26c55d1bacbf41dac147b94b22b9b866439db7789226ada583b4122d70a303
   languageName: node
   linkType: hard
 
@@ -676,6 +676,13 @@ __metadata:
   version: 25.1.0
   resolution: "@octokit/openapi-types@npm:25.1.0"
   checksum: 10c0/b5b1293b11c6ec7112c7a2713f8507c2696d5db8902ce893b594080ab0329f5a6fcda1b5ac6fe6eed9425e897f4d03326c1bdf5c337e35d324e7b925e52a2661
+  languageName: node
+  linkType: hard
+
+"@octokit/openapi-types@npm:^26.0.0":
+  version: 26.0.0
+  resolution: "@octokit/openapi-types@npm:26.0.0"
+  checksum: 10c0/671f12c1db70b4bc8c719ec7aa10de034925f4326db0fff22837afcc0b41fd1c015d164673ef5603c5ac787a430c514b821852bfbe6f06edc4a41ad3de342e94
   languageName: node
   linkType: hard
 
@@ -790,6 +797,15 @@ __metadata:
   dependencies:
     "@octokit/openapi-types": "npm:^25.1.0"
   checksum: 10c0/4640a6c0a95386be4d015b96c3a906756ea657f7df3c6e706d19fea6bf3ac44fd2991c8c817afe1e670ff9042b85b0e06f7fd373f6bbd47da64208701bb46d5b
+  languageName: node
+  linkType: hard
+
+"@octokit/types@npm:^15.0.0":
+  version: 15.0.0
+  resolution: "@octokit/types@npm:15.0.0"
+  dependencies:
+    "@octokit/openapi-types": "npm:^26.0.0"
+  checksum: 10c0/49c233d83bdd8fecaa985c84bda78eee0ab41b12c0501fe6835c9ff91f09edc01b28ab7b89cd17218726d76d0b563565f72c0cb25082248fd3f07a01a9534187
   languageName: node
   linkType: hard
 
@@ -1813,6 +1829,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"debug@npm:^4.4.3":
+  version: 4.4.3
+  resolution: "debug@npm:4.4.3"
+  dependencies:
+    ms: "npm:^2.1.3"
+  peerDependenciesMeta:
+    supports-color:
+      optional: true
+  checksum: 10c0/d79136ec6c83ecbefd0f6a5593da6a9c91ec4d7ddc4b54c883d6e71ec9accb5f67a1a5e96d00a328196b5b5c86d365e98d8a3a70856aaf16b4e7b1985e67f5a6
+  languageName: node
+  linkType: hard
+
 "deep-eql@npm:^5.0.1":
   version: 5.0.2
   resolution: "deep-eql@npm:5.0.2"
@@ -2810,7 +2838,7 @@ __metadata:
   dependencies:
     "@actions/core": "npm:^1.11.1"
     "@actions/github": "npm:^6.0.1"
-    "@octokit/core": "npm:^7.0.3"
+    "@octokit/core": "npm:^7.0.4"
     "@octokit/plugin-rest-endpoint-methods": "npm:^16.0.0"
     "@types/debug": "npm:^4.1.12"
     "@types/node": "npm:^24.3.1"
@@ -2820,7 +2848,7 @@ __metadata:
     "@vitest/coverage-v8": "npm:^3.2.4"
     "@vitest/ui": "npm:^3.2.4"
     action-docs: "npm:^2.5.1"
-    debug: "npm:^4.4.1"
+    debug: "npm:^4.4.3"
     eslint: "npm:^9.35.0"
     eslint-config-prettier: "npm:^10.1.8"
     eslint-plugin-prettier: "npm:^5.5.4"
