@@ -126,7 +126,7 @@ jobs:
       security-events: write
     steps:
       # https://github.com/googleapis/release-please-action?tab=readme-ov-file#action-inputs
-      - uses: googleapis/release-please-action@c2a5a2bd6a758a0937f1ddb1e8950609867ed15c # ratchet:googleapis/release-please-action@v4
+      - uses: googleapis/release-please-action@16a9c90856f42705d54a6fda1823352bdc62cf38 # ratchet:googleapis/release-please-action@v4
         id: release
         with:
           config-file: .github/release-please-config.json
@@ -246,7 +246,7 @@ jobs:
           # Push tags
           git push origin $MAJOR $MAJOR.$MINOR
       - name: Generate SBOM
-        uses: anchore/sbom-action@aa0e114b2e19480f157109b9922bda359bd98b90 # ratchet:anchore/sbom-action@v0
+        uses: anchore/sbom-action@8e94d75ddd33f69f691467e42275782e4bfefe84 # ratchet:anchore/sbom-action@v0
         with:
           dependency-snapshot: false
           upload-artifact: false
