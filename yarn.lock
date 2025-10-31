@@ -1051,12 +1051,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^24.9.1":
-  version: 24.9.1
-  resolution: "@types/node@npm:24.9.1"
+"@types/node@npm:^24.9.2":
+  version: 24.9.2
+  resolution: "@types/node@npm:24.9.2"
   dependencies:
     undici-types: "npm:~7.16.0"
-  checksum: 10c0/c52f8168080ef9a7c3dc23d8ac6061fab5371aad89231a0f6f4c075869bc3de7e89b075b1f3e3171d9e5143d0dda1807c3dab8e32eac6d68f02e7480e7e78576
+  checksum: 10c0/7905d43f65cee72ef475fe76316e10bbf6ac5d08a7f0f6c38f2b6285d7ca3009e8fcafc8f8a1d2bf3f55889c9c278dbb203a9081fd0cf2d6d62161703924c6fa
   languageName: node
   linkType: hard
 
@@ -1277,6 +1277,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vitest/pretty-format@npm:4.0.5":
+  version: 4.0.5
+  resolution: "@vitest/pretty-format@npm:4.0.5"
+  dependencies:
+    tinyrainbow: "npm:^3.0.3"
+  checksum: 10c0/76b36512ba8978475223a4f15041f66aeda32a54b9426b372d75f3584243521e3a8976eeb82b50534c48271f30023ee6345213e22add750ffb49a69098bc8619
+  languageName: node
+  linkType: hard
+
 "@vitest/runner@npm:4.0.2":
   version: 4.0.2
   resolution: "@vitest/runner@npm:4.0.2"
@@ -1305,11 +1314,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vitest/ui@npm:^4.0.2":
-  version: 4.0.2
-  resolution: "@vitest/ui@npm:4.0.2"
+"@vitest/ui@npm:^4.0.5":
+  version: 4.0.5
+  resolution: "@vitest/ui@npm:4.0.5"
   dependencies:
-    "@vitest/utils": "npm:4.0.2"
+    "@vitest/utils": "npm:4.0.5"
     fflate: "npm:^0.8.2"
     flatted: "npm:^3.3.3"
     pathe: "npm:^2.0.3"
@@ -1317,8 +1326,8 @@ __metadata:
     tinyglobby: "npm:^0.2.15"
     tinyrainbow: "npm:^3.0.3"
   peerDependencies:
-    vitest: 4.0.2
-  checksum: 10c0/a4fff9d5c32f9494a388150265022d4d8a362778e0b95ae8c4ac3353b9f05012ae043895c8f69d641574b76f8544711142335fc3484462c8a78fdc1a3642c508
+    vitest: 4.0.5
+  checksum: 10c0/586be4700915fde0163158dc20790ab734707ac3a950e6131184886328ad735c66fccd574f03f6dd6858c498b7d94ab3597c9c274f5c920127d4a4bb7fc0b92d
   languageName: node
   linkType: hard
 
@@ -1329,6 +1338,16 @@ __metadata:
     "@vitest/pretty-format": "npm:4.0.2"
     tinyrainbow: "npm:^3.0.3"
   checksum: 10c0/0b393caf0187aa4519c8901d9d40f2889c77ceb3a49b71aea653bc8f7b107da0574587047c9b1d52e3ce442fa1061c3649130bd1f5485e2ab5fc9632d82a43d4
+  languageName: node
+  linkType: hard
+
+"@vitest/utils@npm:4.0.5":
+  version: 4.0.5
+  resolution: "@vitest/utils@npm:4.0.5"
+  dependencies:
+    "@vitest/pretty-format": "npm:4.0.5"
+    tinyrainbow: "npm:^3.0.3"
+  checksum: 10c0/1b772533bb7020c14c22036f94027afa9b51aad683abf048f377af776186ecc41d6abd716daf18ac7f5654b4569409c5f5668b8e0f2ac3a33fe291bcd839cb8c
   languageName: node
   linkType: hard
 
@@ -2642,12 +2661,12 @@ __metadata:
     "@octokit/core": "npm:^7.0.5"
     "@octokit/plugin-rest-endpoint-methods": "npm:^16.1.1"
     "@types/debug": "npm:^4.1.12"
-    "@types/node": "npm:^24.9.1"
+    "@types/node": "npm:^24.9.2"
     "@typescript-eslint/eslint-plugin": "npm:^8.46.2"
     "@typescript-eslint/parser": "npm:^8.46.2"
     "@vercel/ncc": "npm:^0.38.4"
     "@vitest/coverage-v8": "npm:^3.2.4"
-    "@vitest/ui": "npm:^4.0.2"
+    "@vitest/ui": "npm:^4.0.5"
     action-docs: "npm:^2.5.1"
     debug: "npm:^4.4.3"
     eslint: "npm:^9.38.0"
