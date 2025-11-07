@@ -41,7 +41,7 @@
     "dependencies": {
         "@actions/core": "^1.11.1",
         "@actions/github": "^6.0.1",
-        "@octokit/core": "^7.0.5",
+        "@octokit/core": "^7.0.6",
         "debug": "^4.4.3",
         "p-map": "^7.0.3"
     }
