@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # ratchet:actions/checkout@v4
-      - uses: jdx/mise-action@d16887ba50704baed7de72bd1e82e04391e4457a
+      - uses: jdx/mise-action@146a28175021df8ca24f8ee1828cc2a60f980bd5
         with:
           install_args: task markdownlint-cli2 yamllint
       - name: Retrieve env vars values
