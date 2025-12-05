@@ -23,7 +23,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout repo
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # ratchet:actions/checkout@v4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # ratchet:actions/checkout@v4
       - uses: jdx/mise-action@146a28175021df8ca24f8ee1828cc2a60f980bd5
         with:
           install_args: task markdownlint-cli2 yamllint
@@ -33,7 +33,7 @@ jobs:
         run: echo "node_version=$(grep 'node ' mise.toml | cut -d '"' -f2 | cut -d '.' -f1)" >> $GITHUB_OUTPUT
       - name: Enable Corepack
         run: corepack enable
-      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # ratchet:actions/setup-node@v4
+      - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # ratchet:actions/setup-node@v4
         with:
           node-version: ${{ steps.collect_vars.outputs.node_version }}
           cache: yarn
@@ -153,7 +153,7 @@ jobs:
             core.setOutput("release_branch", prReleaseBranch);
       - name: Checkout release branch
         if: steps.release.outputs.prs_created == 'true'
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # ratchet:actions/checkout@v4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # ratchet:actions/checkout@v4
         with:
           token: ${{ secrets.BOT_TOKEN }}
           ref: ${{ steps.release_info.outputs.release_branch }}
@@ -172,7 +172,7 @@ jobs:
       - name: Enable Corepack
         if: steps.release.outputs.prs_created == 'true'
         run: corepack enable
-      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # ratchet:actions/setup-node@v4
+      - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # ratchet:actions/setup-node@v4
         if: steps.release.outputs.prs_created == 'true'
         with:
           node-version: ${{ steps.collect_vars.outputs.node_version }}
@@ -213,7 +213,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout repo
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # ratchet:actions/checkout@v4
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # ratchet:actions/checkout@v4
         with:
           token: ${{ secrets.BOT_TOKEN }}
           ref: ${{ github.event.release.tag_name }}
