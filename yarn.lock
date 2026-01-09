@@ -5,13 +5,13 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
-"@actions/core@npm:^2.0.1":
-  version: 2.0.1
-  resolution: "@actions/core@npm:2.0.1"
+"@actions/core@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "@actions/core@npm:2.0.2"
   dependencies:
     "@actions/exec": "npm:^2.0.0"
-    "@actions/http-client": "npm:^3.0.0"
-  checksum: 10c0/710ed76ae43759d5e9eee9217f1ca80a7ab2bda0dc8038b777871d5c745df773cb7a091b7c4da91955f6a06f9df91c36696e2f8458768346913fa6f829d0b088
+    "@actions/http-client": "npm:^3.0.1"
+  checksum: 10c0/933b03d4aacafc9337b493e7e689376ed1d9e824b37f6c8e008668c75dda3add6ff28c61f4e498831e37229f140d20a37f457de9f5089eca7455f603ad59a945
   languageName: node
   linkType: hard
 
@@ -36,16 +36,6 @@ __metadata:
     "@octokit/request-error": "npm:^5.1.1"
     undici: "npm:^5.28.5"
   checksum: 10c0/830039821d00efec8d0899c0b6ccd7e7ae27ea5dee50ff6d6277f4e19e582fa00576539df64a0b970211973f80792cff85727f3a3a4b53366ff5194209fe5c60
-  languageName: node
-  linkType: hard
-
-"@actions/http-client@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "@actions/http-client@npm:3.0.0"
-  dependencies:
-    tunnel: "npm:^0.0.6"
-    undici: "npm:^5.28.5"
-  checksum: 10c0/2d4452c7dbf36c82ad9117c03c3f7a5c48be15aa5b01f17d0dc6b1eb580f3fac2127f5be33a627c1fbeb117e22db493aa760a0fcd62846cea7d914e702540fe3
   languageName: node
   linkType: hard
 
@@ -2515,7 +2505,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "manage-stale-branches@workspace:."
   dependencies:
-    "@actions/core": "npm:^2.0.1"
+    "@actions/core": "npm:^2.0.2"
     "@actions/github": "npm:^7.0.0"
     "@octokit/core": "npm:^7.0.6"
     "@octokit/plugin-rest-endpoint-methods": "npm:^17.0.0"
