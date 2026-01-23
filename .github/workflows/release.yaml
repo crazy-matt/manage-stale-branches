@@ -23,8 +23,8 @@ jobs:
       contents: write
     steps:
       - name: Checkout repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # ratchet:actions/checkout@v4
-      - uses: jdx/mise-action@146a28175021df8ca24f8ee1828cc2a60f980bd5
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # ratchet:actions/checkout@v4
+      - uses: jdx/mise-action@6d1e696aa24c1aa1bcc1adea0212707c71ab78a8
         with:
           install_args: task markdownlint-cli2 yamllint
       - name: Retrieve env vars values
@@ -153,7 +153,7 @@ jobs:
             core.setOutput("release_branch", prReleaseBranch);
       - name: Checkout release branch
         if: steps.release.outputs.prs_created == 'true'
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # ratchet:actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # ratchet:actions/checkout@v4
         with:
           token: ${{ secrets.BOT_TOKEN }}
           ref: ${{ steps.release_info.outputs.release_branch }}
@@ -213,7 +213,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # ratchet:actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # ratchet:actions/checkout@v4
         with:
           token: ${{ secrets.BOT_TOKEN }}
           ref: ${{ github.event.release.tag_name }}
@@ -246,7 +246,7 @@ jobs:
           # Push tags
           git push origin $MAJOR $MAJOR.$MINOR
       - name: Generate SBOM
-        uses: anchore/sbom-action@0b82b0b1a22399a1c542d4d656f70cd903571b5c # ratchet:anchore/sbom-action@v0
+        uses: anchore/sbom-action@62ad5284b8ced813296287a0b63906cb364b73ee # ratchet:anchore/sbom-action@v0
         with:
           dependency-snapshot: false
           upload-artifact: false
