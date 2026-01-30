@@ -246,7 +246,7 @@ jobs:
           # Push tags
           git push origin $MAJOR $MAJOR.$MINOR
       - name: Generate SBOM
-        uses: anchore/sbom-action@62ad5284b8ced813296287a0b63906cb364b73ee # ratchet:anchore/sbom-action@v0
+        uses: anchore/sbom-action@deef08a0db64bfad603422135db61477b16cef56 # ratchet:anchore/sbom-action@v0
         with:
           dependency-snapshot: false
           upload-artifact: false
