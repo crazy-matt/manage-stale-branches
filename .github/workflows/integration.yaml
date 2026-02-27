@@ -65,7 +65,7 @@ jobs:
               - '.github/workflows/**'
       - name: Set up Go
         if: steps.filter.outputs.workflows == 'true'
-        uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # ratchet:actions/setup-go@v5
+        uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # ratchet:actions/setup-go@v5
         with:
           go-version: 1.23
       - name: Install Ratchet
@@ -150,7 +150,7 @@ jobs:
       - name: Scan pkg manifests/github actions
         id: trivy_scan
         if: github.event_name == 'push'
-        uses: aquasecurity/trivy-action@c1824fd6edce30d7ab345a9989de00bbd46ef284 # ratchet:aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@e368e328979b113139d6f9068e03accaed98a518 # ratchet:aquasecurity/trivy-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
