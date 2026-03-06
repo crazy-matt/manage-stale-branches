@@ -914,12 +914,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^25.3.2":
-  version: 25.3.2
-  resolution: "@types/node@npm:25.3.2"
+"@types/node@npm:^25.3.5":
+  version: 25.3.5
+  resolution: "@types/node@npm:25.3.5"
   dependencies:
     undici-types: "npm:~7.18.0"
-  checksum: 10c0/946c8758668762d3c3b475281b420e580d0ce828c6847534a822b92be791e23e5879b53001ea928e5352dec8908082d854b8076b7bcfc69549e23ad54b1f98ab
+  checksum: 10c0/4cf0834a6f6933bf0aca6afead117ae3db3b8f02a5f7187a24f871db0fb9344e5e46573ba387bc53b7505e1e219c4c535cbe67221ced95bb5ad98573223b19d0
   languageName: node
   linkType: hard
 
@@ -2331,7 +2331,7 @@ __metadata:
     "@octokit/core": "npm:^7.0.6"
     "@octokit/plugin-rest-endpoint-methods": "npm:^17.0.0"
     "@types/debug": "npm:^4.1.12"
-    "@types/node": "npm:^25.3.2"
+    "@types/node": "npm:^25.3.5"
     "@typescript-eslint/eslint-plugin": "npm:^8.56.1"
     "@typescript-eslint/parser": "npm:^8.56.1"
     "@vercel/ncc": "npm:^0.38.4"
