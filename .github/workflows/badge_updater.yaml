@@ -29,7 +29,7 @@ jobs:
           fi
 
       - name: Create badge
-        uses: emibcn/badge-action@808173dd03e2f30c980d03ee49e181626088eee8 # ratchet:emibcn/badge-action@v2
+        uses: emibcn/badge-action@f9150fde070fcca0c4e832437611b44838fcd325 # ratchet:emibcn/badge-action@v2.0.4
         # Use https://www.svgviewer.dev/svg-to-data-uri to get a data URI
         with:
           icon: ${{ github.event.client_payload.icon }}
