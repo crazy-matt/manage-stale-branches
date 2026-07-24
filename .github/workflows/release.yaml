@@ -23,8 +23,8 @@ jobs:
       contents: write
     steps:
       - name: Checkout repo
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # ratchet:actions/checkout@v4
-      - uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v4
+      - uses: jdx/mise-action@f10502fc09dadecfefb962fff68ce77213930204
         with:
           install_args: task markdownlint-cli2 yamllint
       - name: Retrieve env vars values
@@ -153,7 +153,7 @@ jobs:
             core.setOutput("release_branch", prReleaseBranch);
       - name: Checkout release branch
         if: steps.release.outputs.prs_created == 'true'
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # ratchet:actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v4
         with:
           token: ${{ secrets.BOT_TOKEN }}
           ref: ${{ steps.release_info.outputs.release_branch }}
@@ -213,7 +213,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout repo
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # ratchet:actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v4
         with:
           token: ${{ secrets.BOT_TOKEN }}
           ref: ${{ github.event.release.tag_name }}
