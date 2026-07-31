@@ -2213,7 +2213,7 @@ __metadata:
     eslint: "npm:^10.8.0"
     eslint-config-prettier: "npm:^10.1.8"
     eslint-plugin-prettier: "npm:^5.5.6"
-    p-map: "npm:^7.0.5"
+    p-map: "npm:^7.0.6"
     prettier: "npm:^3.9.6"
     ts-node: "npm:^10.9.2"
     typescript: "npm:^6.0.3"
@@ -2467,10 +2467,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"p-map@npm:^7.0.5":
-  version: 7.0.5
-  resolution: "p-map@npm:7.0.5"
-  checksum: 10c0/4ccbb67d36a8d6e2125ab64ccabee424d1c89b03c10afb43830523c7b9aacc1005e5d21ca7aea70bdc556bd548b7bde65df23c7a18091bbf2b5daf9b86fbc8c5
+"p-map@npm:^7.0.6":
+  version: 7.0.6
+  resolution: "p-map@npm:7.0.6"
+  checksum: 10c0/46e3b3c79b6179613161aa1a28c72cfe7155f27f1928afee1b2406858728f9dd4c29637bba25cef9b50517caacdcb71549f5ff228292524b0069b2310922b22e
   languageName: node
   linkType: hard
 
