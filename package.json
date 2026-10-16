@@ -43,6 +43,6 @@
         "@actions/github": "^9.1.1",
         "@octokit/core": "^7.0.8",
         "debug": "^4.4.3",
-        "p-map": "^7.0.8"
+        "p-map": "^7.1.1"
     }
 }
