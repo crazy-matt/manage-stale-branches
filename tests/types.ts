@@ -1,4 +1,4 @@
-import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
+import type { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
 
 // Define specific response types for each endpoint we're using
 type ListBranchesResponseData = RestEndpointMethodTypes['repos']['listBranches']['response']['data'];
@@ -31,14 +31,14 @@ export function createMockResponse<T>(data: T): OctokitResponse<T> {
 }
 
 // Type-safe mock factory for branch response
-export function createBranchResponse(name: string): ListBranchesResponseData[0] {
+export function createBranchResponse(name: string, isProtected = false): ListBranchesResponseData[0] {
     return {
         name,
         commit: {
             sha: 'mock-sha',
             url: `https://api.github.com/repos/owner/repo/commits/mock-sha`
         },
-        protected: false
+        protected: isProtected
     };
 }
 

@@ -12,6 +12,8 @@ updates:
       prefix: chore(ci)
     labels: [actions]
     open-pull-requests-limit: 3
+    cooldown:
+      default-days: 15
     groups:
       automerged-security:
         applies-to: security-updates
@@ -32,6 +34,11 @@ updates:
       prefix-development: chore(dev)
     labels: [dependencies]
     open-pull-requests-limit: 3
+    cooldown:
+      default-days: 15
+    ignore:
+      - dependency-name: "@types/node"
+        update-types: [version-update:semver-major]
     groups:
       typescript-eslint:
         patterns:

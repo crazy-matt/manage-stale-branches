@@ -11,6 +11,8 @@ This action deletes branches that haven't had a commit in the last `stale-durati
 
 ⚠️ The branches already merged to the **default branch** are automatically deleted if the action isn't set for `dry-run` mode.
 
+Protected branches are never deleted or archived.
+
 If you set the `dry-run` input to true, the action will simply output a preview of what would be done in no dry-run mode.
 
 </td>

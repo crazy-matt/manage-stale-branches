@@ -7,7 +7,7 @@ export class RateLimitService {
 
     constructor(
         private octokit: any,
-        thresholdPercentage: number = 95
+        thresholdPercentage: number
     ) {
         this.thresholdPercentage = thresholdPercentage;
     }
