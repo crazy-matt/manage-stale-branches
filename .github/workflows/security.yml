@@ -32,13 +32,16 @@ jobs:
       github.event.inputs.job == 'Pin Actions and Docker images' ||
       github.event_name == 'push'
     steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # ratchet:step-security/harden-runner@v2.22.1
+        with:
+          egress-policy: audit
+          allowed-endpoints: ${{ vars.ALLOWED_ENDPOINTS }}
       - name: Checkout repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
         with:
           token: ${{ secrets.BOT_TOKEN }}
           ref: ${{ github.ref_name }}
-      - name: Harden the runner
-        uses: ./.github/actions/allow-endpoints
       - name: Check for workflow file changes
         id: filter
         uses: step-security/paths-filter@5f3d1a83daa17363d18b529d60375e1e36566799 # ratchet:step-security/paths-filter@v4.0.3
@@ -86,12 +89,15 @@ jobs:
       contents: read
       pull-requests: read
     steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # ratchet:step-security/harden-runner@v2.22.1
+        with:
+          egress-policy: audit
+          allowed-endpoints: ${{ vars.ALLOWED_ENDPOINTS }}
       - name: Checkout repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
         with:
           fetch-depth: 0
-      - name: Harden the runner
-        uses: ./.github/actions/allow-endpoints
       - name: Scan
         uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # ratchet:gitleaks/gitleaks-action@v3.0.0
         env:
@@ -114,10 +120,13 @@ jobs:
       actions: write
       security-events: write
     steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # ratchet:step-security/harden-runner@v2.22.1
+        with:
+          egress-policy: audit
+          allowed-endpoints: ${{ vars.ALLOWED_ENDPOINTS }}
       - name: Checkout repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
-      - name: Harden the runner
-        uses: ./.github/actions/allow-endpoints
       - name: Detect vulnerabilities
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # ratchet:aquasecurity/trivy-action@v0.36.0
         with:
