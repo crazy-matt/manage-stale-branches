@@ -16,6 +16,7 @@ import { parseTimeWithUnit } from './utils/timeParser.js';
 type RepoGetResponse = RestEndpointMethodTypes['repos']['get']['response'];
 type BranchesList =
     RestEndpointMethodTypes['repos']['listBranches']['response']['data'];
+type PullsList = RestEndpointMethodTypes['pulls']['list']['response']['data'];
 
 export async function run(): Promise<void> {
     try {
@@ -106,10 +107,41 @@ export async function run(): Promise<void> {
             return;
         }
 
+        const listPullsOp = rateLimitService.withRateLimitCheck<PullsList>(
+            'list open pull requests'
+        );
+        const pulls = await listPullsOp(async () => {
+            try {
+                return await octokit.paginate(octokit.rest.pulls.list, {
+                    owner,
+                    repo,
+                    state: 'open',
+                    per_page: 100,
+                });
+            } catch (error) {
+                throw new Error(
+                    `Cannot list open pull requests, the token needs "pull-requests: read": ${(error as Error).message}`,
+                    { cause: error }
+                );
+            }
+        });
+
+        if (!pulls) {
+            core.warning('Exiting due to rate limit threshold being reached.');
+            return;
+        }
+
+        const openPrBranches = new Set(
+            pulls
+                .filter((pr) => pr.head.repo?.full_name === `${owner}/${repo}`)
+                .map((pr) => pr.head.ref)
+        );
+
         const filteredBranches = branches.filter(
             (branch) =>
                 branch.name !== defaultBranch &&
                 !branch.protected &&
+                !openPrBranches.has(branch.name) &&
                 (!excludePatterns.length ||
                     !excludePatterns.some((regex) => regex.test(branch.name)))
         );

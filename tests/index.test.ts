@@ -199,6 +199,41 @@ describe('Stale Branch Manager', () => {
             );
         });
 
+        test('should skip branches with an open pull request', async () => {
+            mockBranches([
+                { name: 'stale-1', time: '70d' },
+                { name: 'stale-2', time: '70d' },
+            ]);
+            mockOctokit.rest.pulls.list.mockResolvedValue(createMockResponse([
+                { head: { ref: 'stale-1', repo: { full_name: 'testOwner/testRepo' } } },
+                { head: { ref: 'stale-2', repo: { full_name: 'someone/testRepo' } } },
+            ]));
+
+            await run();
+
+            expect(mockOctokit.rest.git.deleteRef).not.toHaveBeenCalledWith(
+                expect.objectContaining({ ref: 'heads/stale-1' })
+            );
+            expect(mockCore.setOutput).toHaveBeenCalledWith(
+                'stale-branches',
+                JSON.stringify(['stale-2'])
+            );
+        });
+
+        test('should fail without deleting when open pull requests cannot be listed', async () => {
+            mockBranches([{ name: 'stale-1', time: '70d' }]);
+            mockOctokit.rest.pulls.list.mockRejectedValue(
+                new Error('Resource not accessible by integration')
+            );
+
+            await run();
+
+            expect(mockCore.setFailed).toHaveBeenCalledWith(
+                expect.stringContaining('pull-requests: read')
+            );
+            expect(mockOctokit.rest.git.deleteRef).not.toHaveBeenCalled();
+        });
+
         test('should classify old branches as stale when the comparison fails', async () => {
             mockBranches([{ name: 'old-1', time: '400d' }]);
             mockOctokit.rest.repos.compareCommitsWithBasehead.mockRejectedValue(
@@ -449,7 +484,7 @@ describe('Stale Branch Manager', () => {
             const names = Array.from({ length: 35 }, (_, i) => `stale-${i}`);
             mockBranches(names.map((name) => ({ name, time: '70d' })));
             mockOctokit.rest.repos.listBranches.mockResolvedValue(createMockResponse([]));
-            mockOctokit.paginate.mockResolvedValue(names.map((name) => createBranchResponse(name)));
+            mockOctokit.paginate.mockResolvedValueOnce(names.map((name) => createBranchResponse(name)));
 
             await run();
 
@@ -501,11 +536,12 @@ describe('Stale Branch Manager', () => {
         });
 
         test('should stop without deleting when the threshold is reached while reading branches', async () => {
-            // Healthy for: initial check, repos.get, listBranches
+            // Healthy for: initial check, repos.get, listBranches, pulls.list
             mockOctokit.rest.rateLimit.get
                 .mockResolvedValueOnce(createRateLimitResponse(4999))
                 .mockResolvedValueOnce(createRateLimitResponse(4998))
                 .mockResolvedValueOnce(createRateLimitResponse(4997))
+                .mockResolvedValueOnce(createRateLimitResponse(4996))
                 .mockResolvedValue(createRateLimitResponse(0));
             mockBranches([{ name: 'stale-1', time: '70d' }]);
 
@@ -518,12 +554,13 @@ describe('Stale Branch Manager', () => {
         });
 
         test('should stop when the threshold is reached while deleting branches', async () => {
-            // Healthy for: initial check, repos.get, listBranches, branch info
+            // Healthy for: initial check, repos.get, listBranches, pulls.list, branch info
             mockOctokit.rest.rateLimit.get
                 .mockResolvedValueOnce(createRateLimitResponse(4999))
                 .mockResolvedValueOnce(createRateLimitResponse(4998))
                 .mockResolvedValueOnce(createRateLimitResponse(4997))
                 .mockResolvedValueOnce(createRateLimitResponse(4996))
+                .mockResolvedValueOnce(createRateLimitResponse(4995))
                 .mockResolvedValue(createRateLimitResponse(0));
             mockBranches([{ name: 'stale-1', time: '70d' }]);
 
