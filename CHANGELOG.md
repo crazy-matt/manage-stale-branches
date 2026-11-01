@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.2](https://github.com/crazy-matt/manage-stale-branches/compare/v3.0.1...v3.0.2) (2026-11-01)
+
+
+### CI/CD
+
+* give release-please time to read the commit history ([#532](https://github.com/crazy-matt/manage-stale-branches/issues/532)) ([6a87f17](https://github.com/crazy-matt/manage-stale-branches/commit/6a87f1799333310a45c82a3b66717a1198561c6b))
+
 ## [3.0.1](https://github.com/crazy-matt/manage-stale-branches/compare/v3.0.0...v3.0.1) (2025-03-18)
 
 
