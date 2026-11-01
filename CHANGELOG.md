@@ -1,5 +1,16 @@
 # Changelog
 
+## [4.0.0](https://github.com/crazy-matt/manage-stale-branches/compare/v3.0.2...v4.0.0) (2026-11-01)
+
+
+### ⚠ BREAKING CHANGES
+
+* the token needs the `pull-requests: read` permission. Without it, the run fails before it deletes any branch.
+
+### Bug Fixes
+
+* skip branches with an open pull request ([#535](https://github.com/crazy-matt/manage-stale-branches/issues/535)) ([804d464](https://github.com/crazy-matt/manage-stale-branches/commit/804d4643ad16087c0252fff3c43b2d336901895b))
+
 ## [3.0.2](https://github.com/crazy-matt/manage-stale-branches/compare/v3.0.1...v3.0.2) (2026-11-01)
 
 

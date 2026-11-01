@@ -39,9 +39,9 @@ If you set the `dry-run` input to true, the action will simply output a preview 
 In your GitHub workflows, you can reference the action by:
 
 ```yaml
-- uses: crazy-matt/manage-stale-branches@v3      # Always use the latest 3.x.x
-- uses: crazy-matt/manage-stale-branches@v3.0    # Always use the latest 3.0.x
-- uses: crazy-matt/manage-stale-branches@v3.0.2  # Use this specific version
+- uses: crazy-matt/manage-stale-branches@v4      # Always use the latest 4.x.x
+- uses: crazy-matt/manage-stale-branches@v4.0    # Always use the latest 4.0.x
+- uses: crazy-matt/manage-stale-branches@v4.0.0  # Use this specific version
 ```
 
 For more information, refer to the [GitHub Actions Quickstart](https://docs.github.com/en/actions/quickstart).
@@ -63,7 +63,7 @@ jobs:
       contents: write
       pull-requests: read
     steps:
-      - uses: crazy-matt/manage-stale-branches@v3
+      - uses: crazy-matt/manage-stale-branches@v4
 ```
 
 > you don't need to checkout your repository as this action uses the Github API.
@@ -83,7 +83,7 @@ jobs:
       pull-requests: read
     steps:
       - name: Manage Stale Branches
-        uses: crazy-matt/manage-stale-branches@v3
+        uses: crazy-matt/manage-stale-branches@v4
         with:
           stale-duration: 60d
           suggested-duration: 30d
