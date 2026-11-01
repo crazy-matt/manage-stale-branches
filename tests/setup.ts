@@ -28,6 +28,9 @@ export const mockOctokit = {
             createRef: vi.fn(),
             deleteRef: vi.fn(),
         },
+        pulls: {
+            list: vi.fn(),
+        },
     },
 };
 
@@ -48,6 +51,7 @@ beforeEach(() => {
     mockOctokit.rest.rateLimit.get.mockResolvedValue(createRateLimitResponse(4999));
     mockOctokit.rest.repos.get.mockResolvedValue(createMockResponse({ default_branch: 'main' }));
     mockOctokit.rest.repos.listBranches.mockResolvedValue(createMockResponse([]));
+    mockOctokit.rest.pulls.list.mockResolvedValue(createMockResponse([]));
     mockOctokit.rest.repos.compareCommitsWithBasehead.mockResolvedValue(
         createMockResponse({ status: 'diverged', ahead_by: 1, behind_by: 1 })
     );

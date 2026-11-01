@@ -11,7 +11,7 @@ This action deletes branches that haven't had a commit in the last `stale-durati
 
 ⚠️ The branches already merged to the **default branch** are automatically deleted if the action isn't set for `dry-run` mode.
 
-Protected branches are never deleted or archived.
+Protected branches and branches with an open pull request are never deleted or archived.
 
 If you set the `dry-run` input to true, the action will simply output a preview of what would be done in no dry-run mode.
 
@@ -61,6 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: read
     steps:
       - uses: crazy-matt/manage-stale-branches@v3
 ```
@@ -79,6 +80,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: read
     steps:
       - name: Manage Stale Branches
         uses: crazy-matt/manage-stale-branches@v3
@@ -100,7 +102,7 @@ jobs:
 
 | name | description | required | default |
 | --- | --- | --- | --- |
-| `github-token` | <p>GitHub Token with repository write access.</p> | `false` | `${{ github.token }}` |
+| `github-token` | <p>GitHub Token with the <code>contents: write</code> and <code>pull-requests: read</code> permissions.</p> | `false` | `${{ github.token }}` |
 | `stale-duration` | <p>Time threshold for stale branches (e.g., "60d", "2w", "1440h"). Accept only a single unit.</p> | `false` | `60d` |
 | `suggested-duration` | <p>Time threshold for suggested branches (e.g., "30d", "1w", "720h"). Accept only a single unit.</p> | `false` | `30d` |
 | `concurrency` | <p>Number of branches to process concurrently.</p> | `false` | `4` |

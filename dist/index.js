@@ -39896,8 +39896,30 @@ async function run() {
             warning('Exiting due to rate limit threshold being reached.');
             return;
         }
+        const listPullsOp = rateLimitService.withRateLimitCheck('list open pull requests');
+        const pulls = await listPullsOp(async () => {
+            try {
+                return await octokit.paginate(octokit.rest.pulls.list, {
+                    owner,
+                    repo,
+                    state: 'open',
+                    per_page: 100,
+                });
+            }
+            catch (error) {
+                throw new Error(`Cannot list open pull requests, the token needs "pull-requests: read": ${error.message}`, { cause: error });
+            }
+        });
+        if (!pulls) {
+            warning('Exiting due to rate limit threshold being reached.');
+            return;
+        }
+        const openPrBranches = new Set(pulls
+            .filter((pr) => pr.head.repo?.full_name === `${owner}/${repo}`)
+            .map((pr) => pr.head.ref));
         const filteredBranches = branches.filter((branch) => branch.name !== defaultBranch &&
             !branch.protected &&
+            !openPrBranches.has(branch.name) &&
             (!excludePatterns.length ||
                 !excludePatterns.some((regex) => regex.test(branch.name))));
         const now = Date.now();
