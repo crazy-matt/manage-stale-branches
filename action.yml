@@ -1,10 +1,6 @@
 ---
 name: Manage Stale Branches
-description: >-
-  Deletes merged branches, deletes or archives (as archive/* tags) branches with no commit
-  for stale-duration, and reports branches that will soon be stale. Runs as a dry run by
-  default and never touches the default branch, protected branches, branches with an open
-  pull request or excluded patterns.
+description: Deletes merged and stale branches or archives stale ones as tags. Dry run by default. Skips protected and open-PR branches.
 
 inputs:
   github-token:
