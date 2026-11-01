@@ -1,0 +1,21 @@
+name: Configure Git
+description: Import the bot GPG key and configure Git to sign commits as gha-bot
+
+inputs:
+  gpg-private-key-base64:
+    description: Base64 encoded GPG private key of the bot
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Configure Git
+      shell: bash
+      env:
+        GPG_PRIVATE_KEY_BASE64: ${{ inputs.gpg-private-key-base64 }}
+      run: |
+        gpg --import <(echo "${GPG_PRIVATE_KEY_BASE64}" | base64 -d)
+        git config user.name "gha-bot"
+        git config user.email "gha-bot.noreply.wdx1x@tenet.pm"
+        git config user.signingkey "ABD02F54EDDADCB6"
+        git config commit.gpgsign true

@@ -67,7 +67,7 @@ flowchart TD
    All commit messages should follow the conventional commits format:
 
    ```bash
-   type(scope): description
+   type: description  #OR type(scope): description
    ```
 
    Common types:
@@ -82,7 +82,7 @@ flowchart TD
    Breaking changes:
 
    ```bash
-   feat(scope)!: description
+   type!: description  #OR type(scope)!: description
 
    BREAKING CHANGE: explanation
    ```

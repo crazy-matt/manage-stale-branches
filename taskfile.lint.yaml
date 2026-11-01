@@ -37,8 +37,9 @@ tasks:
     desc: Lint shell scripts (https://github.com/koalaman/shellcheck)
     cmds:
       - echo "📒  {{.TASK}}"
+      - shellcheck --version
       - |
-        find . -path "./.history" -prune -o \( -name "*.sh" \) -print -exec shellcheck --severity=error --rcfile=.linters/.shellcheckrc {} +
+        find . \( -path "./.history" -o -path "./node_modules" \) -prune -o \( -name "*.sh" \) -print -exec shellcheck --severity=error --rcfile=.linters/.shellcheckrc {} +
 
   yaml:
     desc: Lint yaml files (https://github.com/adrienverge/yamllint)

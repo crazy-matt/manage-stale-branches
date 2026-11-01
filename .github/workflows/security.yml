@@ -1,0 +1,142 @@
+name: Security
+
+on:
+  workflow_dispatch:
+    inputs:
+      job:
+        description: Job to run
+        type: choice
+        options:
+          - Pin Actions and Docker images
+          - Secrets Scan
+          - Vulnerability Scan
+        required: false
+        default: Vulnerability Scan
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  pin_actions_and_docker_images:
+    name: Pin Actions and Docker images
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    if: |
+      github.event.inputs.job == 'Pin Actions and Docker images' ||
+      github.event_name == 'push'
+    permissions:
+      id-token: write
+    steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # ratchet:step-security/harden-runner@v2.22.1
+        with:
+          policy: default
+          egress-policy: audit
+      - name: Checkout repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          ref: ${{ github.ref_name }}
+      - name: Check for workflow file changes
+        id: filter
+        uses: step-security/paths-filter@5f3d1a83daa17363d18b529d60375e1e36566799 # ratchet:step-security/paths-filter@v4.0.3
+        with:
+          filters: |
+            workflows:
+              - '.github/workflows/**'
+      - name: Set up Go
+        if: github.event_name == 'workflow_dispatch' || steps.filter.outputs.workflows == 'true'
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # ratchet:actions/setup-go@v7.0.0
+        with:
+          go-version: 1.23
+      - name: Install Ratchet
+        if: github.event_name == 'workflow_dispatch' || steps.filter.outputs.workflows == 'true'
+        run: go install github.com/sethvargo/ratchet@ee93c849418d0b9316703bb349055a4078ad205e # ratchet:v0.10.2
+      - name: Pin
+        if: github.event_name == 'workflow_dispatch' || steps.filter.outputs.workflows == 'true'
+        run: ratchet pin .github/workflows/*.yml
+      - name: Configure Git
+        if: github.event_name == 'workflow_dispatch' || steps.filter.outputs.workflows == 'true'
+        uses: ./.github/actions/configure-git
+        with:
+          gpg-private-key-base64: ${{ secrets.BOT_GPG_PRIVATE_KEY_BASE64 }}
+      - name: Push changes
+        if: github.event_name == 'workflow_dispatch' || steps.filter.outputs.workflows == 'true'
+        env:
+          COMMIT_MESSAGE: "ci: pin actions and Docker images in workflows [skip ci]"
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            git status --porcelain
+            git commit -am "$COMMIT_MESSAGE"
+            git push
+          else
+            echo "No changes to commit."
+          fi
+
+  secrets_scan:
+    name: Secrets Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    if: |
+      github.event.inputs.job == 'Secrets Scan' ||
+      (github.event_name != 'workflow_dispatch' && github.actor != 'dependabot[bot]')
+    permissions:
+      contents: read
+      pull-requests: read
+      id-token: write
+    steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # ratchet:step-security/harden-runner@v2.22.1
+        with:
+          policy: default
+          egress-policy: audit
+      - name: Checkout repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Scan
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # ratchet:gitleaks/gitleaks-action@v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: ${{ github.workspace }}/.security/gitleaks.toml
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: false # sarif upload, would need 'security-events: write'
+          GITLEAKS_ENABLE_SUMMARY: true
+          GITLEAKS_VERSION: 8.30.1
+
+  vulnerability_scan:
+    name: Vulnerability Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    if: |
+      github.event.inputs.job == 'Vulnerability Scan' ||
+      (github.event_name != 'workflow_dispatch' && github.actor != 'dependabot[bot]')
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+      security-events: write
+      id-token: write
+    steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # ratchet:step-security/harden-runner@v2.22.1
+        with:
+          policy: default
+      - name: Checkout repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
+      - name: Detect vulnerabilities
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # ratchet:aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          github-pat: ${{ secrets.GITHUB_TOKEN }}
+          format: github
+          output: sbom.json
+          trivy-config: .security/trivy.yaml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
