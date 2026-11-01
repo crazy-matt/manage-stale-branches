@@ -107,11 +107,11 @@ flowchart TD
 
 4. **Version Tags**
 
-   For every release (e.g., v3.0.2), we maintain:
+   For every release (e.g., v4.0.0), we maintain:
 
-   - A specific version tag (v3.0.2)
-   - A minor version tag (v3.0) that points to the latest patch
-   - A major version tag (v3) that points to the latest minor/patch
+   - A specific version tag (v4.0.0)
+   - A minor version tag (v4.0) that points to the latest patch
+   - A major version tag (v4) that points to the latest minor/patch
 
 5. **Force Release**
 
