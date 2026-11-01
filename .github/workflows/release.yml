@@ -25,10 +25,13 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # ratchet:step-security/harden-runner@v2.22.1
+        with:
+          egress-policy: audit
+          allowed-endpoints: ${{ vars.ALLOWED_ENDPOINTS }}
       - name: Checkout repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
-      - name: Harden the runner
-        uses: ./.github/actions/allow-endpoints
       - uses: jdx/mise-action@f10502fc09dadecfefb962fff68ce77213930204 # ratchet:jdx/mise-action@v4.2.2
         with:
           install_args: node pnpm task markdownlint-cli2 shellcheck yamllint
@@ -52,10 +55,13 @@ jobs:
       contents: write
       pull-requests: write
     steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # ratchet:step-security/harden-runner@v2.22.1
+        with:
+          egress-policy: audit
+          allowed-endpoints: ${{ vars.ALLOWED_ENDPOINTS }}
       - name: Checkout repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
-      - name: Harden the runner
-        uses: ./.github/actions/allow-endpoints
       # https://github.com/googleapis/release-please-action?tab=readme-ov-file#action-inputs
       - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # ratchet:googleapis/release-please-action@v5.0.0
         id: release
@@ -131,13 +137,16 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # ratchet:step-security/harden-runner@v2.22.1
+        with:
+          egress-policy: audit
+          allowed-endpoints: ${{ vars.ALLOWED_ENDPOINTS }}
       - name: Checkout repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
         with:
           token: ${{ secrets.BOT_TOKEN }}
           ref: ${{ github.event.release.tag_name }}
-      - name: Harden the runner
-        uses: ./.github/actions/allow-endpoints
       - name: Configure Git
         uses: ./.github/actions/configure-git
         with:
