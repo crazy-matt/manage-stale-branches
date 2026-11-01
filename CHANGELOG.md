@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.0.1](https://github.com/crazy-matt/manage-stale-branches/compare/v4.0.0...v4.0.1) (2026-11-01)
+
+
+### Bug Fixes
+
+* shorten the action description for the Marketplace ([#538](https://github.com/crazy-matt/manage-stale-branches/issues/538)) ([8747834](https://github.com/crazy-matt/manage-stale-branches/commit/87478346bcb455160246bbb4d06c4ceee75f240a))
+
 ## [4.0.0](https://github.com/crazy-matt/manage-stale-branches/compare/v3.0.2...v4.0.0) (2026-11-01)
 
 
