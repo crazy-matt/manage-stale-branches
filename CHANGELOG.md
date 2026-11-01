@@ -3,6 +3,11 @@
 ## [3.0.2](https://github.com/crazy-matt/manage-stale-branches/compare/v3.0.1...v3.0.2) (2026-11-01)
 
 
+### Bug Fixes
+
+* patch undici CVEs, fix branch processing bugs, move to node 24 ([#530](https://github.com/crazy-matt/manage-stale-branches/issues/530)) ([ea45789](https://github.com/crazy-matt/manage-stale-branches/commit/ea4578904fbcbc86e4f537f418c002ca6f926c48))
+
+
 ### CI/CD
 
 * give release-please time to read the commit history ([#532](https://github.com/crazy-matt/manage-stale-branches/issues/532)) ([6a87f17](https://github.com/crazy-matt/manage-stale-branches/commit/6a87f1799333310a45c82a3b66717a1198561c6b))
