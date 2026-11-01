@@ -8,8 +8,10 @@ export default defineConfig({
     include: ['tests/**.test.ts'],
     coverage: {
       provider: 'v8',
+      include: ['src/**/*.ts'],
       reporter: ['text', 'json', 'html'],
     },
-    clearMocks: true,
+    mockReset: true,
+    unstubEnvs: true,
   },
 })

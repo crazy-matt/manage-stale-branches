@@ -1,0 +1,29 @@
+name: Harden Runner with Gist Endpoints
+description: Fetch the allowed endpoints from a gist and run harden-runner
+
+inputs:
+  endpoints-url:
+    description: Raw URL of the gist file that lists the allowed endpoints, one per line
+    required: false
+    default: https://gist.githubusercontent.com/crazy-matt/2af7544c14b2b137019d15e53fb06a03/raw/allowed-endpoints
+  egress-policy:
+    description: Egress policy (audit or block)
+    required: false
+    default: audit
+
+runs:
+  using: composite
+  steps:
+    - name: Fetch allowed endpoints
+      id: fetch_allowed_endpoints
+      shell: bash
+      env:
+        ENDPOINTS_URL: ${{ inputs.endpoints-url }}
+      run: |
+        content=$(curl -fsSL "${ENDPOINTS_URL}" | grep -v -e '^#' -e '^$' | tr '\n' ' ')
+        echo "content=${content}" >> "$GITHUB_OUTPUT"
+    - name: Harden the runner
+      uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # ratchet:step-security/harden-runner@v2.22.1
+      with:
+        egress-policy: ${{ inputs.egress-policy }}
+        allowed-endpoints: ${{ steps.fetch_allowed_endpoints.outputs.content }}

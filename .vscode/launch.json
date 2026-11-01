@@ -9,7 +9,7 @@
             "request": "launch",
             "name": "index.test",
             "runtimeExecutable": "mise",
-            "runtimeArgs": ["x", "--", "yarn", "vitest", "run", "tests/index.test.ts", "-t", "", "--pool=threads", "--poolOptions.threads.isolate=false"],
+            "runtimeArgs": ["x", "--", "pnpm", "vitest", "run", "tests/index.test.ts", "-t", "", "--pool=threads", "--poolOptions.threads.isolate=false"],
             "autoAttachChildProcesses": true,
             "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
             "console": "integratedTerminal",

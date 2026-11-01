@@ -5,7 +5,7 @@ ignore: |
   **.github/workflows/**
   **.history/**
   **tests/libs/**
-  **yarn**
+  **pnpm-lock.yaml**
 rules:
   line-length: disable
   indentation:

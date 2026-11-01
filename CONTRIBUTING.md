@@ -17,7 +17,7 @@ For a simpler and quicker start:
 git clone https://github.com/crazy-matt/manage-stale-branches.git
 task setup
 # make your change...
-yarn test
+pnpm test
 # or
 task getready
 ```
@@ -67,7 +67,7 @@ flowchart TD
    All commit messages should follow the conventional commits format:
 
    ```bash
-   type(scope): description
+   type: description  #OR type(scope): description
    ```
 
    Common types:
@@ -82,7 +82,7 @@ flowchart TD
    Breaking changes:
 
    ```bash
-   feat(scope)!: description
+   type!: description  #OR type(scope)!: description
 
    BREAKING CHANGE: explanation
    ```

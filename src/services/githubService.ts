@@ -58,20 +58,18 @@ export class GithubService {
         const commitDate =
             commit.commit.committer?.date || commit.commit.author?.date;
         if (!commitDate) {
-            core.warning(
-                `Skipping branch ${branchName} due to missing commit date`
-            );
-            throw new Error(`Missing commit date for branch ${branchName}`);
+            throw new Error('missing commit date');
         }
+
+        const commitDateObj = new Date(commitDate);
+        const isStale = commitDateObj < staleCutoff;
+        const isSuggested = commitDateObj < suggestedCutoff;
 
         // Initialize comparison values
         let isMerged = false;
-        let isStale = false;
-        let isSuggested = false;
         let branchStatus = '';
         let aheadBy = 0;
         let behindBy = 0;
-        const commitDateObj = new Date(commitDate);
 
         try {
             // Compare branch with default branch
@@ -103,8 +101,6 @@ export class GithubService {
             isMerged =
                 comparison.status === 'identical' ||
                 comparison.status === 'behind';
-            isStale = commitDateObj < staleCutoff;
-            isSuggested = commitDateObj < suggestedCutoff;
 
             debug(`Branch ${branchName}:
                 commitDate=${commitDate},
@@ -149,6 +145,7 @@ export class GithubService {
             }${dryRun ? ' (dry run)' : ''}`
         );
 
+        let rateLimitReached = false;
         const processedBranches = await pMap(
             branches,
             async (branch) => {
@@ -171,7 +168,8 @@ export class GithubService {
                                 );
 
                             if (getRefResult === null) {
-                                return null; // Rate limit reached
+                                rateLimitReached = true;
+                                return null;
                             }
 
                             const refData = getRefResult.data;
@@ -189,7 +187,8 @@ export class GithubService {
                                 );
 
                             if (createRefResult === null) {
-                                return null; // Rate limit reached
+                                rateLimitReached = true;
+                                return null;
                             }
 
                             core.info(
@@ -213,7 +212,8 @@ export class GithubService {
                             );
 
                         if (deleteRefResult === null) {
-                            return null; // Rate limit reached
+                            rateLimitReached = true;
+                            return null;
                         }
 
                         core.info(`Deleted branch [${branch.name}]`);
@@ -232,12 +232,7 @@ export class GithubService {
             { concurrency }
         );
 
-        // Check if any branch operation returned null due to rate limit
-        if (
-            processedBranches.some(
-                (branch) => branch === null && this.rateLimitService !== null
-            )
-        ) {
+        if (rateLimitReached) {
             core.warning(
                 'Rate limit threshold reached during branch processing'
             );

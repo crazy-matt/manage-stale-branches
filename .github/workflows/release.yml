@@ -1,0 +1,167 @@
+name: Release
+run-name: ${{ github.event_name == 'pull_request' && 'Test' || github.event_name == 'release' && 'Release' || 'Prepare Release' }}
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  release:
+    types: [published]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' && !startsWith(github.head_ref, 'release-please'))
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
+      - name: Harden the runner
+        uses: ./.github/actions/allow-endpoints
+      - uses: jdx/mise-action@f10502fc09dadecfefb962fff68ce77213930204 # ratchet:jdx/mise-action@v4.2.2
+        with:
+          install_args: node pnpm task markdownlint-cli2 shellcheck yamllint
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Format
+        run: pnpm format:check
+      - name: Lint
+        run: |
+          task lint
+          pnpm lint
+      - name: Test
+        run: pnpm test
+
+  prepare_release:
+    name: Prepare Release
+    runs-on: ubuntu-latest
+    needs: [test]
+    timeout-minutes: 2
+    if: github.actor != 'dependabot[bot]' && github.event_name == 'push'
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
+      - name: Harden the runner
+        uses: ./.github/actions/allow-endpoints
+      # https://github.com/googleapis/release-please-action?tab=readme-ov-file#action-inputs
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # ratchet:googleapis/release-please-action@v5.0.0
+        id: release
+        with:
+          config-file: .github/release-please-config.json
+          manifest-file: .github/release-please-manifest.json
+          token: ${{ secrets.BOT_TOKEN }}
+      - name: Extract release info
+        id: release_info
+        if: steps.release.outputs.prs_created == 'true'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # ratchet:actions/github-script@v9.0.0
+        with:
+          script: |
+            const pr = JSON.parse(${{ toJSON(steps.release.outputs.pr) }});
+            const prReleaseBranch = pr.headBranchName;
+            const prTitle = pr.title;
+            const match = prTitle.match(/(\d+)\.(\d+)\.(\d+)/);
+            if (!match) {
+              throw new Error("No version found in PR title");
+            }
+            const [tag_name, major, minor, patch] = match;
+            core.setOutput("tag_name", tag_name);
+            core.setOutput("major", major);
+            core.setOutput("minor", minor);
+            core.setOutput("patch", patch);
+            core.setOutput("release_branch", prReleaseBranch);
+      - name: Checkout release branch
+        if: steps.release.outputs.prs_created == 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          ref: ${{ steps.release_info.outputs.release_branch }}
+      - name: Configure Git
+        if: steps.release.outputs.prs_created == 'true'
+        uses: ./.github/actions/configure-git
+        with:
+          gpg-private-key-base64: ${{ secrets.BOT_GPG_PRIVATE_KEY_BASE64 }}
+      - uses: jdx/mise-action@f10502fc09dadecfefb962fff68ce77213930204 # ratchet:jdx/mise-action@v4.2.2
+        if: steps.release.outputs.prs_created == 'true'
+        with:
+          install_args: node pnpm
+      - name: Install dependencies
+        if: steps.release.outputs.prs_created == 'true'
+        run: pnpm install --frozen-lockfile
+      - name: Build
+        if: steps.release.outputs.prs_created == 'true'
+        env:
+          VERSION: ${{ steps.release_info.outputs.tag_name }}
+        run: pnpm build
+      - name: Update documentation
+        if: steps.release.outputs.prs_created == 'true'
+        run: |
+          pnpm gendoc
+          ./scripts/update-versions-in-docs.sh ${{ steps.release_info.outputs.major }} \
+            ${{ steps.release_info.outputs.minor }} \
+            ${{ steps.release_info.outputs.patch }}
+      - name: Update build artifacts
+        if: steps.release.outputs.prs_created == 'true'
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            git add README.md CONTRIBUTING.md dist
+            git commit -m "chore: update build artifacts"
+            git push
+          else
+            echo "No changes to commit."
+          fi
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    if: github.event_name == 'release'
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7.0.1
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          ref: ${{ github.event.release.tag_name }}
+      - name: Harden the runner
+        uses: ./.github/actions/allow-endpoints
+      - name: Configure Git
+        uses: ./.github/actions/configure-git
+        with:
+          gpg-private-key-base64: ${{ secrets.BOT_GPG_PRIVATE_KEY_BASE64 }}
+      - name: Create major and minor version tags
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
+        run: |
+          major=$(cut -d. -f1 <<< "${TAG_NAME}")
+          minor=$(cut -d. -f1-2 <<< "${TAG_NAME}")
+          git tag -f -s -m "Release ${major}" "${major}"
+          git tag -f -s -m "Release ${minor}" "${minor}"
+          git push -f origin "refs/tags/${major}" "refs/tags/${minor}"
+      - name: Generate SBOM
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # ratchet:aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          format: cyclonedx
+          output: sbom.json
+      - name: Upload release artifacts
+        if: hashFiles('sbom.json') != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ github.event.release.tag_name }}
+        run: gh release upload "${TAG_NAME}" sbom.json

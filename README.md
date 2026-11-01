@@ -1,9 +1,7 @@
 # manage-stale-branches  <!-- omit in toc -->
 
-[![Integration](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/integration.yaml/badge.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/integration.yaml)
-[![SAST](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/github-code-scanning/codeql)
-[![Tests](https://github.com/crazy-matt/manage-stale-branches/blob/badges/tests.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/release.yaml)
-[![Release](https://github.com/crazy-matt/manage-stale-branches/blob/badges/release.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/release.yaml)
+[![Security](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/security.yml/badge.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/security.yml)
+[![Release](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/release.yml/badge.svg)](https://github.com/crazy-matt/manage-stale-branches/actions/workflows/release.yml)
 
 <table border="0" cellspacing="0" cellpadding="0" style="border-collapse: collapse;">
 <tr>
@@ -12,6 +10,8 @@
 This action deletes branches that haven't had a commit in the last `stale-duration`, and suggest branches which could be deleted due to their inactivity on the last `suggested-duration`.
 
 ⚠️ The branches already merged to the **default branch** are automatically deleted if the action isn't set for `dry-run` mode.
+
+Protected branches are never deleted or archived.
 
 If you set the `dry-run` input to true, the action will simply output a preview of what would be done in no dry-run mode.
 
