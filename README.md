@@ -41,7 +41,7 @@ In your GitHub workflows, you can reference the action by:
 ```yaml
 - uses: crazy-matt/manage-stale-branches@v4      # Always use the latest 4.x.x
 - uses: crazy-matt/manage-stale-branches@v4.0    # Always use the latest 4.0.x
-- uses: crazy-matt/manage-stale-branches@v4.0.0  # Use this specific version
+- uses: crazy-matt/manage-stale-branches@v4.0.1  # Use this specific version
 ```
 
 For more information, refer to the [GitHub Actions Quickstart](https://docs.github.com/en/actions/quickstart).
