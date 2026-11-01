@@ -21,14 +21,8 @@ tasks:
     cmds:
       - echo "🚀 Installing base tools using mise..."
       - mise install
-      - echo "✅ Enabling corepack for Yarn..."
-      - corepack enable
-      - echo "🔄 Ensuring Yarn is installed and activated..."
-      - corepack prepare yarn@stable --activate
-      - yarn set version stable
-      - yarn config set nodeLinker node-modules
       - echo "📦 Installing project dependencies..."
-      - if [ -f yarn.lock ]; then yarn install --immutable; else yarn install; fi
+      - pnpm install --frozen-lockfile
       - echo "🔍 Running initial security & linting checks..."
       - task lint
       - task sec
@@ -40,9 +34,9 @@ tasks:
     cmds:
       - task: sec
       - task: lint
-      - yarn install
-      - yarn format
-      - yarn lint:fix
-      - yarn test
-      - yarn build
-      - yarn gendoc
+      - pnpm install
+      - pnpm format
+      - pnpm lint:fix
+      - pnpm test
+      - pnpm build
+      - pnpm gendoc

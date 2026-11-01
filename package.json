@@ -1,7 +1,6 @@
 {
     "name": "manage-stale-branches",
     "version": "3.0.1",
-    "packageManager": "yarn@4.18.1",
     "type": "module",
     "devDependencies": {
         "@eslint/js": "^10.0.1",
@@ -9,8 +8,8 @@
         "@octokit/plugin-rest-endpoint-methods": "^18.0.0",
         "@types/debug": "^4.1.13",
         "@types/node": "^24.19.2",
-        "@typescript-eslint/eslint-plugin": "^8.72.1",
-        "@typescript-eslint/parser": "^8.72.1",
+        "@typescript-eslint/eslint-plugin": "^8.71.2",
+        "@typescript-eslint/parser": "^8.71.2",
         "@vercel/ncc": "^0.45.0",
         "@vitest/coverage-v8": "^5.0.5",
         "@vitest/ui": "^5.0.5",
@@ -22,14 +21,14 @@
         "prettier": "^3.9.10",
         "ts-node": "^10.9.2",
         "typescript": "^6.0.3",
-        "typescript-eslint": "^8.72.1",
-        "vite": "^8.3.5",
+        "typescript-eslint": "^8.71.2",
+        "vite": "^8.3.4",
         "vitest": "^5.0.5"
     },
     "scripts": {
-        "install:ci": "yarn install --immutable --check-cache",
-        "reinstall": "command rm -rf node_modules && yarn cache clean && yarn install",
-        "upgrade": "yarn up",
+        "install:ci": "pnpm install --frozen-lockfile",
+        "reinstall": "command rm -rf node_modules && pnpm install",
+        "upgrade": "pnpm update",
         "typecheck": "tsc --noEmit && tsc -p tsconfig.test.json",
         "format": "prettier --config .linters/prettierrc --write 'src/**/*.{ts,tsx,json}' 'tsconfig*.json'",
         "format:check": "prettier --config .linters/prettierrc --check 'src/**/*.{ts,tsx,json}' 'tsconfig*.json'",

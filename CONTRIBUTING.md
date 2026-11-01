@@ -17,7 +17,7 @@ For a simpler and quicker start:
 git clone https://github.com/crazy-matt/manage-stale-branches.git
 task setup
 # make your change...
-yarn test
+pnpm test
 # or
 task getready
 ```
