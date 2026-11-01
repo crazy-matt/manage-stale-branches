@@ -21,7 +21,6 @@ jobs:
     timeout-minutes: 1
     if: |
       github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'push' ||
       (github.event_name == 'pull_request' && !startsWith(github.head_ref, 'release-please'))
     permissions:
       contents: read
@@ -47,7 +46,6 @@ jobs:
   prepare_release:
     name: Prepare Release
     runs-on: ubuntu-latest
-    needs: [test]
     timeout-minutes: 10
     if: github.actor != 'dependabot[bot]' && github.event_name == 'push'
     permissions:
